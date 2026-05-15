@@ -1,0 +1,32 @@
+# Long-running scraper: daily check at 6:05 UTC, runs scrape only if stale vs schedule.
+# Run: docker compose -f docker-compose.scraper.yml up -d
+#
+# Optional git push (triggers your existing Cloud Run deploy if repo is connected):
+#   export GIT_PUSH=true
+#   export GITHUB_TOKEN=ghp_...   # fine-grained PAT: contents read/write
+#   export GITHUB_REPOSITORY=your-user/full-court-focus-backend
+#   docker compose -f docker-compose.scraper.yml up -d
+#
+# One-off check (respects stale schedule):
+#   docker compose -f docker-compose.scraper.yml run --rm --entrypoint /usr/local/bin/run-scrape.sh scraper
+# Force scrape now:
+#   docker compose -f docker-compose.scraper.yml run --rm --entrypoint python scraper scripts/check_and_scrape.py --force
+
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: docker/scraper/Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_DIR: /workspace/app
+      GIT_PUSH: ${GIT_PUSH:-false}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPOSITORY: ${GITHUB_REPOSITORY:-}
+      GIT_USER_NAME: ${GIT_USER_NAME:-nba-scraper}
+      GIT_USER_EMAIL: ${GIT_USER_EMAIL:-nba-scraper@users.noreply.github.com}
+      REPO_ROOT: /workspace
+    volumes:
+      # Mount repo so scrape output and optional git push use your working tree.
+      - .:/workspace
+    # Logs: docker compose -f docker-compose.scraper.yml exec scraper tail -f /var/log/scrape.log

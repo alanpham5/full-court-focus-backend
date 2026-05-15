@@ -163,14 +163,15 @@ def full_scrape():
     save(combined)
 
 
-def incremental_scrape():
+def incremental_scrape() -> bool:
+    """Refresh the current season. Returns True if new data was saved."""
     season = season_str(current_season_year())
     print(f"Incremental scrape: {season}")
 
     if not os.path.exists(PARQUET_PATH):
         print("No existing dataset found — running full scrape instead")
         full_scrape()
-        return
+        return True
 
     existing = read_teams_parquet(PARQUET_PATH)
 
@@ -179,10 +180,11 @@ def incremental_scrape():
     new_data = merge_season(season)
     if new_data is None:
         print("Incremental fetch failed — keeping existing data")
-        return
+        return False
 
     combined = pd.concat([existing, new_data], ignore_index=True)
     save(combined)
+    return True
 
 
 def save(df: pd.DataFrame):
