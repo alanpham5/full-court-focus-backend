@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import (
-    CORS_ORIGINS,
     SEASON_INDEX_PATH,
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
@@ -54,7 +53,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in CORS_ORIGINS if o.strip()],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
