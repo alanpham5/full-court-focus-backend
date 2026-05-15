@@ -1,12 +1,3 @@
-"""
-Assign playstyle badges to a team-season row.
-All thresholds are applied against Z-scores (era-normalized within each season).
-
-Deep Threat uses multiple paths so high-FG3A identity offenses (e.g. historic
-high-volume teams) are not blocked by merely average three-point percentage, while
-still excluding extreme low-efficiency chucking.
-"""
-
 from dataclasses import dataclass
 
 import pandas as pd
@@ -85,15 +76,10 @@ ALL_BADGES = [
 
 BADGE_MAP = {b.id: b for b in ALL_BADGES}
 
-# Z-score gates (within-season). ~0.5–0.55 ≈ clearly above mean; ~0.6 ≈ elite tier.
 PACE_RUN = 0.55
 PACE_GRIND = -0.55
 DEF_WALL = 0.55
 
-# Deep Threat (any path):
-# - Volume identity: top-tier FG3A vs league; FG3% cannot be in the worst tail.
-# - Volume + quality: strong attempts with at-or-above-mean efficiency.
-# - Sniper: moderate attempts with elite efficiency.
 FG3A_IDENTITY = 0.48
 FG3_PCT_IDENTITY_FLOOR = -0.28
 FG3A_STRONG = 0.32
@@ -120,19 +106,15 @@ def _z(row: pd.Series, col: str) -> float:
 
 
 def assign_badges(row: pd.Series) -> list[Badge]:
-    """
-    row must contain _Z columns from the normalizer.
-    Returns list of Badge objects that apply.
-    """
     badges: list[Badge] = []
 
     pace_z = _z(row, "PACE_Z")
     fg3a_z = _z(row, "FG3A_Z")
     fg3_pct_z = _z(row, "FG3_PCT_Z")
     paint_z = _z(row, "PAINT_FGA_Z")
-    def_z = _z(row, "DEF_RATING_Z")  # lower is better → negate
+    def_z = _z(row, "DEF_RATING_Z")
     ast_z = _z(row, "AST_PCT_Z")
-    tov_z = _z(row, "TM_TOV_PCT_Z")  # lower TOV% is better → negate
+    tov_z = _z(row, "TM_TOV_PCT_Z")
     oreb_z = _z(row, "OREB_PCT_Z")
     fta_z = _z(row, "FTA_RATE_Z")
     off_z = _z(row, "OFF_RATING_Z")

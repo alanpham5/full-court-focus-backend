@@ -1,8 +1,3 @@
-"""
-Z-score normalize each stat within its season so teams from different
-eras are comparable in the similarity engine.
-"""
-
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -25,10 +20,6 @@ SIMILARITY_FEATURES = [
 
 
 def normalize_by_season(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    For each season, z-score all similarity features independently.
-    Returns a new df with _Z suffix columns appended.
-    """
     result_parts: list[pd.DataFrame] = []
 
     for _, group in df.groupby("SEASON"):

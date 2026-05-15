@@ -1,7 +1,3 @@
-"""
-Parquet-backed fields used when building static ``team_profiles.json`` at scrape time.
-"""
-
 from __future__ import annotations
 
 import pandas as pd
@@ -14,7 +10,6 @@ def merge_similar_teams_with_abbreviations(
     similar_index: dict[str, list[dict]],
     team_metadata: dict[str, dict],
 ) -> dict[str, list[dict]]:
-    """Attach `abbreviation` from static team_metadata to each similar entry."""
     meta = team_metadata or {}
     out: dict[str, list[dict]] = {}
     for key, lst in (similar_index or {}).items():
@@ -32,10 +27,6 @@ def build_team_profile_static_cache(
     norm_df: pd.DataFrame,
     similar_with_abbr: dict[str, list[dict]],
 ) -> dict[str, dict]:
-    """
-    Keys "{team_id}:{season}" → payload for ``team_profiles.json`` (excluding leaders;
-    leaders are merged in ``team_profiles_build``).
-    """
     style_by_key = build_style_vector_lookup(df)
     hist_ix = df.drop_duplicates(["TEAM_ID", "SEASON"], keep="first").set_index(
         ["TEAM_ID", "SEASON"]

@@ -33,8 +33,6 @@ class SimilarTeam(BaseModel):
 
 
 class StyleVector(BaseModel):
-    """League percentiles for that season (0–100; higher = more of that style)."""
-
     pace: float
     three_point_volume: float
     paint: float

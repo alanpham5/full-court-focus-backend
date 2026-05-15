@@ -8,10 +8,6 @@ router = APIRouter(prefix="/team", tags=["team"])
 
 @router.get("/{team_id}/{season}", response_model=TeamProfileResponse)
 def get_team_profile(team_id: int, season: str, request: Request):
-    """
-    Returns a prebuilt team-season profile from ``team_profiles.json`` (generated
-    by ``scripts/scrape_all_seasons.py``). No live NBA calls or host cache.
-    """
     key = f"{team_id}:{season}"
     profile = getattr(request.app.state, "team_profiles", {}).get(key)
     if profile is None:

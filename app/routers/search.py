@@ -14,10 +14,6 @@ def search_teams(
     request: Request,
     q: str = Query(..., min_length=1),
 ):
-    """
-    Fuzzy search team names. Powers the autocomplete dropdown.
-    Metadata is loaded once at startup (not from disk per request).
-    """
     metadata = getattr(request.app.state, "team_metadata", None)
     choices = getattr(request.app.state, "team_search_choices", None)
 
@@ -47,7 +43,6 @@ def search_teams(
 
 @router.get("/seasons/{team_id}")
 def available_seasons(team_id: int, request: Request):
-    """Returns which seasons exist in the dataset for a given team."""
     index = getattr(request.app.state, "season_index", None)
     if index is None:
         with SEASON_INDEX_PATH.open() as f:

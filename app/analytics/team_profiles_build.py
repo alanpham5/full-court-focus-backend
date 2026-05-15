@@ -1,14 +1,3 @@
-"""
-Build full team-season profiles for static JSON (scrape-time only).
-
-Includes parquet-derived fields, badges, style vector, similar teams, and
-live leaders from nba_api — no runtime caching on the host.
-
-Leader fetches that fail (empty response / API hiccup) are queued and retried
-once in a second pass; only failures after that retry pass are omitted.
-All NBA leader calls are sequential with configurable pacing between requests.
-"""
-
 from __future__ import annotations
 
 import time
@@ -56,7 +45,6 @@ def _pass_sequential(
     progress_every: int,
     pass_label: str,
 ) -> tuple[dict[str, dict[str, Any]], list[ProfileItem]]:
-    """Try each item in order; sleep after each attempt (including failures)."""
     ok: dict[str, dict[str, Any]] = {}
     failed: list[ProfileItem] = []
     for i, (sk, block) in enumerate(items, start=1):
@@ -83,15 +71,6 @@ def build_team_profiles_json(
     rate_limit_sleep: float = 1.5,
     progress_every: int = 100,
 ) -> dict[str, dict[str, Any]]:
-    """
-    Keys like "{team_id}:{season}" mapping to a dict shaped like TeamProfileResponse
-    (plain dicts, JSON-serializable).
-
-    Two-phase leader fetch (always sequential):
-    - **Pass 1:** every team-season, with ``rate_limit_sleep`` after each attempt.
-    - **Pass 2 (retry queue):** failures from pass 1 are retried in order with the
-      same pacing. Entries that still fail after pass 2 are omitted.
-    """
     base = build_team_profile_static_cache(df, norm_df, similar_with_abbr)
     items: list[ProfileItem] = list(base.items())
     n = len(items)

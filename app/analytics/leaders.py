@@ -1,7 +1,3 @@
-"""
-Fetch live stat leaders for a given team + season (scrape-time / offline use).
-"""
-
 import json
 import time
 
@@ -9,22 +5,16 @@ import pandas as pd
 from nba_api.stats.endpoints import TeamPlayerDashboard
 from nba_api.stats.library.http import STATS_HEADERS
 
-# Qualify rate leaders: enough minutes and sample for % to mean something
 MIN_GP = 8
 MIN_MPG = 12.0
 MIN_FG3A_PER_GAME = 3.0
 
 _MAX_ATTEMPTS = 3
 _BACKOFF_SEC = 1.25
-# Fail faster on stalled stats.nba.com responses (cold-cache latency).
 _REQUEST_TIMEOUT_SEC = 22
 
 
 def _fetch_players_season_totals(team_id: int, season: str) -> pd.DataFrame:
-    """
-    stats.nba.com sometimes returns empty bodies (429 / block / blip), which
-    surfaces as JSONDecodeError. Use official browser-like headers + retries.
-    """
     headers = dict(STATS_HEADERS)
     last_err: BaseException | None = None
 
@@ -69,7 +59,6 @@ def get_stat_leaders(team_id: int, season: str) -> dict:
         }
 
     def leader_fg3_pct() -> dict:
-        """Best 3P% among players with meaningful minutes and attempt volume."""
         df = data.copy()
         gp = pd.to_numeric(df.get("GP", 0), errors="coerce").fillna(0)
         mpg = pd.to_numeric(df.get("MIN", 0), errors="coerce").fillna(0)

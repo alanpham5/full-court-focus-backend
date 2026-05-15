@@ -1,5 +1,3 @@
-"""Parquet read/write compatible across PyArrow / pandas versions."""
-
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,13 +6,6 @@ import pandas as pd
 
 
 def read_teams_parquet(path: Path | str) -> pd.DataFrame:
-    """
-    Load team-season parquet.
-
-    Some Parquet files trip strict PyArrow readers (OSError: Repetition level
-    histogram size mismatch). fastparquet uses a different decoder and is
-    tried first; PyArrow paths follow for environments without fastparquet.
-    """
     path = Path(path)
     last_err: BaseException | None = None
 
@@ -49,10 +40,6 @@ def read_teams_parquet(path: Path | str) -> pd.DataFrame:
 
 
 def write_teams_parquet(df: pd.DataFrame, path: Path | str) -> None:
-    """
-    Prefer fastparquet when installed (broad read compatibility).
-    Fall back to PyArrow with conservative write options if fastparquet is missing.
-    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -62,7 +49,6 @@ def write_teams_parquet(df: pd.DataFrame, path: Path | str) -> None:
     except ImportError:
         pass
     except Exception:
-        # Broken fastparquet install or write error — try pyarrow
         pass
 
     import pyarrow as pa

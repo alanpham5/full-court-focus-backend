@@ -1,9 +1,6 @@
-"""Environment-driven settings and shared constants."""
-
 import os
 from pathlib import Path
 
-# App root: run uvicorn from this directory (e.g. `cd app && uvicorn main:app`).
 BASE_DIR = Path(__file__).resolve().parent
 DATA_STATIC_DIR = BASE_DIR / "data" / "static"
 SIMILAR_TEAMS_PATH = DATA_STATIC_DIR / "similar_teams.json"

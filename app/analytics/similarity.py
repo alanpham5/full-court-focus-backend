@@ -1,10 +1,3 @@
-"""
-k-NN similarity search across all team-seasons using normalized vectors.
-
-Similar picks exclude the same franchise and any team from the query season
-(cross-season, cross-team comparisons only).
-"""
-
 from __future__ import annotations
 
 import numpy as np
@@ -26,7 +19,6 @@ Z_COLS = [
 
 
 def _z_feature_matrix(pool: pd.DataFrame, cols: list[str]) -> np.ndarray:
-    """Finite float64 matrix for distances (avoids inf/NaN blowups in cdist)."""
     X = pool[cols].to_numpy(dtype=np.float64, copy=True)
     np.nan_to_num(X, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
     np.clip(X, -80.0, 80.0, out=X)
@@ -34,7 +26,6 @@ def _z_feature_matrix(pool: pd.DataFrame, cols: list[str]) -> np.ndarray:
 
 
 def _similar_candidate_mask(pool: pd.DataFrame, team_id: int, season: str) -> np.ndarray:
-    """Exclude same franchise and any team-season from the query season."""
     s = pool["SEASON"].astype(str)
     bad = (pool["TEAM_ID"].to_numpy() == team_id) | (s.to_numpy() == str(season))
     return ~bad
@@ -87,14 +78,6 @@ def build_similar_teams_index(
     normalized_df: pd.DataFrame,
     k: int = 6,
 ) -> dict[str, list[dict]]:
-    """
-    Precompute find_similar_teams for every team-season.
-    Keys are "{team_id}:{season}" (strings) for JSON lookup.
-
-    Neighbors are the closest rows in z-space among candidates that are **not**
-    the same franchise and **not** from the query season (so no in-season peers
-    and no other years of the same team).
-    """
     available_z = [c for c in Z_COLS if c in normalized_df.columns]
     pool = normalized_df.reset_index(drop=True)
     n_samples = len(pool)
@@ -111,7 +94,6 @@ def build_similar_teams_index(
     team_ids = pool["TEAM_ID"].to_numpy()
     seasons = pool["SEASON"].astype(str).to_numpy()
 
-    # One O(n²) distance matrix; per-query masking enforces franchise + season rules.
     dists_all = cdist(X, X, metric="euclidean")
 
     for i in range(n_samples):

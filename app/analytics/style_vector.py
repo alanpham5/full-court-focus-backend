@@ -1,14 +1,9 @@
-"""
-Within-season league percentiles for stylistic axes (0–100, higher = more of that trait).
-"""
-
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 from scipy.stats import percentileofscore
 
-# (column, higher_raw_value_is_better). For defense, lower DEF_RATING is better → invert.
 _STYLE_AXES: tuple[tuple[str, str, bool], ...] = (
     ("pace", "PACE", True),
     ("three_point_volume", "FG3A", True),
@@ -20,7 +15,6 @@ _STYLE_AXES: tuple[tuple[str, str, bool], ...] = (
 
 
 def _style_vector_for_season_row(season_df: pd.DataFrame, team_row: pd.Series) -> dict[str, float]:
-    """League percentiles for one team-season vs that season's `season_df` pool."""
     out: dict[str, float] = {}
 
     for key, col, higher_is_better in _STYLE_AXES:
@@ -52,10 +46,6 @@ def _style_vector_for_season_row(season_df: pd.DataFrame, team_row: pd.Series) -
 
 
 def compute_style_vector(df: pd.DataFrame, team_id: int, season: str) -> dict[str, float]:
-    """
-    Percentile of this team vs all teams that season (0–100).
-    Uses scipy rank percentile: share of league at or below this team's oriented score.
-    """
     season_df = df[df["SEASON"] == season]
     if season_df.empty:
         raise ValueError(f"No rows for season {season!r}")
@@ -69,10 +59,6 @@ def compute_style_vector(df: pd.DataFrame, team_id: int, season: str) -> dict[st
 
 
 def build_style_vector_lookup(df: pd.DataFrame) -> dict[str, dict[str, float]]:
-    """
-    Precompute style vectors for every team-season (keys "{team_id}:{season}").
-    One groupby per season instead of filtering the full history per request.
-    """
     out: dict[str, dict[str, float]] = {}
     for season, season_df in df.groupby("SEASON", sort=False):
         if season_df.empty:
