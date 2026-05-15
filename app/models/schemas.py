@@ -57,3 +57,22 @@ class SearchSuggestion(BaseModel):
     team_id: int
     team_name: str
     abbreviation: str
+
+
+class BadgeExemplarTeam(BaseModel):
+    team_id: int
+    team_name: str
+    abbreviation: str
+    record: str
+    exemplar_score: float
+
+
+class BadgeLeaderEntry(BaseModel):
+    badge: Badge
+    top: BadgeExemplarTeam | None = None
+    runner_up: BadgeExemplarTeam | None = None
+
+
+class SeasonBadgeLeadersResponse(BaseModel):
+    season: str
+    badges: list[BadgeLeaderEntry]

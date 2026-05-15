@@ -159,3 +159,46 @@ def assign_badges(row: pd.Series) -> list[Badge]:
         badges.append(BADGE_MAP["ball_movement"])
 
     return badges
+
+
+def exemplar_score(badge_id: str, row: pd.Series) -> float:
+    """Higher = stronger fit for the badge within a season (z-score space)."""
+    pace_z = _z(row, "PACE_Z")
+    fg3a_z = _z(row, "FG3A_Z")
+    fg3_pct_z = _z(row, "FG3_PCT_Z")
+    paint_z = _z(row, "PAINT_FGA_Z")
+    def_z = _z(row, "DEF_RATING_Z")
+    ast_z = _z(row, "AST_PCT_Z")
+    tov_z = _z(row, "TM_TOV_PCT_Z")
+    oreb_z = _z(row, "OREB_PCT_Z")
+    fta_z = _z(row, "FTA_RATE_Z")
+    off_z = _z(row, "OFF_RATING_Z")
+    ast_to_z = _z(row, "AST_TO_Z")
+
+    if badge_id == "run_and_gun":
+        return pace_z
+    if badge_id == "deep_threat":
+        has_fg3_pct = "FG3_PCT_Z" in row.index and pd.notna(row.get("FG3_PCT_Z"))
+        if has_fg3_pct:
+            vol_identity = fg3a_z + max(0.0, fg3_pct_z - FG3_PCT_IDENTITY_FLOOR)
+            vol_and_pct = fg3a_z + fg3_pct_z
+            sniper = fg3a_z * 0.5 + fg3_pct_z * 1.5
+            return max(vol_identity, vol_and_pct, sniper)
+        return fg3a_z
+    if badge_id == "paint_punishers":
+        return paint_z - fg3a_z
+    if badge_id == "defensive_wall":
+        return -def_z
+    if badge_id == "playmakers":
+        return ast_z - tov_z
+    if badge_id == "grind_it_out":
+        return -pace_z
+    if badge_id == "glass_eaters":
+        return oreb_z
+    if badge_id == "foul_magnets":
+        return fta_z
+    if badge_id == "iso_kings":
+        return off_z - ast_z
+    if badge_id == "ball_movement":
+        return ast_z + ast_to_z
+    return 0.0

@@ -5,11 +5,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import (
+    BADGE_LEADERS_PATH,
     SEASON_INDEX_PATH,
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
 )
-from routers import search, team
+from routers import badges, search, team
 
 
 @asynccontextmanager
@@ -42,6 +43,20 @@ async def lifespan(app: FastAPI):
         app.state.season_index = {}
         print("  [WARN] season_index.json missing")
 
+    if BADGE_LEADERS_PATH.exists():
+        with BADGE_LEADERS_PATH.open() as f:
+            app.state.badge_leaders = json.load(f)
+        print(
+            f"  ✓ Badge leaders ({len(app.state.badge_leaders)} seasons) "
+            f"from {BADGE_LEADERS_PATH.name}"
+        )
+    else:
+        app.state.badge_leaders = {}
+        print(
+            f"  [WARN] {BADGE_LEADERS_PATH.name} missing — "
+            "GET /badges/{season}/leaders will 404"
+        )
+
     yield
 
 
@@ -60,6 +75,7 @@ app.add_middleware(
 
 app.include_router(team.router)
 app.include_router(search.router)
+app.include_router(badges.router)
 
 
 @app.get("/health")

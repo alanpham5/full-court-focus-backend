@@ -16,6 +16,7 @@ import pandas as pd
 from nba_api.stats.endpoints import LeagueDashTeamStats
 from nba_api.stats.static import teams as nba_teams
 
+from analytics.badge_leaders import build_badge_leaders_index
 from analytics.normalizer import normalize_by_season
 from analytics.similarity import build_similar_teams_index
 from analytics.team_profiles_build import build_team_profiles_json
@@ -27,6 +28,7 @@ PARQUET_PATH = os.path.join(OUTPUT_DIR, "teams_historical.parquet")
 METADATA_PATH = os.path.join(OUTPUT_DIR, "team_metadata.json")
 SEASON_INDEX_PATH = os.path.join(OUTPUT_DIR, "season_index.json")
 SIMILAR_TEAMS_PATH = os.path.join(OUTPUT_DIR, "similar_teams.json")
+BADGE_LEADERS_PATH = os.path.join(OUTPUT_DIR, "badge_leaders.json")
 
 FIRST_SEASON_YEAR = 1996
 RATE_LIMIT_SLEEP = 1.5
@@ -50,7 +52,6 @@ ADVANCED_COLS = [
     "OREB_PCT",
     "DREB_PCT",
     "REB_PCT",
-    "FTA_RATE",
 ]
 
 SHOOTING_COLS = [
@@ -61,6 +62,8 @@ SHOOTING_COLS = [
     "PAINT_FGA",
     "PAINT_FGA_PCT",
     "MID_RANGE_FGA",
+    "FTA",
+    "FGA",
 ]
 
 
@@ -119,6 +122,10 @@ def merge_season(season: str) -> pd.DataFrame | None:
     sht_keep = [c for c in SHOOTING_COLS if c in sht.columns]
 
     merged = adv[adv_keep].merge(sht[sht_keep], on=["TEAM_ID", "SEASON"], how="left")
+    if "FTA" in merged.columns and "FGA" in merged.columns:
+        fga = pd.to_numeric(merged["FGA"], errors="coerce")
+        fta = pd.to_numeric(merged["FTA"], errors="coerce")
+        merged["FTA_RATE"] = fta / fga.replace(0, pd.NA)
     return merged
 
 
@@ -196,6 +203,15 @@ def save(df: pd.DataFrame):
     print(f"  ✓ Team metadata → {METADATA_PATH}")
 
     norm = normalize_by_season(df)
+
+    print("  Building badge leaders (top 2 per badge per season)...")
+    badge_leaders = build_badge_leaders_index(df, norm, metadata)
+    with open(BADGE_LEADERS_PATH, "w") as f:
+        json.dump(badge_leaders, f)
+    print(
+        f"  ✓ Badge leaders ({len(badge_leaders)} seasons) → {BADGE_LEADERS_PATH}"
+    )
+
     print("  Building similar-teams index (k=6)...")
     sim_index = build_similar_teams_index(norm, k=6)
     with open(SIMILAR_TEAMS_PATH, "w") as f:
