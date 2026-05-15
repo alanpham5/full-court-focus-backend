@@ -96,8 +96,13 @@ OREB_GLASS = 0.60
 FTA_FOUL = 0.60
 AST_MOVE = 0.42
 AST_TO_MOVE = 0.12
-ISO_AST_CAP = -0.14
+# High AST/TO with non-terrible AST% → ball movement, not iso
+BALL_MOVE_ALT_AST_TO = 0.75
+BALL_MOVE_ALT_AST_FLOOR = -0.25
+ISO_AST_CAP = -0.35
 ISO_OFF_FLOOR = 0.26
+# Elite AST/TO teams share the ball even when AST% is only average
+ISO_AST_TO_MAX = 0.5
 
 
 def _z(row: pd.Series, col: str) -> float:
@@ -152,11 +157,19 @@ def assign_badges(row: pd.Series) -> list[Badge]:
     if fta_z > FTA_FOUL:
         badges.append(BADGE_MAP["foul_magnets"])
 
-    if ast_z < ISO_AST_CAP and off_z > ISO_OFF_FLOOR:
-        badges.append(BADGE_MAP["iso_kings"])
-
-    if ast_z > AST_MOVE and ast_to_z > AST_TO_MOVE:
+    ball_movement = (ast_z > AST_MOVE and ast_to_z > AST_TO_MOVE) or (
+        ast_to_z >= BALL_MOVE_ALT_AST_TO and ast_z > BALL_MOVE_ALT_AST_FLOOR
+    )
+    if ball_movement:
         badges.append(BADGE_MAP["ball_movement"])
+
+    if (
+        ast_z < ISO_AST_CAP
+        and off_z > ISO_OFF_FLOOR
+        and ast_to_z < ISO_AST_TO_MAX
+        and not ball_movement
+    ):
+        badges.append(BADGE_MAP["iso_kings"])
 
     return badges
 
