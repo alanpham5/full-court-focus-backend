@@ -1,8 +1,8 @@
 import json
 
 from fastapi import APIRouter, Query, Request
-from rapidfuzz import fuzz, process
 
+from analytics.team_search import rank_team_search
 from config import SEASON_INDEX_PATH, TEAM_METADATA_PATH
 from models.schemas import SearchSuggestion
 
@@ -17,19 +17,11 @@ def search_teams(
     metadata = getattr(request.app.state, "team_metadata", None)
     choices = getattr(request.app.state, "team_search_choices", None)
 
-    if not metadata or not choices:
-        meta_path = TEAM_METADATA_PATH
-        with meta_path.open() as f:
+    if not metadata:
+        with TEAM_METADATA_PATH.open() as f:
             metadata = json.load(f)
-        choices = {tid: meta["name"] for tid, meta in metadata.items()}
 
-    matches = process.extract(
-        q,
-        choices,
-        scorer=fuzz.WRatio,
-        limit=6,
-        score_cutoff=40,
-    )
+    ranked_ids = rank_team_search(q, metadata, limit=6, score_cutoff=35)
 
     return [
         SearchSuggestion(
@@ -37,7 +29,7 @@ def search_teams(
             team_name=metadata[tid]["name"],
             abbreviation=metadata[tid]["abbreviation"],
         )
-        for _, _, tid in matches
+        for tid in ranked_ids
     ]
 
 

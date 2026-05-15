@@ -22,7 +22,7 @@ ALL_BADGES = [
         "deep_threat",
         "Deep Threat",
         "🎯",
-        "League-leading three-point volume, or strong volume with accuracy, or elite deep shooting",
+        "High three-point volume, elite deep shooting",
     ),
     Badge(
         "paint_punishers",
