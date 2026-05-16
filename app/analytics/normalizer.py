@@ -21,6 +21,10 @@ SIMILARITY_FEATURES = [
 
 def normalize_by_season(df: pd.DataFrame) -> pd.DataFrame:
     result_parts: list[pd.DataFrame] = []
+    df = df.copy()
+    # NBA Stats removed paint FGA-by-zone from Base; parquet may carry PTS_PAINT from Misc scrape only.
+    if "PAINT_FGA" not in df.columns and "PTS_PAINT" in df.columns:
+        df["PAINT_FGA"] = pd.to_numeric(df["PTS_PAINT"], errors="coerce")
 
     for _, group in df.groupby("SEASON"):
         group = group.copy()

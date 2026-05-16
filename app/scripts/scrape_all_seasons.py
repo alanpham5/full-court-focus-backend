@@ -72,6 +72,9 @@ SHOOTING_COLS = [
     "FGA",
 ]
 
+# LeagueDashTeamStats Base (Per100) no longer exposes paint FGA-by-zone; Misc has PTS_PAINT.
+MISC_COLS = ["TEAM_ID", "SEASON", "PTS_PAINT"]
+
 
 def season_str(year: int) -> str:
     return f"{year}-{str(year + 1)[2:]}"
@@ -114,6 +117,20 @@ def _fetch_shooting_raw(season: str) -> pd.DataFrame | None:
         return None
 
 
+def _fetch_misc_raw(season: str) -> pd.DataFrame | None:
+    try:
+        df = LeagueDashTeamStats(
+            season=season,
+            measure_type_detailed_defense="Misc",
+            per_mode_detailed="Per100Possessions",
+        ).get_data_frames()[0]
+        df["SEASON"] = season
+        return df
+    except Exception as e:
+        print(f"  [WARN] Misc fetch failed for {season}: {e}")
+        return None
+
+
 def merge_season(season: str) -> pd.DataFrame | None:
     adv = _fetch_advanced_raw(season)
     if adv is None:
@@ -128,6 +145,30 @@ def merge_season(season: str) -> pd.DataFrame | None:
     sht_keep = [c for c in SHOOTING_COLS if c in sht.columns]
 
     merged = adv[adv_keep].merge(sht[sht_keep], on=["TEAM_ID", "SEASON"], how="left")
+
+    misc = _fetch_misc_raw(season)
+    if misc is not None:
+        time.sleep(RATE_LIMIT_SLEEP)
+        misc_keep = [c for c in MISC_COLS if c in misc.columns]
+        if "PTS_PAINT" not in misc_keep:
+            print(
+                f"  [WARN] Misc response missing PTS_PAINT for {season} "
+                "(paint percentile will default until fixed)"
+            )
+        else:
+            merged = merged.merge(misc[misc_keep], on=["TEAM_ID", "SEASON"], how="left")
+            ppaint = pd.to_numeric(merged["PTS_PAINT"], errors="coerce")
+            if "PAINT_FGA" not in merged.columns:
+                merged["PAINT_FGA"] = ppaint
+            else:
+                paint_fga = pd.to_numeric(merged["PAINT_FGA"], errors="coerce")
+                merged["PAINT_FGA"] = paint_fga.mask(paint_fga.isna(), ppaint)
+    else:
+        print(
+            f"  [WARN] Misc fetch failed for {season} "
+            "(no PTS_PAINT / PAINT_FGA — paint percentile will default)"
+        )
+
     if "FTA" in merged.columns and "FGA" in merged.columns:
         fga = pd.to_numeric(merged["FGA"], errors="coerce")
         fta = pd.to_numeric(merged["FTA"], errors="coerce")

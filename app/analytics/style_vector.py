@@ -4,21 +4,31 @@ import numpy as np
 import pandas as pd
 from scipy.stats import percentileofscore
 
-_STYLE_AXES: tuple[tuple[str, str, bool], ...] = (
-    ("pace", "PACE", True),
-    ("three_point_volume", "FG3A", True),
-    ("paint", "PAINT_FGA", True),
-    ("defense", "DEF_RATING", False),
-    ("playmaking", "AST_PCT", True),
-    ("rebounding", "REB_PCT", True),
+
+def _first_present_column(season_df: pd.DataFrame, candidates: tuple[str, ...]) -> str | None:
+    for c in candidates:
+        if c in season_df.columns:
+            return c
+    return None
+
+
+# Paint: LeagueDashTeamStats Base no longer returns PAINT_FGA; Misc has PTS_PAINT per 100.
+_STYLE_AXES: tuple[tuple[str, tuple[str, ...], bool], ...] = (
+    ("pace", ("PACE",), True),
+    ("three_point_volume", ("FG3A",), True),
+    ("paint", ("PAINT_FGA", "PTS_PAINT"), True),
+    ("defense", ("DEF_RATING",), False),
+    ("playmaking", ("AST_PCT",), True),
+    ("rebounding", ("REB_PCT",), True),
 )
 
 
 def _style_vector_for_season_row(season_df: pd.DataFrame, team_row: pd.Series) -> dict[str, float]:
     out: dict[str, float] = {}
 
-    for key, col, higher_is_better in _STYLE_AXES:
-        if col not in season_df.columns:
+    for key, col_candidates, higher_is_better in _STYLE_AXES:
+        col = _first_present_column(season_df, col_candidates)
+        if col is None:
             out[key] = 50.0
             continue
 
