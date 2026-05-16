@@ -17,10 +17,14 @@ from nba_api.stats.endpoints import LeagueDashTeamStats
 from nba_api.stats.static import teams as nba_teams
 
 from analytics.badge_leaders import build_badge_leaders_index
+from analytics.lineups_build import build_starting_lineups_index
 from analytics.normalizer import normalize_by_season
 from analytics.similarity import build_similar_teams_index
 from analytics.team_profiles_build import build_team_profiles_json
-from analytics.team_static_cache import merge_similar_teams_with_abbreviations
+from analytics.team_static_cache import (
+    build_team_profile_static_cache,
+    merge_similar_teams_with_abbreviations,
+)
 from parquet_io import read_teams_parquet, write_teams_parquet
 
 OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", "static"))
@@ -29,6 +33,8 @@ METADATA_PATH = os.path.join(OUTPUT_DIR, "team_metadata.json")
 SEASON_INDEX_PATH = os.path.join(OUTPUT_DIR, "season_index.json")
 SIMILAR_TEAMS_PATH = os.path.join(OUTPUT_DIR, "similar_teams.json")
 BADGE_LEADERS_PATH = os.path.join(OUTPUT_DIR, "badge_leaders.json")
+STARTING_LINEUPS_PATH = os.path.join(OUTPUT_DIR, "starting_lineups.json")
+TEAM_PROFILES_PATH = os.path.join(OUTPUT_DIR, "team_profiles.json")
 
 FIRST_SEASON_YEAR = 1996
 RATE_LIMIT_SLEEP = 1.5
@@ -183,11 +189,81 @@ def incremental_scrape() -> bool:
         return False
 
     combined = pd.concat([existing, new_data], ignore_index=True)
-    save(combined)
+    lineup_keys = [
+        f"{int(tid)}:{season}"
+        for tid in new_data["TEAM_ID"].unique()
+    ]
+    save(combined, lineup_keys=lineup_keys)
     return True
 
 
-def save(df: pd.DataFrame):
+def _merge_lineups(keys: list[str]) -> dict:
+    existing: dict = {}
+    if os.path.exists(STARTING_LINEUPS_PATH):
+        with open(STARTING_LINEUPS_PATH) as f:
+            existing = json.load(f)
+    print(
+        f"  Building starting_lineups.json for {len(keys)} team-season(s) "
+        f"({RATE_LIMIT_SLEEP}s between calls)..."
+    )
+    fresh = build_starting_lineups_index(keys, rate_limit_sleep=RATE_LIMIT_SLEEP)
+    existing.update(fresh)
+    return existing
+
+
+def _merge_team_profiles(
+    df: pd.DataFrame,
+    norm: pd.DataFrame,
+    similar_display: dict[str, list[dict]],
+    *,
+    profile_keys: list[str] | None,
+) -> dict:
+    if profile_keys is None or not os.path.exists(TEAM_PROFILES_PATH):
+        print(
+            f"  Building team_profiles.json (sequential leaders, {RATE_LIMIT_SLEEP}s between calls; "
+            "failed rows retried once at the end)..."
+        )
+        return build_team_profiles_json(
+            df,
+            norm,
+            similar_display,
+            rate_limit_sleep=RATE_LIMIT_SLEEP,
+        )
+
+    wanted = set(profile_keys)
+    existing: dict = {}
+    with open(TEAM_PROFILES_PATH) as f:
+        existing = json.load(f)
+    static_profiles = build_team_profile_static_cache(df, norm, similar_display)
+
+    profile_df = df[
+        df.apply(lambda r: f"{int(r.TEAM_ID)}:{r.SEASON}" in wanted, axis=1)
+    ].copy()
+    profile_norm = norm[
+        norm.apply(lambda r: f"{int(r.TEAM_ID)}:{r.SEASON}" in wanted, axis=1)
+    ].copy()
+
+    print(
+        f"  Updating team_profiles.json for {len(wanted)} changed team-season(s) "
+        f"({RATE_LIMIT_SLEEP}s between calls)..."
+    )
+    fresh = build_team_profiles_json(
+        profile_df,
+        profile_norm,
+        similar_display,
+        rate_limit_sleep=RATE_LIMIT_SLEEP,
+    )
+    merged: dict = {}
+    for sk, static_payload in static_profiles.items():
+        existing_payload = existing.get(sk, {})
+        leaders = existing_payload.get("leaders")
+        if leaders:
+            merged[sk] = {**static_payload, "leaders": leaders}
+    merged.update(fresh)
+    return merged
+
+
+def save(df: pd.DataFrame, *, lineup_keys: list[str] | None = None):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     write_teams_parquet(df, PARQUET_PATH)
@@ -220,21 +296,24 @@ def save(df: pd.DataFrame):
         json.dump(sim_index, f)
     print(f"  ✓ Similar teams index ({len(sim_index)} keys) → {SIMILAR_TEAMS_PATH}")
 
-    TEAM_PROFILES_OUTPUT = os.path.join(OUTPUT_DIR, "team_profiles.json")
     similar_display = merge_similar_teams_with_abbreviations(sim_index, metadata)
-    print(
-        f"  Building team_profiles.json (sequential leaders, {RATE_LIMIT_SLEEP}s between calls; "
-        "failed rows retried once at the end)..."
-    )
-    profiles = build_team_profiles_json(
+    profiles = _merge_team_profiles(
         df,
         norm,
         similar_display,
-        rate_limit_sleep=RATE_LIMIT_SLEEP,
+        profile_keys=lineup_keys,
     )
-    with open(TEAM_PROFILES_OUTPUT, "w") as f:
+    with open(TEAM_PROFILES_PATH, "w") as f:
         json.dump(profiles, f)
-    print(f"  ✓ Team profiles ({len(profiles)} keys) → {TEAM_PROFILES_OUTPUT}")
+    print(f"  ✓ Team profiles ({len(profiles)} keys) → {TEAM_PROFILES_PATH}")
+
+    if lineup_keys is None:
+        deduped = df.drop_duplicates(["TEAM_ID", "SEASON"], keep="first")
+        lineup_keys = [f"{int(r.TEAM_ID)}:{r.SEASON}" for _, r in deduped.iterrows()]
+    lineups = _merge_lineups(lineup_keys)
+    with open(STARTING_LINEUPS_PATH, "w") as f:
+        json.dump(lineups, f)
+    print(f"  ✓ Starting lineups ({len(lineups)} keys) → {STARTING_LINEUPS_PATH}")
 
 
 if __name__ == "__main__":

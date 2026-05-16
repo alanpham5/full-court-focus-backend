@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
+from analytics.eras import normalize_era, season_to_decade
+
 Z_COLS = [
     "PACE_Z",
     "OFF_RATING_Z",
@@ -25,10 +27,21 @@ def _z_feature_matrix(pool: pd.DataFrame, cols: list[str]) -> np.ndarray:
     return X
 
 
-def _similar_candidate_mask(pool: pd.DataFrame, team_id: int, season: str) -> np.ndarray:
+def _similar_candidate_mask(
+    pool: pd.DataFrame,
+    team_id: int,
+    season: str,
+    *,
+    era: str | None = None,
+) -> np.ndarray:
     s = pool["SEASON"].astype(str)
     bad = (pool["TEAM_ID"].to_numpy() == team_id) | (s.to_numpy() == str(season))
-    return ~bad
+    mask = ~bad
+    if era is not None:
+        era_norm = normalize_era(era)
+        decades = s.map(season_to_decade).to_numpy()
+        mask &= decades == era_norm
+    return mask
 
 
 def _row_dict_from_pool(pool: pd.DataFrame, row_idx: int, dist: float) -> dict:
@@ -47,6 +60,8 @@ def find_similar_teams(
     season: str,
     normalized_df: pd.DataFrame,
     k: int = 6,
+    *,
+    era: str | None = None,
 ) -> list[dict]:
     available_z = [c for c in Z_COLS if c in normalized_df.columns]
 
@@ -55,7 +70,7 @@ def find_similar_teams(
     if not is_self.any() or not available_z:
         return []
 
-    cand = _similar_candidate_mask(pool, team_id, str(season))
+    cand = _similar_candidate_mask(pool, team_id, str(season), era=era)
     cand_idx = np.flatnonzero(np.asarray(cand))
     if cand_idx.size == 0:
         return []

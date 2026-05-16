@@ -92,6 +92,11 @@ PAINT_VOL = 0.45
 PAINT_LOW_3 = 0.45
 PLAY_AST = 0.48
 PLAY_TOV = 0.18
+# High-assist hub offenses can be playmakers even if their creation load
+# brings a merely average turnover rate.
+PLAY_HUB_AST = 0.80
+PLAY_HUB_AST_TO = 0.75
+PLAY_HUB_TOV_CAP = 0.85
 OREB_GLASS = 0.60
 FTA_FOUL = 0.60
 AST_MOVE = 0.42
@@ -145,7 +150,13 @@ def assign_badges(row: pd.Series) -> list[Badge]:
     if -def_z > DEF_WALL:
         badges.append(BADGE_MAP["defensive_wall"])
 
-    if ast_z > PLAY_AST and -tov_z > PLAY_TOV:
+    traditional_playmaking = ast_z > PLAY_AST and -tov_z > PLAY_TOV
+    hub_playmaking = (
+        ast_z > PLAY_HUB_AST
+        and ast_to_z > PLAY_HUB_AST_TO
+        and tov_z < PLAY_HUB_TOV_CAP
+    )
+    if traditional_playmaking or hub_playmaking:
         badges.append(BADGE_MAP["playmakers"])
 
     if pace_z < PACE_GRIND:

@@ -7,9 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import (
     BADGE_LEADERS_PATH,
     SEASON_INDEX_PATH,
+    STARTING_LINEUPS_PATH,
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
+    TEAMS_PARQUET_PATH,
 )
+from analytics.normalizer import normalize_by_season
+from parquet_io import read_teams_parquet
 from routers import badges, search, team
 
 
@@ -56,6 +60,29 @@ async def lifespan(app: FastAPI):
             f"  [WARN] {BADGE_LEADERS_PATH.name} missing — "
             "GET /badges/{season}/leaders will 404"
         )
+
+    if STARTING_LINEUPS_PATH.exists():
+        with STARTING_LINEUPS_PATH.open() as f:
+            app.state.starting_lineups = json.load(f)
+        print(
+            f"  ✓ Starting lineups ({len(app.state.starting_lineups)} keys) "
+            f"from {STARTING_LINEUPS_PATH.name}"
+        )
+    else:
+        app.state.starting_lineups = {}
+        print(
+            f"  [WARN] {STARTING_LINEUPS_PATH.name} missing — "
+            "GET /team/{id}/{season}/lineup will 404"
+        )
+
+    if TEAMS_PARQUET_PATH.exists():
+        app.state.teams_df = read_teams_parquet(TEAMS_PARQUET_PATH)
+        app.state.norm_df = normalize_by_season(app.state.teams_df)
+        print(f"  ✓ Teams parquet ({len(app.state.teams_df)} rows) for era similarity")
+    else:
+        app.state.teams_df = None
+        app.state.norm_df = None
+        print(f"  [WARN] {TEAMS_PARQUET_PATH.name} missing — era similarity unavailable")
 
     yield
 

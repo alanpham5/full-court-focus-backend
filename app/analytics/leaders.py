@@ -1,5 +1,6 @@
 import json
 import time
+from functools import lru_cache
 
 import pandas as pd
 from nba_api.stats.endpoints import TeamPlayerDashboard
@@ -14,7 +15,8 @@ _BACKOFF_SEC = 1.25
 _REQUEST_TIMEOUT_SEC = 22
 
 
-def _fetch_players_season_totals(team_id: int, season: str) -> pd.DataFrame:
+@lru_cache(maxsize=2048)
+def _fetch_players_season_totals_cached(team_id: int, season: str) -> pd.DataFrame:
     headers = dict(STATS_HEADERS)
     last_err: BaseException | None = None
 
@@ -39,6 +41,11 @@ def _fetch_players_season_totals(team_id: int, season: str) -> pd.DataFrame:
     if last_err is None:
         raise RuntimeError("TeamPlayerDashboard failed with no error captured")
     raise last_err
+
+
+def _fetch_players_season_totals(team_id: int, season: str) -> pd.DataFrame:
+    """Fetch per-game player stats for a team-season, cached within one scrape run."""
+    return _fetch_players_season_totals_cached(team_id, season).copy()
 
 
 def get_stat_leaders(team_id: int, season: str) -> dict:

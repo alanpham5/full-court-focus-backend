@@ -76,3 +76,26 @@ class BadgeLeaderEntry(BaseModel):
 class SeasonBadgeLeadersResponse(BaseModel):
     season: str
     badges: list[BadgeLeaderEntry]
+
+
+class EraSimilarTeamsResponse(BaseModel):
+    team_id: int
+    season: str
+    era: str
+    similar_teams: list[SimilarTeam]
+
+
+class LineupPlayer(BaseModel):
+    player_id: int
+    name: str
+    roles: list[str]
+    gp: int
+    mpg: float
+
+
+class StartingLineupResponse(BaseModel):
+    team_id: int
+    season: str
+    source: str
+    lineup_mpg: float | None = None
+    starters: list[LineupPlayer]
