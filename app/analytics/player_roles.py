@@ -1,5 +1,3 @@
-"""Assign up to two lineup roles per player from per-game box-score stats."""
-
 from __future__ import annotations
 
 import pandas as pd
@@ -16,118 +14,177 @@ ALL_ROLES: tuple[str, ...] = (
 
 ROLE_DESCRIPTIONS: dict[str, str] = {
     "Playmaker": (
-        "High-usage initiator who runs offense through passing, pick-and-rolls, "
-        "and creating advantages for others."
+        "Primary offensive engine who organizes possessions through passing, "
+        "advantage creation, and ball distribution."
     ),
     "Secondary Creator": (
-        "Off-ball or second-side handler who can pass into actions, punish rotations, "
-        "and create offense without being the main engine."
+        "Score-first creator who can handle secondary initiation, attack tilted "
+        "defenses, and create offense for teammates."
     ),
     "Designated Scorer": (
-        "Player whose value is self-generated scoring: pull-ups, isolations, "
-        "tough shot conversion, and late-clock offense."
+        "High-volume self-creator whose primary value comes from shot creation, "
+        "difficult scoring, and late-clock offense."
     ),
     "Perimeter Specialist": (
-        "Spacing-focused scorer who primarily provides catch-and-shoot gravity "
-        "and punishes help defense from range."
+        "Floor-spacing offensive player who provides shooting gravity and "
+        "efficient perimeter scoring."
     ),
     "Rim Attacker": (
-        "Downhill scorer who pressures the paint through drives, cuts, "
+        "Downhill offensive threat who pressures the paint through drives, cuts, "
         "transition, and rim finishing."
     ),
     "Interior Presence": (
-        "Paint-focused big skill set: screening, rolling, post scoring, "
-        "offensive rebounding, rim protection, and paint deterrence."
+        "Paint-focused interior player providing rebounding, rim protection, "
+        "screening, rolling, and interior scoring."
     ),
     "Defensive Specialist": (
-        "Primary defensive role player defined by matchup coverage, switching, "
-        "on-ball containment, help defense, or rim/wing disruption."
+        "Defense-oriented player whose primary value comes from disruption, "
+        "containment, switching, or rim deterrence."
     ),
 }
 
 MIN_TOP_ROLE_SCORE = 0.45
-MIN_SECOND_ROLE_SCORE = 0.50
-# Second role only when nearly as strong a fit as the first (clear specialists keep 1).
-MAX_SCORE_GAP_FOR_SECOND = 0.18
+MIN_SECOND_ROLE_SCORE = 0.55
+MAX_SCORE_GAP_FOR_SECOND = 0.16
 MAX_ROLES_PER_PLAYER = 2
 FALLBACK_ROLE = "Secondary Creator"
-PLAYMAKER_AST_MIN = 4.0
-PLAYMAKER_AST_NORM_MIN = 0.60
-PLAYMAKER_SCORE_MIN = 0.55
+
+PLAYMAKER_AST_MIN = 6.0
+PLAYMAKER_AST_NORM_MIN = 0.78
+PLAYMAKER_SCORE_MIN = 0.75
 
 
 def _norm_col(series: pd.Series) -> pd.Series:
     s = pd.to_numeric(series, errors="coerce").fillna(0.0)
     lo, hi = float(s.min()), float(s.max())
+
     if hi <= lo:
         return pd.Series(0.5, index=s.index)
+
     return (s - lo) / (hi - lo)
+
+
+def _safe_ratio(numerator: pd.Series, denominator: pd.Series) -> pd.Series:
+    denominator = denominator.replace(0, 1)
+    return numerator / denominator
 
 
 def _role_score_frame(df: pd.DataFrame) -> pd.DataFrame:
     pts = _norm_col(df["PTS"])
     ast = _norm_col(df["AST"])
+    reb = _norm_col(df["REB"])
+
     fg3a = _norm_col(df.get("FG3A", 0))
     fg3p = _norm_col(df.get("FG3_PCT", 0))
-    reb = _norm_col(df["REB"])
+
     blk = _norm_col(df.get("BLK", 0))
     stl = _norm_col(df.get("STL", 0))
-    paint_focus = (1.0 - fg3a)
+
+    fga = pd.to_numeric(df.get("FGA", 1), errors="coerce").fillna(1.0)
+
+    ast_raw = pd.to_numeric(df["AST"], errors="coerce").fillna(0.0)
+    playmaking_ratio = _norm_col(_safe_ratio(ast_raw, fga))
+
+    paint_focus = 1.0 - fg3a
 
     return pd.DataFrame(
         {
-            "Playmaker": ast * 1.15 + pts * 0.08,
-            "Secondary Creator": ast * 0.7 + pts * 0.28 + stl * 0.08,
-            "Designated Scorer": pts * 1.05 + ast * 0.05,
-            "Perimeter Specialist": fg3a * 0.75 + fg3p * 0.85 + pts * 0.1,
-            "Rim Attacker": pts * 0.65 + paint_focus * 0.4 + ast * 0.05,
-            "Interior Presence": reb * 0.55 + blk * 0.85 + paint_focus * 0.35,
-            "Defensive Specialist": stl * 0.85 + blk * 0.45 + (1.0 - fg3a) * 0.15,
+            "Playmaker": (
+                ast * 1.15
+                + playmaking_ratio * 0.55
+                - pts * 0.08
+            ),
+            "Secondary Creator": (
+                ast * 0.9
+                + pts * 0.45
+                + stl * 0.05
+            ),
+            "Designated Scorer": (
+                pts * 1.15
+                - ast * 0.05
+            ),
+            "Perimeter Specialist": (
+                fg3a * 0.75
+                + fg3p * 0.9
+                + pts * 0.1
+            ),
+            "Rim Attacker": (
+                pts * 0.7
+                + paint_focus * 0.4
+                + ast * 0.05
+            ),
+            "Interior Presence": (
+                reb * 0.6
+                + blk * 0.9
+                + paint_focus * 0.35
+            ),
+            "Defensive Specialist": (
+                stl * 0.9
+                + blk * 0.5
+                + paint_focus * 0.1
+            ),
         },
         index=df.index,
     )
 
 
 def assign_player_roles(players_df: pd.DataFrame) -> dict[int, list[str]]:
-    """Return player_id → one or two roles they best exemplify (by relative fit)."""
     if players_df.empty:
         return {}
 
     df = players_df.copy().reset_index(drop=True)
-    df["PLAYER_ID"] = pd.to_numeric(df["PLAYER_ID"], errors="coerce").astype(int)
+
+    df["PLAYER_ID"] = (
+        pd.to_numeric(df["PLAYER_ID"], errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
+
     scores = _role_score_frame(df)
+
     ast = pd.to_numeric(df["AST"], errors="coerce").fillna(0.0)
     ast_norm = _norm_col(ast)
+
     assignments: dict[int, list[str]] = {}
 
     for idx in range(len(df)):
         pid = int(df.at[idx, "PLAYER_ID"])
+
         row_scores = scores.iloc[idx].sort_values(ascending=False)
-        ranked = [(str(role), float(score)) for role, score in row_scores.items()]
-        playmaker_score = float(scores.at[idx, "Playmaker"])
-        playmaker_by_usage = (
-            float(ast.iat[idx]) >= PLAYMAKER_AST_MIN
-            and float(ast_norm.iat[idx]) >= PLAYMAKER_AST_NORM_MIN
-            and playmaker_score >= PLAYMAKER_SCORE_MIN
-        )
+
+        ranked = [
+            (str(role), float(score))
+            for role, score in row_scores.items()
+        ]
 
         if not ranked or ranked[0][1] < MIN_TOP_ROLE_SCORE:
-            assignments[pid] = ["Playmaker"] if playmaker_by_usage else [FALLBACK_ROLE]
+            fallback = (
+                "Playmaker"
+                if (
+                    float(ast.iat[idx]) >= PLAYMAKER_AST_MIN
+                    and float(ast_norm.iat[idx]) >= PLAYMAKER_AST_NORM_MIN
+                    and float(scores.at[idx, "Playmaker"]) >= PLAYMAKER_SCORE_MIN
+                )
+                else FALLBACK_ROLE
+            )
+
+            assignments[pid] = [fallback]
             continue
 
-        top_score = ranked[0][1]
-        roles = [ranked[0][0]]
-        if playmaker_by_usage and "Playmaker" not in roles:
-            roles.append("Playmaker")
+        top_role, top_score = ranked[0]
+
+        roles = [top_role]
+
         if len(ranked) > 1:
-            second_score = ranked[1][1]
-            gap = top_score - second_score
+            second_role, second_score = ranked[1]
+
             if (
-                len(roles) < MAX_ROLES_PER_PLAYER
-                and second_score >= MIN_SECOND_ROLE_SCORE
-                and gap <= MAX_SCORE_GAP_FOR_SECOND
+                second_score >= MIN_SECOND_ROLE_SCORE
+                and (top_score - second_score) <= MAX_SCORE_GAP_FOR_SECOND
+                and second_role not in roles
+                and len(roles) < MAX_ROLES_PER_PLAYER
             ):
-                roles.append(ranked[1][0])
+                roles.append(second_role)
 
         assignments[pid] = roles
 
