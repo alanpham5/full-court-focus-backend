@@ -48,6 +48,11 @@ MIN_SECOND_ROLE_SCORE = 0.55
 MAX_SCORE_GAP_FOR_SECOND = 0.16
 MAX_ROLES_PER_PLAYER = 2
 FALLBACK_ROLE = "Secondary Creator"
+INCOMPATIBLE_ROLE_PAIRS: frozenset[frozenset[str]] = frozenset(
+    {
+        frozenset(("Playmaker", "Secondary Creator")),
+    }
+)
 
 PLAYMAKER_AST_MIN = 6.0
 PLAYMAKER_AST_NORM_MIN = 0.78
@@ -67,6 +72,13 @@ def _norm_col(series: pd.Series) -> pd.Series:
 def _safe_ratio(numerator: pd.Series, denominator: pd.Series) -> pd.Series:
     denominator = denominator.replace(0, 1)
     return numerator / denominator
+
+
+def _roles_are_compatible(role: str, existing_roles: list[str]) -> bool:
+    return all(
+        frozenset((role, existing_role)) not in INCOMPATIBLE_ROLE_PAIRS
+        for existing_role in existing_roles
+    )
 
 
 def _role_score_frame(df: pd.DataFrame) -> pd.DataFrame:
@@ -175,16 +187,20 @@ def assign_player_roles(players_df: pd.DataFrame) -> dict[int, list[str]]:
 
         roles = [top_role]
 
-        if len(ranked) > 1:
-            second_role, second_score = ranked[1]
+        for second_role, second_score in ranked[1:]:
+            if len(roles) >= MAX_ROLES_PER_PLAYER:
+                break
+            if second_score < MIN_SECOND_ROLE_SCORE:
+                break
+            if (top_score - second_score) > MAX_SCORE_GAP_FOR_SECOND:
+                break
+            if second_role in roles:
+                continue
+            if not _roles_are_compatible(second_role, roles):
+                continue
 
-            if (
-                second_score >= MIN_SECOND_ROLE_SCORE
-                and (top_score - second_score) <= MAX_SCORE_GAP_FOR_SECOND
-                and second_role not in roles
-                and len(roles) < MAX_ROLES_PER_PLAYER
-            ):
-                roles.append(second_role)
+            roles.append(second_role)
+            break
 
         assignments[pid] = roles
 

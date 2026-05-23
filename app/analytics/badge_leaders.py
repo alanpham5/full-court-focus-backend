@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import pandas as pd
@@ -32,6 +33,10 @@ def _team_entry(
         "record": f"{int(row['W'])}-{int(row['L'])}",
         "exemplar_score": round(score, 3),
     }
+
+
+def _score_out_of_100(score: float) -> float:
+    return max(0.0, min(100.0, 100.0 / (1.0 + math.exp(-score))))
 
 
 def build_badge_leaders_index(
@@ -81,7 +86,7 @@ def build_badge_leaders_index(
                     top_tid,
                     top_row,
                     team_metadata=team_metadata,
-                    score=top_score,
+                    score=_score_out_of_100(top_score),
                 )
             else:
                 entry["top"] = None
@@ -91,7 +96,7 @@ def build_badge_leaders_index(
                     runner_tid,
                     runner_row,
                     team_metadata=team_metadata,
-                    score=runner_score,
+                    score=_score_out_of_100(runner_score),
                 )
             else:
                 entry["runner_up"] = None
