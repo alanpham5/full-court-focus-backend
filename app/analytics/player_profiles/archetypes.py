@@ -40,9 +40,9 @@ def get_player_archetypes(row: pd.Series) -> list[str]:
     # 5. Efficient Finisher
     if efg > 0.8 and pts < 0.6:
         matches.append("efficient finisher")
-    # 6. Rim Protection Profile
+    # 6. Rim Protection
     if blk > 0.9 and reb > 0.4:
-        matches.append("rim protection profile")
+        matches.append("rim protection")
     # 7. 3-and-D Profile
     if stl > 0.8 and fg3 > 0.2:
         matches.append("3-and-D profile")

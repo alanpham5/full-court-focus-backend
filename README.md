@@ -373,7 +373,7 @@ Each player can have up to **3 archetypes** drawn from the following list. Arche
 | **free-throw pressure scorer** | Gets to the line at a high rate alongside strong scoring volume.                                                                |
 | **table setter**               | High-assist, low-turnover distributor who keeps the offense organized.                                                          |
 | **efficient finisher**         | Above-average eFG% scorer who does most damage near the basket or on high-percentage looks, without being a high-volume scorer. |
-| **rim protection profile**     | Rim-protecting big with elite block rate and strong rebounding presence.                                                        |
+| **rim protection**             | Rim-protecting big with elite block rate and strong rebounding presence.                                                        |
 | **3-and-D profile**            | Perimeter defender who also contributes from three — elevated steal rate and 3-point volume.                                    |
 | **rebounding defender**        | Dominant rebounder with strong defensive box-score contributions.                                                               |
 | **event creator**              | Disruptive defender who generates steals or blocks at an elite rate.                                                            |
