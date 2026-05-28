@@ -8,13 +8,15 @@ from config import (
     BADGE_LEADERS_PATH,
     SEASON_INDEX_PATH,
     STARTING_LINEUPS_PATH,
+    PLAYER_METADATA_PATH,
+    PLAYER_PROFILES_PATH,
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
     TEAMS_PARQUET_PATH,
 )
 from analytics.normalizer import normalize_by_season
 from parquet_io import read_teams_parquet
-from routers import badges, search, team
+from routers import badges, players, search, team
 
 
 @asynccontextmanager
@@ -84,6 +86,22 @@ async def lifespan(app: FastAPI):
         app.state.norm_df = None
         print(f"  [WARN] {TEAMS_PARQUET_PATH.name} missing — era similarity unavailable")
 
+    if PLAYER_PROFILES_PATH.exists():
+        with PLAYER_PROFILES_PATH.open() as f:
+            app.state.player_profiles = json.load(f)
+        print(f"  ✓ Player profiles ({len(app.state.player_profiles)} players)")
+    else:
+        app.state.player_profiles = {}
+        print(f"  [WARN] {PLAYER_PROFILES_PATH.name} missing — GET /players/{{id}} will 404")
+
+    if PLAYER_METADATA_PATH.exists():
+        with PLAYER_METADATA_PATH.open() as f:
+            app.state.player_metadata = json.load(f)
+        print(f"  ✓ Player metadata ({len(app.state.player_metadata)} players)")
+    else:
+        app.state.player_metadata = {}
+        print(f"  [WARN] {PLAYER_METADATA_PATH.name} missing — player search will return no rows")
+
     yield
 
 
@@ -103,6 +121,7 @@ app.add_middleware(
 app.include_router(team.router)
 app.include_router(search.router)
 app.include_router(badges.router)
+app.include_router(players.router)
 
 
 @app.get("/health")

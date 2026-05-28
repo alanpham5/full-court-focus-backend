@@ -26,6 +26,13 @@ from analytics.team_static_cache import (
     merge_similar_teams_with_abbreviations,
 )
 from parquet_io import read_teams_parquet, write_teams_parquet
+from analytics.player_profiles.pipeline import (
+    PlayerProfilePipeline,
+    PlayerProfilePipelineConfig,
+    copy_processed_outputs_to_static,
+)
+from analytics.player_profiles.storage import ProfileStorage, StorageConfig
+from analytics.player_profiles.nba_client import NbaStatsClient
 
 OUTPUT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", "static"))
 PARQUET_PATH = os.path.join(OUTPUT_DIR, "teams_historical.parquet")
@@ -304,6 +311,63 @@ def _merge_team_profiles(
     return merged
 
 
+def _load_env_defaults() -> None:
+    env_path = _APP_ROOT / ".env"
+    if env_path.exists():
+        for raw_line in env_path.read_text().splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
+def upload_local_to_gcs(local_dir: Path, gcs_uri: str) -> None:
+    if not gcs_uri.startswith("gs://"):
+        return
+    try:
+        from google.cloud import storage as gcs_storage
+    except ModuleNotFoundError:
+        print("  [WARN] google-cloud-storage not installed; skipping GCS upload.")
+        return
+
+    rest = gcs_uri[5:].strip("/")
+    bucket_name, _, prefix = rest.partition("/")
+
+    project = (
+        os.getenv("GOOGLE_CLOUD_PROJECT")
+        or os.getenv("GCLOUD_PROJECT")
+    )
+    try:
+        client = gcs_storage.Client(project=project)
+        bucket = client.bucket(bucket_name)
+    except Exception as e:
+        print(f"  [WARN] Failed to initialize GCS client: {e}")
+        return
+
+    print(f"  Uploading player profiles data to gs://{bucket_name}/{prefix} ...")
+    count = 0
+    for path in local_dir.rglob("*"):
+        if path.is_file():
+            rel_path = path.relative_to(local_dir)
+            blob_name = f"{prefix}/{rel_path}".strip("/")
+            blob = bucket.blob(blob_name)
+
+            if path.suffix == ".json":
+                content_type = "application/json"
+            elif path.suffix == ".parquet":
+                content_type = "application/vnd.apache.parquet"
+            else:
+                content_type = "application/octet-stream"
+
+            try:
+                blob.upload_from_filename(str(path), content_type=content_type)
+                count += 1
+            except Exception as e:
+                print(f"    Failed to upload {rel_path} to GCS: {e}")
+    print(f"  ✓ Uploaded {count} files to GCS.")
+
+
 def save(df: pd.DataFrame, *, lineup_keys: list[str] | None = None):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -355,6 +419,30 @@ def save(df: pd.DataFrame, *, lineup_keys: list[str] | None = None):
     with open(STARTING_LINEUPS_PATH, "w") as f:
         json.dump(lineups, f)
     print(f"  ✓ Starting lineups ({len(lineups)} keys) → {STARTING_LINEUPS_PATH}")
+
+    print("  Building player profiles and metadata...")
+    seasons = sorted(df["SEASON"].unique().tolist())
+    storage_uri = str(_APP_ROOT / "data" / "player_profiles")
+    player_config = PlayerProfilePipelineConfig(
+        seasons=seasons,
+        current_season_start_year=int(seasons[-1][:4]),
+        refresh_raw=False,
+    )
+    player_pipeline = PlayerProfilePipeline(
+        storage=ProfileStorage(
+            StorageConfig.from_uri(storage_uri)
+        ),
+        client=NbaStatsClient(timeout=60, retries=4, base_sleep=1.5),
+        config=player_config,
+    )
+    player_pipeline.run()
+    copy_processed_outputs_to_static(storage_uri, _APP_ROOT / "data" / "static")
+    print("  ✓ Player profiles and metadata → app/data/static/")
+
+    _load_env_defaults()
+    gcs_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
+    if gcs_uri and gcs_uri.startswith("gs://"):
+        upload_local_to_gcs(Path(storage_uri), gcs_uri)
 
 
 if __name__ == "__main__":

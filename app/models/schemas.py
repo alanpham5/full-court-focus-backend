@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Optional, Union
+
 from pydantic import BaseModel
 
 
@@ -69,8 +73,8 @@ class BadgeExemplarTeam(BaseModel):
 
 class BadgeLeaderEntry(BaseModel):
     badge: Badge
-    top: BadgeExemplarTeam | None = None
-    runner_up: BadgeExemplarTeam | None = None
+    top: Optional[BadgeExemplarTeam] = None
+    runner_up: Optional[BadgeExemplarTeam] = None
 
 
 class SeasonBadgeLeadersResponse(BaseModel):
@@ -97,5 +101,64 @@ class StartingLineupResponse(BaseModel):
     team_id: int
     season: str
     source: str
-    lineup_mpg: float | None = None
+    lineup_mpg: Optional[float] = None
     starters: list[LineupPlayer]
+
+
+class CareerTeam(BaseModel):
+    team_id: int
+    abbreviation: str
+    team_name: str
+    season: str
+
+
+class PlayerMetricValue(BaseModel):
+    value: float
+    percentile: float
+
+
+class PlayerPlaystyleMetrics(BaseModel):
+    pts_per36: PlayerMetricValue
+    ast_per36: PlayerMetricValue
+    reb_per36: PlayerMetricValue
+    stl_per36: PlayerMetricValue
+    blk_per36: PlayerMetricValue
+    tov_per36: PlayerMetricValue
+    ts_pct: PlayerMetricValue
+    efg_pct: PlayerMetricValue
+    ast_pct: PlayerMetricValue
+    fg3a_rate: PlayerMetricValue
+    fta_rate: PlayerMetricValue
+    mpg: PlayerMetricValue
+
+
+class SimilarPlayer(BaseModel):
+    player_id: int
+    player_name: str
+    similarity_score: float
+    career_span: str
+    explanation: str
+
+
+class PlayerProfileResponse(BaseModel):
+    player_id: int
+    player_name: str
+    height: Optional[str] = None
+    weight: Optional[Union[str, int]] = None
+    draft_year: Optional[Union[str, int]] = None
+    draft_position: Optional[Union[str, int]] = None
+    role: Optional[str] = None
+    career_teams: list[str]
+    career_span: str
+    career_games: int
+    archetypes: list[str]
+    playstyle_metrics: PlayerPlaystyleMetrics
+    similar_players: list[SimilarPlayer]
+
+
+class PlayerSearchSuggestion(BaseModel):
+    player_id: int
+    player_name: str
+    role: str
+    career_span: str
+    archetypes: list[str]
