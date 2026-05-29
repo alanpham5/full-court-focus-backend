@@ -122,7 +122,71 @@ def style_summary(row: pd.Series) -> dict[str, dict[str, float]]:
     }
 
 
+def calculate_pfv(metrics: dict) -> float:
+    import math
+
+    # Clockwise order of dimensions
+    keys = [
+        "pts_per36",
+        "ast_per36",
+        "reb_per36",
+        "stl_per36",
+        "blk_per36",
+        "ts_pct",
+    ]
+    r = []
+    for k in keys:
+        metric = metrics.get(k, {})
+        pct = 0.0
+        if isinstance(metric, dict):
+            pct = metric.get("percentile", 0.0)
+        elif isinstance(metric, (int, float)):
+            pct = metric
+
+        if pct is None:
+            pct = 0.0
+
+        r.append(float(pct) / 100.0)
+
+    n = 6
+    sum_product = 0.0
+    for i in range(n):
+        r_current = r[i]
+        r_next = r[(i + 1) % n]
+        sum_product += r_current * r_next
+
+    sin_term = math.sin(2.0 * math.pi / n)
+    A = 0.5 * sin_term * sum_product
+    A_max = n * 0.5 * sin_term
+
+    pfv = A / A_max
+    return round(pfv, 4)
+
+
+def calculate_npfv(pfv: float, all_pfvs: list[float]) -> float:
+    """Normalize a single PFV against a population to [0, 0.99].
+
+    Uses percentile-rank within the population, then applies a power
+    curve (exponent 1.5) so that high NPFV values are progressively
+    rarer — only the very top of the distribution can approach 0.99.
+    """
+    n = len(all_pfvs)
+    if n == 0:
+        return 0.0
+    rank = sum(1 for v in all_pfvs if v <= pfv)
+    pctile = rank / n  # 0.0 – 1.0
+    curved = pctile ** 1.5  # compress upper end
+    return round(min(curved * 0.99, 0.99), 4)
+
+
+def calculate_npfv_batch(pfvs: list[float]) -> list[float]:
+    """Compute NPFV for every entry in *pfvs* against the same population."""
+    return [calculate_npfv(v, pfvs) for v in pfvs]
+
+
 def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    metrics = style_summary(row)
+    pfv = calculate_pfv(metrics)
     return {
         "player_id": int(row["player_id"]),
         "player_name": str(row["player_name"]),
@@ -135,7 +199,8 @@ def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None)
         "career_span": str(row.get("career_span", "")),
         "career_games": int(row.get("career_games", 0) or 0),
         "archetypes": list(row.get("archetypes", [])),
-        "playstyle_metrics": style_summary(row),
+        "playstyle_metrics": metrics,
+        "pfv": pfv,
         "similar_players": similar or [],
     }
 

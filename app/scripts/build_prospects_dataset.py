@@ -20,6 +20,7 @@ if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
 
 from analytics.similarity_scoring import cross_pool_cosine_similarity, similarity_pct
+from analytics.player_profiles.archetypes import calculate_npfv_batch, calculate_pfv
 
 DEFAULT_SOURCE_URL = "https://basketball.realgm.com/nba/draft/prospects/stats"
 DEFAULT_STATIC_DIR = _APP_ROOT / "data" / "static"
@@ -569,6 +570,7 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         "SPG",
         "BPG",
     ]
+    pfvs = []
     for record, raw in zip(records, prospects[raw_cols].to_dict(orient="records")):
         record["raw_stats"] = {RAW_STAT_JSON_KEYS[key]: value for key, value in raw.items()}
         for col in _PERCENTILE_COLS:
@@ -577,6 +579,26 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
             val = float(record[col])
             pct = _percentile_of_score(pct_arrays[col], val) if col in pct_arrays else 0.0
             record[col] = {"value": round(val, 4), "percentile": pct}
+        
+        pfv_val = calculate_pfv(record)
+        record["pfv"] = pfv_val
+        pfvs.append(pfv_val)
+
+    if pfvs:
+        npfvs = calculate_npfv_batch(pfvs)
+        for record, npfv_val in zip(records, npfvs):
+            record["npfv"] = npfv_val
+        prospects["npfv"] = npfvs
+    else:
+        prospects["npfv"] = 0.0
+
+    prospects["pfv"] = pfvs
+
+    # Nest pfv and npfv inside raw_stats for the JSON output
+    for record in records:
+        record["raw_stats"]["pfv"] = record.pop("pfv", 0.0)
+        record["raw_stats"]["npfv"] = record.pop("npfv", 0.0)
+
     json_output.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
     parquet_cols = [
@@ -604,6 +626,8 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         "BPG",
         *SIMILARITY_FEATURES,
         "similar_nba_player_names",
+        "pfv",
+        "npfv",
     ]
     available_cols = [col for col in parquet_cols if col in prospects.columns]
     prospects[available_cols].to_parquet(parquet_output, index=False, engine="fastparquet")

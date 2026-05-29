@@ -6,6 +6,7 @@ from rapidfuzz import fuzz
 
 from config import PLAYER_METADATA_PATH, PLAYER_PROFILES_PATH
 from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, SimilarPlayer
+from analytics.player_profiles.archetypes import calculate_npfv, calculate_pfv
 
 router = APIRouter(prefix="/players", tags=["players"])
 
@@ -104,7 +105,7 @@ def get_player_profile(player_id: int, request: Request):
             _update_cached_files(request, pid_str, updated_profile, role)
             profile = updated_profile
 
-    return PlayerProfileResponse(**_profile_response_payload(profile))
+    return PlayerProfileResponse(**_profile_response_payload(profile, request))
 
 
 @router.get("/{player_id}/similar", response_model=list[SimilarPlayer])
@@ -125,10 +126,18 @@ def _profiles(request: Request) -> dict:
         return json.load(f)
 
 
-def _profile_response_payload(profile: dict) -> dict:
+def _profile_response_payload(profile: dict, request: Request = None) -> dict:
     payload = dict(profile)
     payload["career_teams"] = _collapse_career_teams(payload.get("career_teams", []))
     payload["playstyle_metrics"] = _normalize_playstyle_metrics(payload.get("playstyle_metrics", {}))
+    if "pfv" not in payload or payload["pfv"] is None:
+        payload["pfv"] = calculate_pfv(payload["playstyle_metrics"])
+    if "npfv" not in payload or payload["npfv"] is None:
+        all_pfvs = getattr(request.app.state, "player_all_pfvs", []) if request else []
+        if all_pfvs:
+            payload["npfv"] = calculate_npfv(payload["pfv"], all_pfvs)
+        else:
+            payload["npfv"] = 0.0
     return payload
 
 
