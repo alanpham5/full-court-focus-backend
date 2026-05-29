@@ -8,11 +8,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.neighbors import NearestNeighbors
 
-from analytics.player_profiles.features import STYLE_FEATURES
-
-SIMILAR_ERA_PENALTY_MAX = 0.025
-SIMILAR_ERA_PENALTY_WINDOW_YEARS = 8.0
-
+from analytics.similarity_scoring import similarity_pct
 
 EXPLANATION_FEATURES = {
     "scoring volume": ["pts_per36_z", "mpg_z"],
@@ -82,26 +78,20 @@ def build_similarity_index(
     feature_by_id = feature_df.set_index("player_id")
     out: dict[str, list[dict[str, Any]]] = {}
     for row_idx, pid in enumerate(player_ids):
-        target = career_by_id.loc[int(pid)]
-        candidates: list[tuple[float, float, dict[str, Any]]] = []
+        candidates: list[tuple[float, dict[str, Any]]] = []
         for dist, idx in zip(dists[row_idx], indices[row_idx]):
             other_id = int(player_ids[int(idx)])
             if other_id == int(pid):
                 continue
             other = career_by_id.loc[other_id]
             raw_similarity = max(0.0, min(1.0, 1.0 - float(dist)))
-            adjusted_similarity = max(
-                0.0,
-                raw_similarity - _similar_era_penalty(target, other),
-            )
             candidates.append(
                 (
-                    adjusted_similarity,
                     raw_similarity,
                     {
                         "player_id": other_id,
                         "player_name": str(other["player_name"]),
-                        "similarity_score": round(adjusted_similarity * 100.0, 1),
+                        "similarity_score": similarity_pct(raw_similarity),
                         "career_span": str(other.get("career_span", "")),
                         "explanation": explain_similarity(
                             feature_by_id.loc[int(pid)],
@@ -110,38 +100,9 @@ def build_similarity_index(
                     },
                 )
             )
-        candidates.sort(key=lambda item: (item[0], item[1]), reverse=True)
-        out[str(int(pid))] = [payload for _, _, payload in candidates[:k]]
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        out[str(int(pid))] = [payload for _, payload in candidates[:k]]
     return out
-
-
-def _similar_era_penalty(a: pd.Series, b: pd.Series) -> float:
-    a_mid = _career_midpoint(a)
-    b_mid = _career_midpoint(b)
-    if a_mid is None or b_mid is None:
-        return 0.0
-
-    gap = abs(a_mid - b_mid)
-    if gap >= SIMILAR_ERA_PENALTY_WINDOW_YEARS:
-        return 0.0
-    return SIMILAR_ERA_PENALTY_MAX * (1.0 - gap / SIMILAR_ERA_PENALTY_WINDOW_YEARS)
-
-
-def _career_midpoint(row: pd.Series) -> float | None:
-    first = _season_start_value(row.get("first_season"))
-    last = _season_start_value(row.get("last_season"))
-    if first is not None and last is not None:
-        return (first + last) / 2.0
-    return first if first is not None else last
-
-
-def _season_start_value(value: Any) -> float | None:
-    if value is None or pd.isna(value):
-        return None
-    try:
-        return float(str(value).split("-", 1)[0])
-    except ValueError:
-        return None
 
 
 def explain_similarity(a: pd.Series, b: pd.Series) -> str:
@@ -155,7 +116,7 @@ def explain_similarity(a: pd.Series, b: pd.Series) -> str:
     parts.sort(key=lambda x: x[1])
     labels = [label for label, _ in parts[:3]]
     if not labels:
-        return "Similar era-adjusted career feature vector."
+        return "Similar career feature vector."
     if len(labels) == 1:
         return f"Closest match in {labels[0]}."
     return "Closest match in " + ", ".join(labels[:-1]) + f", and {labels[-1]}."

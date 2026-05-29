@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 from urllib.request import Request, urlopen
@@ -14,12 +15,11 @@ from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import StandardScaler
-
 _APP_ROOT = Path(__file__).resolve().parents[1]
 if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
+
+from analytics.similarity_scoring import cross_pool_cosine_similarity, similarity_pct
 
 DEFAULT_SOURCE_URL = "https://basketball.realgm.com/nba/draft/prospects/stats"
 DEFAULT_STATIC_DIR = _APP_ROOT / "data" / "static"
@@ -28,6 +28,10 @@ DEFAULT_JSON_OUTPUT = DEFAULT_STATIC_DIR / "prospects.json"
 DEFAULT_PARQUET_OUTPUT = DEFAULT_STATIC_DIR / "prospects.parquet"
 
 logger = logging.getLogger(__name__)
+
+_fetch_lock = threading.Lock()
+_fetch_subprocess_python: str | None = None
+_fetch_subprocess_python_initialized = False
 
 PROSPECT_TABLE_REQUIRED_COLUMNS = {
     "Player",
@@ -78,10 +82,6 @@ RAW_STAT_JSON_KEYS = {
     "SPG": "spg",
     "BPG": "bpg",
 }
-
-PROSPECT_RECENCY_PENALTY_MAX = 0.06
-PROSPECT_RECENCY_PENALTY_WINDOW_YEARS = 30.0
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -176,37 +176,60 @@ def find_openssl_python() -> str | None:
     return None
 
 
-def fetch_html(url: str) -> str:
-    import ssl
-    import subprocess
-    if "LibreSSL" in ssl.OPENSSL_VERSION:
-        openssl_python = find_openssl_python()
-        if openssl_python:
-            logger.info("Current python uses LibreSSL; falling back to %s for fetching.", openssl_python)
-            fetch_script = (
-                "import urllib.request\n"
-                "import sys\n"
-                "url = sys.argv[1]\n"
-                "headers = {\n"
-                "    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',\n"
-                "    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',\n"
-                "    'Accept-Language': 'en-US,en;q=0.9',\n"
-                "    'Cache-Control': 'max-age=0',\n"
-                "    'Connection': 'keep-alive',\n"
-                "    'Upgrade-Insecure-Requests': '1'\n"
-                "}\n"
-                "req = urllib.request.Request(url, headers=headers)\n"
-                "with urllib.request.urlopen(req, timeout=30) as resp:\n"
-                "    sys.stdout.buffer.write(resp.read())\n"
-            )
-            try:
-                out = subprocess.check_output(
-                    [openssl_python, "-c", fetch_script, url],
-                    timeout=30,
+def _get_fetch_subprocess_python() -> str | None:
+    """Resolve once whether HTTPS fetches should use a subprocess Python."""
+    global _fetch_subprocess_python, _fetch_subprocess_python_initialized
+    if _fetch_subprocess_python_initialized:
+        return _fetch_subprocess_python
+
+    with _fetch_lock:
+        if _fetch_subprocess_python_initialized:
+            return _fetch_subprocess_python
+
+        import ssl
+
+        if "LibreSSL" in ssl.OPENSSL_VERSION:
+            openssl_python = find_openssl_python()
+            if openssl_python:
+                logger.info(
+                    "Current python uses LibreSSL; falling back to %s for fetching.",
+                    openssl_python,
                 )
-                return out.decode("utf-8", errors="replace")
-            except Exception as exc:
-                logger.warning("Subprocess fetch failed: %s. Falling back to local urllib fetch.", exc)
+                _fetch_subprocess_python = openssl_python
+
+        _fetch_subprocess_python_initialized = True
+        return _fetch_subprocess_python
+
+
+def fetch_html(url: str) -> str:
+    import subprocess
+
+    openssl_python = _get_fetch_subprocess_python()
+    if openssl_python:
+        fetch_script = (
+            "import urllib.request\n"
+            "import sys\n"
+            "url = sys.argv[1]\n"
+            "headers = {\n"
+            "    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',\n"
+            "    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',\n"
+            "    'Accept-Language': 'en-US,en;q=0.9',\n"
+            "    'Cache-Control': 'max-age=0',\n"
+            "    'Connection': 'keep-alive',\n"
+            "    'Upgrade-Insecure-Requests': '1'\n"
+            "}\n"
+            "req = urllib.request.Request(url, headers=headers)\n"
+            "with urllib.request.urlopen(req, timeout=30) as resp:\n"
+            "    sys.stdout.buffer.write(resp.read())\n"
+        )
+        try:
+            out = subprocess.check_output(
+                [openssl_python, "-c", fetch_script, url],
+                timeout=30,
+            )
+            return out.decode("utf-8", errors="replace")
+        except Exception as exc:
+            logger.warning("Subprocess fetch failed: %s. Falling back to local urllib fetch.", exc)
 
     request = Request(
         url,
@@ -367,22 +390,14 @@ def add_similar_nba_players(
     nba_features = nba[SIMILARITY_FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0)
     prospect_features = prospects[SIMILARITY_FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0)
 
-    scaler = StandardScaler()
-    nba_scaled = scaler.fit_transform(nba_features)
-    prospect_scaled = scaler.transform(prospect_features)
-    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
-        scores = cosine_similarity(prospect_scaled, nba_scaled)
-
-    min_start_year = 1996.0
-    first_season_starts = pd.to_numeric(nba["first_season"].str.split("-").str[0], errors="coerce").fillna(min_start_year).to_numpy()
-    gaps = first_season_starts - min_start_year
-    penalties = PROSPECT_RECENCY_PENALTY_MAX * np.minimum(1.0, gaps / PROSPECT_RECENCY_PENALTY_WINDOW_YEARS)
-
-    adjusted_scores = np.clip(scores - penalties, 0.0, 1.0)
+    scores = cross_pool_cosine_similarity(
+        prospect_features.to_numpy(dtype=float),
+        nba_features.to_numpy(dtype=float),
+    )
 
     similar_payloads: list[list[dict[str, Any]]] = []
     similar_names: list[list[str]] = []
-    for row_scores in adjusted_scores:
+    for row_scores in scores:
         candidate_indices = np.argsort(row_scores)[::-1][:similar_count]
         matches = []
         names = []
@@ -393,7 +408,7 @@ def add_similar_nba_players(
                 {
                     "player_id": int(player["player_id"]),
                     "player_name": str(player["player_name"]),
-                    "similarity_score": round(float(row_scores[int(idx)]) * 100.0, 1),
+                    "similarity_score": similarity_pct(float(row_scores[int(idx)])),
                     "career_span": str(player.get("career_span", "")),
                     "position_group": str(player.get("position_group", "")),
                     "role": str(player.get("role", "")),
