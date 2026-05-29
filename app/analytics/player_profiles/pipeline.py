@@ -8,7 +8,13 @@ from typing import Any
 
 import pandas as pd
 
-from analytics.player_profiles.archetypes import add_archetypes, calculate_npfv_batch, profile_payload
+from analytics.player_profiles.archetypes import (
+    add_archetypes,
+    calculate_adjusted_pfv,
+    calculate_apfv_batch,
+    profile_payload,
+    style_summary,
+)
 from analytics.player_profiles.features import (
     CANONICAL_SEASON_PLAYER_COLUMNS,
     PlayerFilterConfig,
@@ -258,15 +264,17 @@ class PlayerProfilePipeline:
         similar: dict[str, list[dict[str, Any]]],
     ) -> dict[str, dict[str, Any]]:
         profiles = {}
+        adjusted_pfvs = []
         for _, row in career.iterrows():
             pid = str(int(row["player_id"]))
             profiles[pid] = profile_payload(row, similar.get(pid, []))
+            raw_metrics = style_summary(row, adjust_for_mpg=False)
+            adjusted_pfvs.append(calculate_adjusted_pfv(raw_metrics))
 
-        pfvs = [p["pfv"] for p in profiles.values() if "pfv" in p]
-        if pfvs:
-            npfvs = calculate_npfv_batch(pfvs)
-            for p, npfv_val in zip(profiles.values(), npfvs):
-                p["npfv"] = npfv_val
+        if adjusted_pfvs:
+            apfvs = calculate_apfv_batch(adjusted_pfvs)
+            for p, apfv_val in zip(profiles.values(), apfvs):
+                p["apfv"] = apfv_val
         return profiles
 
     def _build_metadata(self, career: pd.DataFrame) -> dict[str, dict[str, Any]]:

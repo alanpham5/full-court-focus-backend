@@ -23,7 +23,7 @@ The analytical pipelines and data scraping workflows are organized as Python scr
 
 ### 2. `build_player_profiles.py`
 
-- **What it does**: Gathers biographical details (height, weight, draft numbers) for players, standardizes metrics, computes career-level playstyle metric percentiles against all careers from 1996 through the configured end season, computes PCA-based similarity coordinates, and compiles career profiles.
+- **What it does**: Gathers biographical details (height, weight, draft numbers) for players, standardizes metrics, computes career-level playstyle metric percentiles against all careers from 1996 through the configured end season, applies MPG context to displayed playstyle percentiles, computes PCA-based similarity coordinates, and compiles career profiles.
 - **How to run**:
   ```bash
   python app/scripts/build_player_profiles.py \
@@ -64,24 +64,16 @@ The analytical pipelines and data scraping workflows are organized as Python scr
   python app/scripts/scrape_lineups.py --team-id 1610612743 --season 2023-24
   ```
 
-### 6. `backfill_paint_parquet.py`
+### 6. `build_prospects_dataset.py`
 
-- **What it does**: Downloads paints touches (`PTS_PAINT`) and registers `PAINT_FGA` aliases to historical parquet data files for older seasons.
-- **How to run**:
-  ```bash
-  python app/scripts/backfill_paint_parquet.py
-  ```
-
-### 7. `build_prospects_dataset.py`
-
-- **What it does**: Scrapes RealGM NBA draft prospect averages, converts available counting stats to per-36 features, compares those features against NBA career counterparts, and stores four similar NBA players for each prospect. Outputs `prospects.json` and `prospects.parquet` to `app/data/static/`. RealGM player profile URLs are not collected or stored.
+- **What it does**: Scrapes RealGM NBA draft prospect averages, converts available counting stats to per-36 features, computes PFV/APFV directly from the current draft-class percentiles, compares those features against NBA career counterparts, and stores four similar NBA players for each prospect. Outputs `prospects.json` and `prospects.parquet` to `app/data/static/`. RealGM player profile URLs are not collected or stored.
 - **Output shape**: Each prospect record contains:
   - `height` — player height (e.g., `"6-9"`)
   - `weight` — player weight (e.g., `"210"`)
   - `role` — assigned playstyle role (e.g., `"Designated Scorer"`)
   - `gp` — games played (raw integer)
-  - `raw_stats` — flat object with raw counting and shooting averages (`gp`, `mpg`, `ppg`, `fgm`, `fga`, `fg_pct`, `fg3m`, `fg3a`, `fg3_pct`, `ftm`, `fta`, `ft_pct`, `rpg`, `apg`, `spg`, `bpg`)
-  - All **non-raw stats** are stored as `{ "value": <float>, "percentile": <0–100 float> }` objects ranked within the current draft class:
+  - `raw_stats` — flat object with raw counting and shooting averages (`gp`, `mpg`, `ppg`, `fgm`, `fga`, `fg_pct`, `fg3m`, `fg3a`, `fg3_pct`, `ftm`, `fta`, `ft_pct`, `rpg`, `apg`, `spg`, `bpg`) plus `pfv` and `apfv`
+  - All **non-raw stats** are stored as `{ "value": <float>, "percentile": <0–100 float> }` objects ranked within the current draft class. The playstyle percentiles other than `mpg` are adjusted by MPG percentile; raw values are not adjusted:
     - `mpg`, `pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`
     - `ts_pct`, `efg_pct`, `fg3a_rate`, `fta_rate`
   - `similar_nba_players` — list of up to 4 NBA career matches with similarity scores
@@ -154,7 +146,10 @@ uvicorn main:app --reload
 
 #### `GET /players/{player_id}`
 
-- **Description**: Returns detailed biographical stats, player playstyle role, career playstyle metrics, each metric's percentile against all careers from 1996 through 2025, and similar-player lists.
+- **Description**: Returns detailed biographical stats, player playstyle role, career playstyle metrics, each metric's percentile against all careers from 1996 through 2025, PFV/APFV scores, and similar-player lists.
+- **PFV**: Polygonal Feature Value, the normalized area of the six-axis radar chart using raw population percentiles for `pts_per36`, `reb_per36`, `ast_per36`, `blk_per36`, `stl_per36`, and `ts_pct`.
+- **APFV**: Adjusted PFV, a population-ranked version of PFV after applying the MPG adjustment once. Higher APFV means the player's radar shape holds up with stronger playing-time context.
+- **MPG adjustment**: For `pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `ts_pct`, `efg_pct`, `fg3a_rate`, and `fta_rate`, only the percentile is multiplied by `(mpg_percentile / 100) ^ 1.5`. The metric `value` remains the raw career value, and `mpg.percentile` remains unadjusted.
 - **Sample Response**:
   ```json
   {
@@ -170,26 +165,28 @@ uvicorn main:app --reload
     "career_games": 1069,
     "archetypes": ["high-volume creator", "perimeter scorer"],
     "playstyle_metrics": {
-      "pts_per36": { "value": 26.3044, "percentile": 99.1 },
-      "ast_per36": { "value": 6.6862, "percentile": 95.2 },
-      "reb_per36": { "value": 4.9311, "percentile": 40.3 },
-      "stl_per36": { "value": 1.5885, "percentile": 84.1 },
-      "blk_per36": { "value": 0.2796, "percentile": 31.6 },
+      "pts_per36": { "value": 26.3044, "percentile": 94.8 },
+      "reb_per36": { "value": 4.9311, "percentile": 38.6 },
+      "ast_per36": { "value": 6.6862, "percentile": 91.1 },
+      "blk_per36": { "value": 0.2796, "percentile": 30.2 },
+      "stl_per36": { "value": 1.5885, "percentile": 80.5 },
       "tov_per36": { "value": 3.2801, "percentile": 92.3 },
-      "ts_pct": { "value": 0.6225, "percentile": 95.1 },
-      "efg_pct": { "value": 0.5793, "percentile": 92.5 },
+      "ts_pct": { "value": 0.6225, "percentile": 90.9 },
+      "efg_pct": { "value": 0.5793, "percentile": 88.5 },
       "ast_pct": { "value": 0.7638, "percentile": 72.7 },
-      "fg3a_rate": { "value": 0.5137, "percentile": 84.6 },
-      "fta_rate": { "value": 0.2396, "percentile": 47.7 },
+      "fg3a_rate": { "value": 0.5137, "percentile": 80.9 },
+      "fta_rate": { "value": 0.2396, "percentile": 45.7 },
       "mpg": { "value": 34.0881, "percentile": 97.1 }
     },
+    "pfv": 0.4715,
+    "apfv": 0.9627,
     "similar_players": [
       {
-        "player_id": 203081,
-        "player_name": "Damian Lillard",
-        "similarity_score": 91.7,
-        "career_span": "2012-13 to 2025-26",
-        "explanation": "Closest match in rebounding, defensive box score, and scoring efficiency."
+        "player_id": 202681,
+        "player_name": "Kyrie Irving",
+        "similarity_score": 92.6,
+        "career_span": "2011-12 to 2024-25",
+        "explanation": "Closest match in rebounding, scoring volume, and defensive box score."
       }
     ]
   }
@@ -401,7 +398,9 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
         "rpg": 6.8,
         "apg": 3.7,
         "spg": 1.1,
-        "bpg": 0.3
+        "bpg": 0.3,
+        "pfv": 0.276,
+        "apfv": 0.9515
       }
     }
   ]
@@ -409,7 +408,7 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
 
 #### `GET /draft/{prospect_id}`
 
-- **Description**: Returns the complete dataset for a single prospect, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's percentile rank within the current draft class (0–100). RealGM profile URLs are not included in API responses.
+- **Description**: Returns the complete dataset for a single prospect, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's MPG-adjusted percentile rank within the current draft class (0–100). RealGM profile URLs are not included in API responses.
 - **Path Parameters**: `prospect_id` (string) — slugified name, e.g. `a-j-dybantsa`
 - **Sample Response**:
   ```json
@@ -422,28 +421,29 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
     "role": "Designated Scorer",
     "gp": 35,
     "mpg":      { "value": 34.8,    "percentile": 92.2  },
-    "pts_per36": { "value": 26.3793, "percentile": 100.0 },
-    "ast_per36": { "value": 3.8276,  "percentile": 74.8  },
-    "reb_per36": { "value": 7.0345,  "percentile": 55.7  },
-    "stl_per36": { "value": 1.1379,  "percentile": 41.7  },
-    "blk_per36": { "value": 0.3103,  "percentile": 27.0  },
-    "ts_pct":    { "value": 0.606,   "percentile": 58.3  },
-    "efg_pct":   { "value": 0.5491,  "percentile": 46.1  },
-    "fg3a_rate": { "value": 0.2428,  "percentile": 31.3  },
-    "fta_rate":  { "value": 0.4913,  "percentile": 76.5  },
+    "pts_per36": { "value": 26.3793, "percentile": 88.5  },
+    "reb_per36": { "value": 7.0345,  "percentile": 49.3  },
+    "ast_per36": { "value": 3.8276,  "percentile": 66.2  },
+    "blk_per36": { "value": 0.3103,  "percentile": 23.9  },
+    "stl_per36": { "value": 1.1379,  "percentile": 36.9  },
+    "ts_pct":    { "value": 0.606,   "percentile": 51.6  },
+    "efg_pct":   { "value": 0.5491,  "percentile": 40.8  },
+    "fg3a_rate": { "value": 0.2428,  "percentile": 27.7  },
+    "fta_rate":  { "value": 0.4913,  "percentile": 67.7  },
     "raw_stats": {
       "gp": 35, "mpg": 34.8, "ppg": 25.5,
       "fgm": 8.8, "fga": 17.3, "fg_pct": 0.51,
       "fg3m": 1.4, "fg3a": 4.2, "fg3_pct": 0.331,
       "ftm": 6.5, "fta": 8.5, "ft_pct": 0.774,
-      "rpg": 6.8, "apg": 3.7, "spg": 1.1, "bpg": 0.3
+      "rpg": 6.8, "apg": 3.7, "spg": 1.1, "bpg": 0.3,
+      "pfv": 0.276, "apfv": 0.9515
     },
     "similar_nba_players": [
       {
-        "player_id": 1629627,
-        "player_name": "Zion Williamson",
-        "similarity_score": 94.6,
-        "career_span": "2019-20 to 2025-26",
+        "player_id": 2546,
+        "player_name": "Carmelo Anthony",
+        "similarity_score": 91.9,
+        "career_span": "2003-04 to 2021-22",
         "position_group": "W",
         "role": "Designated Scorer"
       }

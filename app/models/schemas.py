@@ -154,7 +154,7 @@ class PlayerProfileResponse(BaseModel):
     archetypes: list[str]
     playstyle_metrics: PlayerPlaystyleMetrics
     pfv: Optional[float] = None
-    npfv: Optional[float] = None
+    apfv: Optional[float] = None
     similar_players: list[SimilarPlayer]
 
 

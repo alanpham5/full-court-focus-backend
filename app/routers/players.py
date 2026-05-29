@@ -6,18 +6,23 @@ from rapidfuzz import fuzz
 
 from config import PLAYER_METADATA_PATH, PLAYER_PROFILES_PATH
 from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, SimilarPlayer
-from analytics.player_profiles.archetypes import calculate_npfv, calculate_pfv
+from analytics.player_profiles.archetypes import (
+    calculate_adjusted_pfv,
+    calculate_apfv,
+    calculate_pfv,
+    remove_mpg_adjustment_from_metrics,
+)
 
 router = APIRouter(prefix="/players", tags=["players"])
 
 PLAYSTYLE_METRIC_KEYS = (
     "pts_per36",
-    "ast_per36",
     "reb_per36",
-    "stl_per36",
+    "ast_per36",
     "blk_per36",
-    "tov_per36",
+    "stl_per36",
     "ts_pct",
+    "tov_per36",
     "efg_pct",
     "ast_pct",
     "fg3a_rate",
@@ -131,13 +136,17 @@ def _profile_response_payload(profile: dict, request: Request = None) -> dict:
     payload["career_teams"] = _collapse_career_teams(payload.get("career_teams", []))
     payload["playstyle_metrics"] = _normalize_playstyle_metrics(payload.get("playstyle_metrics", {}))
     if "pfv" not in payload or payload["pfv"] is None:
-        payload["pfv"] = calculate_pfv(payload["playstyle_metrics"])
-    if "npfv" not in payload or payload["npfv"] is None:
-        all_pfvs = getattr(request.app.state, "player_all_pfvs", []) if request else []
-        if all_pfvs:
-            payload["npfv"] = calculate_npfv(payload["pfv"], all_pfvs)
+        payload["pfv"] = calculate_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"]))
+    payload.pop("npfv", None)
+    if "apfv" not in payload or payload["apfv"] is None:
+        all_adjusted_pfvs = getattr(request.app.state, "player_all_adjusted_pfvs", []) if request else []
+        if all_adjusted_pfvs:
+            payload["apfv"] = calculate_apfv(
+                calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"])),
+                all_adjusted_pfvs,
+            )
         else:
-            payload["npfv"] = 0.0
+            payload["apfv"] = 0.0
     return payload
 
 
