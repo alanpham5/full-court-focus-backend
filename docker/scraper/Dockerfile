@@ -22,5 +22,4 @@ RUN chmod +x /usr/local/bin/run-scrape.sh /usr/local/bin/entrypoint.sh \
     && chmod 0644 /etc/cron.d/nba-scrape \
     && touch /var/log/scrape.log
 
-# Daily 6:05 UTC check; also runs once at container start (see entrypoint.sh).
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

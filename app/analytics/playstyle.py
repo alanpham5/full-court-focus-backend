@@ -92,8 +92,6 @@ PAINT_VOL = 0.55
 PAINT_LOW_3 = 0.35
 PLAY_AST = 0.58
 PLAY_TOV = 0.28
-# High-assist hub offenses can be playmakers even if their creation load
-# brings a merely average turnover rate.
 PLAY_HUB_AST = 0.90
 PLAY_HUB_AST_TO = 0.85
 PLAY_HUB_TOV_CAP = 0.75
@@ -101,12 +99,10 @@ OREB_GLASS = 0.70
 FTA_FOUL = 0.70
 AST_MOVE = 0.50
 AST_TO_MOVE = 0.20
-# High AST/TO with non-terrible AST% → ball movement, not iso
 BALL_MOVE_ALT_AST_TO = 0.85
 BALL_MOVE_ALT_AST_FLOOR = -0.15
 ISO_AST_CAP = -0.45
 ISO_OFF_FLOOR = 0.35
-# Elite AST/TO teams share the ball even when AST% is only average
 ISO_AST_TO_MAX = 0.4
 
 

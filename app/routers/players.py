@@ -90,7 +90,7 @@ def get_player_profile(player_id: int, request: Request):
             detail=f"Player profile not found. Build {PLAYER_PROFILES_PATH.name} first.",
         )
     
-    # Check if there are null bio values to populate
+
     has_missing_bio = (
         profile.get("height") is None
         or profile.get("weight") is None
@@ -214,7 +214,7 @@ def _fetch_and_populate_missing_bio(player_id: int, profile: dict):
     from nba_api.stats.endpoints import commonplayerinfo
     
     try:
-        # Use a short 5-second timeout to avoid locking up client requests
+
         endpoint = commonplayerinfo.CommonPlayerInfo(
             player_id=player_id,
             timeout=5,
@@ -260,7 +260,7 @@ def _fetch_and_populate_missing_bio(player_id: int, profile: dict):
             profile["weight"] = clean_weight
             profile["draft_year"] = clean_draft_year
             profile["draft_position"] = clean_draft_pos
-            # Only update role if it is missing or still a raw position group letter
+
             legacy_positions = {"", "G", "W", "B", "F", "C", "G-F", "F-G", "F-C", "C-F", "GUARD", "FORWARD", "CENTER"}
             current_role = str(profile.get("role", "")).upper()
             if not profile.get("role") or current_role in legacy_positions:

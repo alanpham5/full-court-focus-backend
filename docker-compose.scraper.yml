@@ -1,15 +1,3 @@
-# Long-running scraper: daily check at 6:05 UTC, runs scrape only if stale vs schedule.
-# Run: docker compose -f docker-compose.scraper.yml up -d
-#
-# Optional git push (triggers your existing Cloud Run deploy if repo is connected):
-#   set GIT_PUSH, GITHUB_TOKEN, and GITHUB_REPOSITORY in app/.env
-#   docker compose -f docker-compose.scraper.yml up -d
-#
-# One-off check (respects stale schedule):
-#   docker compose -f docker-compose.scraper.yml run --rm --entrypoint /usr/local/bin/run-scrape.sh scraper
-# Force scrape now:
-#   docker compose -f docker-compose.scraper.yml run --rm --entrypoint python scraper scripts/check_and_scrape.py --force
-
 services:
   scraper:
     build:
@@ -22,6 +10,4 @@ services:
       APP_DIR: /workspace/app
       REPO_ROOT: /workspace
     volumes:
-      # Mount repo so scrape output and optional git push use your working tree.
       - .:/workspace
-    # Logs: docker compose -f docker-compose.scraper.yml exec scraper tail -f /var/log/scrape.log

@@ -12,5 +12,4 @@ COPY app/ .
 
 EXPOSE 8080
 
-# Cloud Run sets PORT; default matches Cloud Run’s convention.
 CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}

@@ -76,7 +76,7 @@ class NbaStatsClient:
                     frame_map[f"{name}_{i}"] = frame
                 time.sleep(self.base_sleep + random.random() * self.jitter)
                 return EndpointResult(name=name, params=params, raw=raw, frames=frame_map)
-            except Exception as exc:  # nba_api raises requests exceptions and JSON errors.
+            except Exception as exc:
                 last_err = exc
                 sleep = self.base_sleep * (2 ** (attempt - 1)) + random.random() * self.jitter
                 logger.warning("%s failed on attempt %s/%s: %s", name, attempt, max_retries, exc)

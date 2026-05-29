@@ -1,6 +1,6 @@
 # Full Court Focus Backend
 
-FastAPI-powered basketball analytics service that provides career-level historical player profiles, similar-player matches, team-season profiles, starting lineups, playstyle badges, and historical similarity indices using NBA API data.
+FastAPI-powered basketball analytics service that provides career-level historical player profiles, similar-player matches, team-season profiles, starting lineups, playstyle badges, historical similarity indices, and NBA draft prospect analytics using NBA API data.
 
 ---
 
@@ -70,6 +70,28 @@ The analytical pipelines and data scraping workflows are organized as Python scr
 - **How to run**:
   ```bash
   python app/scripts/backfill_paint_parquet.py
+  ```
+
+### 7. `build_prospects_dataset.py`
+
+- **What it does**: Scrapes RealGM NBA draft prospect averages, converts available counting stats to per-36 features, compares those features against NBA career counterparts, and stores four similar NBA players for each prospect. Outputs `prospects.json` and `prospects.parquet` to `app/data/static/`. RealGM player profile URLs are not collected or stored.
+- **Output shape**: Each prospect record contains:
+  - `height` — player height (e.g., `"6-9"`)
+  - `weight` — player weight (e.g., `"210"`)
+  - `role` — assigned playstyle role (e.g., `"Designated Scorer"`)
+  - `gp` — games played (raw integer)
+  - `raw_stats` — flat object with raw counting and shooting averages (`gp`, `mpg`, `ppg`, `fgm`, `fga`, `fg_pct`, `fg3m`, `fg3a`, `fg3_pct`, `ftm`, `fta`, `ft_pct`, `rpg`, `apg`, `spg`, `bpg`)
+  - All **non-raw stats** are stored as `{ "value": <float>, "percentile": <0–100 float> }` objects ranked within the current draft class:
+    - `mpg`, `pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`
+    - `ts_pct`, `efg_pct`, `fg3a_rate`, `fta_rate`
+  - `similar_nba_players` — list of up to 4 NBA career matches with similarity scores
+- **How to run**:
+  ```bash
+  python app/scripts/build_prospects_dataset.py
+  ```
+  If RealGM blocks direct script requests, save the page HTML from a browser and pass it in:
+  ```bash
+  python app/scripts/build_prospects_dataset.py --html-input /path/to/realgm_prospects.html
   ```
 
 ---
@@ -339,6 +361,91 @@ uvicorn main:app --reload
           "value": 0.85,
           "record": "46-36"
         }
+      }
+    ]
+  }
+  ```
+
+---
+
+### Draft Endpoints
+
+Requires `app/data/static/prospects.json` to be generated first via `build_prospects_dataset.py`.
+
+#### `GET /draft/prospects`
+
+- **Description**: Lists every prospect in the current draft class with their `prospect_id`, display name, college/team, physical metadata (`height`, `weight`), playstyle role (`role`), and flat raw counting stats.
+- **Sample Response**:
+  ```json
+  [
+    {
+      "prospect_id": "a-j-dybantsa",
+      "player_name": "A.J. Dybantsa",
+      "team": "BYU",
+      "height": "6-9",
+      "weight": "210",
+      "role": "Designated Scorer",
+      "raw_stats": {
+        "gp": 35,
+        "mpg": 34.8,
+        "ppg": 25.5,
+        "fgm": 8.8,
+        "fga": 17.3,
+        "fg_pct": 0.51,
+        "fg3m": 1.4,
+        "fg3a": 4.2,
+        "fg3_pct": 0.331,
+        "ftm": 6.5,
+        "fta": 8.5,
+        "ft_pct": 0.774,
+        "rpg": 6.8,
+        "apg": 3.7,
+        "spg": 1.1,
+        "bpg": 0.3
+      }
+    }
+  ]
+  ```
+
+#### `GET /draft/{prospect_id}`
+
+- **Description**: Returns the complete dataset for a single prospect, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's percentile rank within the current draft class (0–100). RealGM profile URLs are not included in API responses.
+- **Path Parameters**: `prospect_id` (string) — slugified name, e.g. `a-j-dybantsa`
+- **Sample Response**:
+  ```json
+  {
+    "prospect_id": "a-j-dybantsa",
+    "player_name": "A.J. Dybantsa",
+    "team": "BYU",
+    "height": "6-9",
+    "weight": "210",
+    "role": "Designated Scorer",
+    "gp": 35,
+    "mpg":      { "value": 34.8,    "percentile": 92.2  },
+    "pts_per36": { "value": 26.3793, "percentile": 100.0 },
+    "ast_per36": { "value": 3.8276,  "percentile": 74.8  },
+    "reb_per36": { "value": 7.0345,  "percentile": 55.7  },
+    "stl_per36": { "value": 1.1379,  "percentile": 41.7  },
+    "blk_per36": { "value": 0.3103,  "percentile": 27.0  },
+    "ts_pct":    { "value": 0.606,   "percentile": 58.3  },
+    "efg_pct":   { "value": 0.5491,  "percentile": 46.1  },
+    "fg3a_rate": { "value": 0.2428,  "percentile": 31.3  },
+    "fta_rate":  { "value": 0.4913,  "percentile": 76.5  },
+    "raw_stats": {
+      "gp": 35, "mpg": 34.8, "ppg": 25.5,
+      "fgm": 8.8, "fga": 17.3, "fg_pct": 0.51,
+      "fg3m": 1.4, "fg3a": 4.2, "fg3_pct": 0.331,
+      "ftm": 6.5, "fta": 8.5, "ft_pct": 0.774,
+      "rpg": 6.8, "apg": 3.7, "spg": 1.1, "bpg": 0.3
+    },
+    "similar_nba_players": [
+      {
+        "player_id": 1629627,
+        "player_name": "Zion Williamson",
+        "similarity_score": 94.6,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
       }
     ]
   }

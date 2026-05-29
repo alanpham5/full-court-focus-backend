@@ -1,4 +1,3 @@
-# Environment and local secrets
 .env
 .env.*
 !.env.example
@@ -6,7 +5,6 @@ app/.env
 app/.env.*
 !app/.env.example
 
-# Private keys and cloud credentials
 *.pem
 *.key
 *.p8
@@ -19,7 +17,6 @@ id_ed25519*
 *service-account*.json
 *secret*.json
 
-# Python
 app/.venv/
 .venv/
 venv/
@@ -34,11 +31,9 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Generated data and accidental duplicate app tree
 app/data/player_profiles/
 app/app/
 
-# OS/editor files
 .DS_Store
 .idea/
 .vscode/

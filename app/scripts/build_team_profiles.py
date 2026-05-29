@@ -11,11 +11,11 @@ for p in (_APP_ROOT, _SCRIPTS_ROOT):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
-from analytics.normalizer import normalize_by_season  # noqa: E402
-from analytics.similarity import build_similar_teams_index  # noqa: E402
-from analytics.team_profiles_build import build_team_profiles_json  # noqa: E402
-from analytics.team_static_cache import merge_similar_teams_with_abbreviations  # noqa: E402
-from parquet_io import read_teams_parquet  # noqa: E402
+from analytics.normalizer import normalize_by_season
+from analytics.similarity import build_similar_teams_index
+from analytics.team_profiles_build import build_team_profiles_json
+from analytics.team_static_cache import merge_similar_teams_with_abbreviations
+from parquet_io import read_teams_parquet
 
 STATIC_DIR = _APP_ROOT / "data" / "static"
 PARQUET_DEFAULT = STATIC_DIR / "teams_historical.parquet"

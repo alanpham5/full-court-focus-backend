@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-# 6:00 UTC on the 1st and 15th, November–April
 SCHEDULE_MONTHS = (11, 12, 1, 2, 3, 4)
 SCHEDULE_DAYS = (1, 15)
 SCHEDULE_HOUR_UTC = 6

@@ -129,11 +129,9 @@ def normalize_position(pos: Any) -> str:
 
 def position_group(position: str | None) -> str:
     pos = normalize_position(position)
-    # Check exact match first
     for group, values in POSITION_GROUPS.items():
         if pos in values:
             return group
-    # Check components
     for group, values in POSITION_GROUPS.items():
         if any(p in values for p in pos.split("-")):
             return group
@@ -180,7 +178,6 @@ def build_season_player_table(
     base["SEASON"] = season
     base["SEASON_START"] = season_start_year(season)
 
-    # Merge bio/player index statistics if present
     if not bio.empty and "PERSON_ID" in bio.columns:
         bio_clean = bio[['PERSON_ID', 'POSITION', 'HEIGHT', 'WEIGHT', 'DRAFT_YEAR', 'DRAFT_NUMBER']].copy()
         bio_clean = bio_clean.rename(columns={'PERSON_ID': 'PLAYER_ID'})
@@ -188,7 +185,6 @@ def build_season_player_table(
         bio_clean = bio_clean.drop_duplicates(subset=['PLAYER_ID'])
         base = base.merge(bio_clean, on='PLAYER_ID', how='left')
 
-    # Ensure all bio columns exist
     for col in ["POSITION", "HEIGHT", "WEIGHT", "DRAFT_YEAR", "DRAFT_NUMBER"]:
         if col not in base.columns:
             base[col] = None

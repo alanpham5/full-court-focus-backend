@@ -25,14 +25,14 @@ def _load_env_defaults() -> None:
             os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
 
 
-from analytics.player_profiles.nba_client import NbaStatsClient  # noqa: E402
-from analytics.player_profiles.pipeline import (  # noqa: E402
+from analytics.player_profiles.nba_client import NbaStatsClient
+from analytics.player_profiles.pipeline import (
     PlayerProfilePipeline,
     PlayerProfilePipelineConfig,
     copy_processed_outputs_to_static,
 )
-from analytics.player_profiles.seasons import seasons_since_1996  # noqa: E402
-from analytics.player_profiles.storage import ProfileStorage, StorageConfig  # noqa: E402
+from analytics.player_profiles.seasons import seasons_since_1996
+from analytics.player_profiles.storage import ProfileStorage, StorageConfig
 
 
 def main() -> None:

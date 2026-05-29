@@ -10,13 +10,14 @@ from config import (
     STARTING_LINEUPS_PATH,
     PLAYER_METADATA_PATH,
     PLAYER_PROFILES_PATH,
+    PROSPECTS_JSON_PATH,
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
     TEAMS_PARQUET_PATH,
 )
 from analytics.normalizer import normalize_by_season
 from parquet_io import read_teams_parquet
-from routers import badges, players, search, team
+from routers import badges, draft, players, search, team
 
 
 @asynccontextmanager
@@ -102,6 +103,17 @@ async def lifespan(app: FastAPI):
         app.state.player_metadata = {}
         print(f"  [WARN] {PLAYER_METADATA_PATH.name} missing — player search will return no rows")
 
+    if PROSPECTS_JSON_PATH.exists():
+        with PROSPECTS_JSON_PATH.open(encoding="utf-8") as f:
+            prospects_list = json.load(f)
+        app.state.prospects = prospects_list
+        app.state.prospects_by_id = {p["prospect_id"]: p for p in prospects_list}
+        print(f"  ✓ Prospects ({len(prospects_list)} prospects) from {PROSPECTS_JSON_PATH.name}")
+    else:
+        app.state.prospects = []
+        app.state.prospects_by_id = {}
+        print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
+
     yield
 
 
@@ -122,6 +134,7 @@ app.include_router(team.router)
 app.include_router(search.router)
 app.include_router(badges.router)
 app.include_router(players.router)
+app.include_router(draft.router)
 
 
 @app.get("/health")

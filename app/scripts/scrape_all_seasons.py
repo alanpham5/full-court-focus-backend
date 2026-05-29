@@ -79,7 +79,6 @@ SHOOTING_COLS = [
     "FGA",
 ]
 
-# LeagueDashTeamStats Base (Per100) no longer exposes paint FGA-by-zone; Misc has PTS_PAINT.
 MISC_COLS = ["TEAM_ID", "SEASON", "PTS_PAINT"]
 
 

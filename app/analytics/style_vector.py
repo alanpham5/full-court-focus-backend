@@ -12,7 +12,6 @@ def _first_present_column(season_df: pd.DataFrame, candidates: tuple[str, ...]) 
     return None
 
 
-# Paint: LeagueDashTeamStats Base no longer returns PAINT_FGA; Misc has PTS_PAINT per 100.
 _STYLE_AXES: tuple[tuple[str, tuple[str, ...], bool], ...] = (
     ("pace", ("PACE",), True),
     ("three_point_volume", ("FG3A",), True),

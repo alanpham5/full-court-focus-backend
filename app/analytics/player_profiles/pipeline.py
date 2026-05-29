@@ -97,11 +97,9 @@ class PlayerProfilePipeline:
         )
         career = add_archetypes(career)
 
-        # Ensure height and weight are not null by scraping on-the-fly during pipeline run
         has_missing = career["height"].isna() | career["weight"].isna()
         missing_pids = career.loc[has_missing, "player_id"].unique().tolist()
         if missing_pids:
-            # Cast draft columns to object dtype first to avoid FutureWarning/errors when assigning "Undrafted" strings to float64 columns
             for col in ["draft_year", "draft_position"]:
                 if col in career.columns:
                     career[col] = career[col].astype(object)
@@ -126,7 +124,7 @@ class PlayerProfilePipeline:
                             fallback_h, fallback_w = "6-3", 190.0
                         elif pg == "B":
                             fallback_h, fallback_w = "6-10", 240.0
-                        else:  # "W"
+                        else:
                             fallback_h, fallback_w = "6-7", 215.0
 
                         def clean_val(v):
@@ -156,7 +154,6 @@ class PlayerProfilePipeline:
                 except Exception as e:
                     logger.warning("Failed to fetch bio for player %s during build: %s", pid, e)
 
-        # Clean up mixed-type columns to prevent Arrow serialization errors
         def force_clean_draft_val(x):
             if pd.isna(x) or x is None:
                 return None
