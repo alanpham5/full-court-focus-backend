@@ -6,6 +6,18 @@ import pandas as pd
 
 from analytics.player_profiles.features import PLAYSTYLE_METRIC_KEYS
 
+MPG_ADJUSTED_PERCENTILE_KEYS = {
+    "pts_per36",
+    "ast_per36",
+    "reb_per36",
+    "stl_per36",
+    "blk_per36",
+    "ts_pct",
+    "efg_pct",
+    "fg3a_rate",
+    "fta_rate",
+}
+
 
 def _v(row: pd.Series, key: str) -> float:
     val = pd.to_numeric(row.get(key, 0.0), errors="coerce")
@@ -112,17 +124,110 @@ def add_archetypes(career_df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def style_summary(row: pd.Series) -> dict[str, dict[str, float]]:
+def style_summary(row: pd.Series, *, adjust_for_mpg: bool = True) -> dict[str, dict[str, float]]:
+    mpg_pct = _v(row, "mpg_career_pctile")
     return {
         k: {
             "value": round(_v(row, k), 4),
-            "percentile": round(_v(row, f"{k}_career_pctile"), 1),
+            "percentile": round(
+                adjust_percentile_for_mpg(k, _v(row, f"{k}_career_pctile"), mpg_pct)
+                if adjust_for_mpg
+                else _v(row, f"{k}_career_pctile"),
+                1,
+            ),
         }
         for k in PLAYSTYLE_METRIC_KEYS
     }
 
 
+def adjust_percentile_for_mpg(key: str, percentile: float, mpg_percentile: float) -> float:
+    if key not in MPG_ADJUSTED_PERCENTILE_KEYS:
+        return float(percentile)
+    mpg_factor = max(0.0, min(float(mpg_percentile), 100.0)) / 100.0
+    return round(float(percentile) * (mpg_factor ** 1.5), 4)
+
+
+def remove_mpg_adjustment_from_metrics(metrics: dict) -> dict:
+    """Return a copy with display percentiles converted back to raw percentiles."""
+    out = {
+        key: dict(value) if isinstance(value, dict) else value
+        for key, value in metrics.items()
+    }
+    mpg_pct = _metric_percentile(out, "mpg")
+    mpg_factor = max(0.0, min(mpg_pct, 100.0)) / 100.0
+    if mpg_factor == 0.0:
+        return out
+    divisor = mpg_factor ** 1.5
+    for key in MPG_ADJUSTED_PERCENTILE_KEYS:
+        item = out.get(key)
+        if not isinstance(item, dict):
+            continue
+        pct = item.get("percentile")
+        if pct is not None:
+            item["percentile"] = round(min(float(pct) / divisor, 100.0), 1)
+    return out
+
+
+def calculate_pfv(metrics: dict) -> float:
+    import math
+
+    # Clockwise order of dimensions
+    keys = [
+        "pts_per36",
+        "reb_per36",
+        "ast_per36",
+        "blk_per36",
+        "stl_per36",
+        "ts_pct",
+    ]
+    r = [_metric_percentile(metrics, k) / 100.0 for k in keys]
+
+    n = 6
+    sum_product = 0.0
+    for i in range(n):
+        r_current = r[i]
+        r_next = r[(i + 1) % n]
+        sum_product += r_current * r_next
+
+    sin_term = math.sin(2.0 * math.pi / n)
+    A = 0.5 * sin_term * sum_product
+    A_max = n * 0.5 * sin_term
+
+    pfv = A / A_max
+    return round(pfv, 4)
+
+
+def calculate_adjusted_pfv(metrics: dict) -> float:
+    """Return PFV adjusted by MPG percentile while preserving the six-axis radar."""
+    pfv = calculate_pfv(metrics)
+    mpg_pct = _metric_percentile(metrics, "mpg") / 100.0
+    return round(pfv * (mpg_pct ** 1.5), 4)
+
+
+def calculate_apfv(adjusted_pfv: float, all_adjusted_pfvs: list[float]) -> float:
+    """Normalize a single adjusted PFV against a population to [0, 0.99].
+
+    Uses percentile-rank within the population, then applies a power
+    curve (exponent 1.5) so that high APFV values are progressively
+    rarer — only the very top of the distribution can approach 0.99.
+    """
+    n = len(all_adjusted_pfvs)
+    if n == 0:
+        return 0.0
+    rank = sum(1 for v in all_adjusted_pfvs if v <= adjusted_pfv)
+    pctile = rank / n  # 0.0 – 1.0
+    curved = pctile ** 1.5  # compress upper end
+    return round(min(curved * 0.99, 0.99), 4)
+
+
+def calculate_apfv_batch(adjusted_pfvs: list[float]) -> list[float]:
+    """Compute APFV for every entry in *adjusted_pfvs* against the same population."""
+    return [calculate_apfv(v, adjusted_pfvs) for v in adjusted_pfvs]
+
+
 def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    metrics = style_summary(row)
+    pfv = calculate_pfv(style_summary(row, adjust_for_mpg=False))
     return {
         "player_id": int(row["player_id"]),
         "player_name": str(row["player_name"]),
@@ -135,7 +240,8 @@ def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None)
         "career_span": str(row.get("career_span", "")),
         "career_games": int(row.get("career_games", 0) or 0),
         "archetypes": list(row.get("archetypes", [])),
-        "playstyle_metrics": style_summary(row),
+        "playstyle_metrics": metrics,
+        "pfv": pfv,
         "similar_players": similar or [],
     }
 
@@ -148,3 +254,16 @@ def _clean(value: Any) -> Any:
     if pd.isna(value):
         return None
     return value
+
+
+def _metric_percentile(metrics: dict, key: str) -> float:
+    metric = metrics.get(key, {})
+    pct = 0.0
+    if isinstance(metric, dict):
+        pct = metric.get("percentile", 0.0)
+    elif isinstance(metric, (int, float)):
+        pct = metric
+
+    if pct is None:
+        return 0.0
+    return float(pct)

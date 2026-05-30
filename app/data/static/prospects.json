@@ -13,39 +13,39 @@
     },
     "pts_per36": {
       "value": 26.3793,
-      "percentile": 100.0
-    },
-    "ast_per36": {
-      "value": 3.8276,
-      "percentile": 74.8
+      "percentile": 88.5312
     },
     "reb_per36": {
       "value": 7.0345,
-      "percentile": 55.7
+      "percentile": 49.3119
     },
-    "stl_per36": {
-      "value": 1.1379,
-      "percentile": 41.7
+    "ast_per36": {
+      "value": 3.8276,
+      "percentile": 66.2213
     },
     "blk_per36": {
       "value": 0.3103,
-      "percentile": 27.0
+      "percentile": 23.9034
+    },
+    "stl_per36": {
+      "value": 1.1379,
+      "percentile": 36.9175
     },
     "ts_pct": {
       "value": 0.606,
-      "percentile": 58.3
+      "percentile": 51.6137
     },
     "efg_pct": {
       "value": 0.5491,
-      "percentile": 46.1
+      "percentile": 40.8129
     },
     "fg3a_rate": {
       "value": 0.2428,
-      "percentile": 31.3
+      "percentile": 27.7103
     },
     "fta_rate": {
       "value": 0.4913,
-      "percentile": 76.5
+      "percentile": 67.7264
     },
     "similar_nba_players": [
       {
@@ -97,7 +97,9 @@
       "rpg": 6.8,
       "apg": 3.7,
       "spg": 1.1,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.3524,
+      "apfv": 0.9261
     }
   },
   {
@@ -114,39 +116,39 @@
     },
     "pts_per36": {
       "value": 24.0341,
-      "percentile": 96.5
-    },
-    "ast_per36": {
-      "value": 6.5455,
-      "percentile": 94.8
+      "percentile": 89.0717
     },
     "reb_per36": {
       "value": 3.1705,
-      "percentile": 6.1
+      "percentile": 5.6304
     },
-    "stl_per36": {
-      "value": 0.8182,
-      "percentile": 20.9
+    "ast_per36": {
+      "value": 6.5455,
+      "percentile": 87.5026
     },
     "blk_per36": {
       "value": 0.3068,
-      "percentile": 25.2
+      "percentile": 23.2602
+    },
+    "stl_per36": {
+      "value": 0.8182,
+      "percentile": 19.2912
     },
     "ts_pct": {
       "value": 0.6125,
-      "percentile": 60.9
+      "percentile": 56.2121
     },
     "efg_pct": {
       "value": 0.5606,
-      "percentile": 54.8
+      "percentile": 50.5817
     },
     "fg3a_rate": {
       "value": 0.3515,
-      "percentile": 48.7
+      "percentile": 44.9512
     },
     "fta_rate": {
       "value": 0.3697,
-      "percentile": 46.1
+      "percentile": 42.5514
     },
     "similar_nba_players": [
       {
@@ -198,7 +200,9 @@
       "rpg": 3.1,
       "apg": 6.4,
       "spg": 0.8,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.1872,
+      "apfv": 0.6854
     }
   },
   {
@@ -215,39 +219,39 @@
     },
     "pts_per36": {
       "value": 23.7949,
-      "percentile": 95.7
-    },
-    "ast_per36": {
-      "value": 3.6923,
-      "percentile": 73.0
+      "percentile": 87.0784
     },
     "reb_per36": {
       "value": 3.6923,
-      "percentile": 12.2
+      "percentile": 11.1009
     },
-    "stl_per36": {
-      "value": 1.641,
-      "percentile": 73.9
+    "ast_per36": {
+      "value": 3.6923,
+      "percentile": 66.4234
     },
     "blk_per36": {
       "value": 0.3077,
-      "percentile": 26.1
+      "percentile": 23.7486
+    },
+    "stl_per36": {
+      "value": 1.641,
+      "percentile": 67.2423
     },
     "ts_pct": {
       "value": 0.5976,
-      "percentile": 50.4
+      "percentile": 45.8595
     },
     "efg_pct": {
       "value": 0.5247,
-      "percentile": 32.2
+      "percentile": 29.2991
     },
     "fg3a_rate": {
       "value": 0.3519,
-      "percentile": 49.6
+      "percentile": 45.1315
     },
     "fta_rate": {
       "value": 0.4506,
-      "percentile": 69.6
+      "percentile": 63.3297
     },
     "similar_nba_players": [
       {
@@ -299,7 +303,9 @@
       "rpg": 3.6,
       "apg": 3.6,
       "spg": 1.6,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.2407,
+      "apfv": 0.8148
     }
   },
   {
@@ -316,39 +322,39 @@
     },
     "pts_per36": {
       "value": 23.3239,
-      "percentile": 94.8
-    },
-    "ast_per36": {
-      "value": 2.0282,
-      "percentile": 34.8
+      "percentile": 89.8668
     },
     "reb_per36": {
       "value": 6.2873,
-      "percentile": 50.4
+      "percentile": 47.7773
     },
-    "stl_per36": {
-      "value": 0.8113,
-      "percentile": 20.0
+    "ast_per36": {
+      "value": 2.0282,
+      "percentile": 32.9891
     },
     "blk_per36": {
       "value": 0.4056,
-      "percentile": 36.5
+      "percentile": 34.6006
+    },
+    "stl_per36": {
+      "value": 0.8113,
+      "percentile": 18.9592
     },
     "ts_pct": {
       "value": 0.6101,
-      "percentile": 59.1
+      "percentile": 56.0246
     },
     "efg_pct": {
       "value": 0.5535,
-      "percentile": 49.6
+      "percentile": 47.0189
     },
     "fg3a_rate": {
       "value": 0.2075,
-      "percentile": 25.2
+      "percentile": 23.8886
     },
     "fta_rate": {
       "value": 0.4214,
-      "percentile": 60.9
+      "percentile": 57.7309
     },
     "similar_nba_players": [
       {
@@ -400,7 +406,9 @@
       "rpg": 6.2,
       "apg": 2.0,
       "spg": 0.8,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.2553,
+      "apfv": 0.8637
     }
   },
   {
@@ -417,39 +425,39 @@
     },
     "pts_per36": {
       "value": 24.1791,
-      "percentile": 97.4
-    },
-    "ast_per36": {
-      "value": 4.406,
-      "percentile": 85.2
+      "percentile": 71.927
     },
     "reb_per36": {
       "value": 10.9612,
-      "percentile": 91.3
+      "percentile": 67.4223
     },
-    "stl_per36": {
-      "value": 1.5045,
-      "percentile": 70.4
+    "ast_per36": {
+      "value": 4.406,
+      "percentile": 62.9177
     },
     "blk_per36": {
       "value": 0.6448,
-      "percentile": 50.4
+      "percentile": 37.2189
+    },
+    "stl_per36": {
+      "value": 1.5045,
+      "percentile": 51.9883
     },
     "ts_pct": {
       "value": 0.6635,
-      "percentile": 93.9
+      "percentile": 69.3424
     },
     "efg_pct": {
       "value": 0.6058,
-      "percentile": 83.5
+      "percentile": 61.6623
     },
     "fg3a_rate": {
       "value": 0.2628,
-      "percentile": 33.9
+      "percentile": 25.0341
     },
     "fta_rate": {
       "value": 0.5401,
-      "percentile": 86.1
+      "percentile": 63.5823
     },
     "similar_nba_players": [
       {
@@ -501,7 +509,9 @@
       "rpg": 10.2,
       "apg": 4.1,
       "spg": 1.4,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.6712,
+      "apfv": 0.99
     }
   },
   {
@@ -518,39 +528,39 @@
     },
     "pts_per36": {
       "value": 25.6311,
-      "percentile": 99.1
-    },
-    "ast_per36": {
-      "value": 5.8252,
-      "percentile": 91.3
+      "percentile": 50.1458
     },
     "reb_per36": {
       "value": 4.0777,
-      "percentile": 19.1
+      "percentile": 9.6648
     },
-    "stl_per36": {
-      "value": 1.3981,
-      "percentile": 63.5
+    "ast_per36": {
+      "value": 5.8252,
+      "percentile": 46.1989
     },
     "blk_per36": {
       "value": 0.233,
-      "percentile": 18.3
+      "percentile": 9.26
+    },
+    "stl_per36": {
+      "value": 1.3981,
+      "percentile": 32.1317
     },
     "ts_pct": {
       "value": 0.6344,
-      "percentile": 78.3
+      "percentile": 39.6207
     },
     "efg_pct": {
       "value": 0.5884,
-      "percentile": 73.0
+      "percentile": 36.9389
     },
     "fg3a_rate": {
       "value": 0.4218,
-      "percentile": 61.7
+      "percentile": 31.2209
     },
     "fta_rate": {
       "value": 0.4082,
-      "percentile": 58.3
+      "percentile": 29.5005
     },
     "similar_nba_players": [
       {
@@ -602,7 +612,9 @@
       "rpg": 3.5,
       "apg": 5.0,
       "spg": 1.2,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.32,
+      "apfv": 0.6402
     }
   },
   {
@@ -619,39 +631,39 @@
     },
     "pts_per36": {
       "value": 22.4871,
-      "percentile": 92.2
-    },
-    "ast_per36": {
-      "value": 2.1662,
-      "percentile": 38.3
+      "percentile": 82.6904
     },
     "reb_per36": {
       "value": 11.1404,
-      "percentile": 93.0
+      "percentile": 83.4079
     },
-    "stl_per36": {
-      "value": 1.4441,
-      "percentile": 67.0
+    "ast_per36": {
+      "value": 2.1662,
+      "percentile": 34.3497
     },
     "blk_per36": {
       "value": 1.7536,
-      "percentile": 84.3
+      "percentile": 75.6053
+    },
+    "stl_per36": {
+      "value": 1.4441,
+      "percentile": 60.0896
     },
     "ts_pct": {
       "value": 0.5739,
-      "percentile": 34.8
+      "percentile": 31.2107
     },
     "efg_pct": {
       "value": 0.5673,
-      "percentile": 57.4
+      "percentile": 51.4797
     },
     "fg3a_rate": {
       "value": 0.1345,
-      "percentile": 16.5
+      "percentile": 14.7982
     },
     "fta_rate": {
       "value": 0.2515,
-      "percentile": 17.4
+      "percentile": 15.6054
     },
     "similar_nba_players": [
       {
@@ -703,7 +715,9 @@
       "rpg": 10.8,
       "apg": 2.1,
       "spg": 1.4,
-      "bpg": 1.7
+      "bpg": 1.7,
+      "pfv": 0.4426,
+      "apfv": 0.9771
     }
   },
   {
@@ -720,39 +734,39 @@
     },
     "pts_per36": {
       "value": 21.8244,
-      "percentile": 90.4
-    },
-    "ast_per36": {
-      "value": 1.9377,
-      "percentile": 29.6
+      "percentile": 84.6323
     },
     "reb_per36": {
       "value": 6.6289,
-      "percentile": 53.0
+      "percentile": 49.6185
     },
-    "stl_per36": {
-      "value": 1.3258,
-      "percentile": 61.7
+    "ast_per36": {
+      "value": 1.9377,
+      "percentile": 27.7115
     },
     "blk_per36": {
       "value": 0.204,
-      "percentile": 13.9
+      "percentile": 13.0132
+    },
+    "stl_per36": {
+      "value": 1.3258,
+      "percentile": 57.7634
     },
     "ts_pct": {
       "value": 0.5871,
-      "percentile": 44.3
+      "percentile": 41.4736
     },
     "efg_pct": {
       "value": 0.5265,
-      "percentile": 33.9
+      "percentile": 31.7371
     },
     "fg3a_rate": {
       "value": 0.4967,
-      "percentile": 72.2
+      "percentile": 67.5935
     },
     "fta_rate": {
       "value": 0.4702,
-      "percentile": 73.0
+      "percentile": 68.3425
     },
     "similar_nba_players": [
       {
@@ -804,7 +818,9 @@
       "rpg": 6.5,
       "apg": 1.9,
       "spg": 1.3,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2395,
+      "apfv": 0.827
     }
   },
   {
@@ -821,39 +837,39 @@
     },
     "pts_per36": {
       "value": 24.9897,
-      "percentile": 98.3
-    },
-    "ast_per36": {
-      "value": 1.9794,
-      "percentile": 32.2
+      "percentile": 30.7684
     },
     "reb_per36": {
       "value": 5.1959,
-      "percentile": 31.3
+      "percentile": 9.7971
     },
-    "stl_per36": {
-      "value": 1.732,
-      "percentile": 80.9
+    "ast_per36": {
+      "value": 1.9794,
+      "percentile": 10.0788
     },
     "blk_per36": {
       "value": 0.7423,
-      "percentile": 57.4
+      "percentile": 17.9665
+    },
+    "stl_per36": {
+      "value": 1.732,
+      "percentile": 25.3221
     },
     "ts_pct": {
       "value": 0.5865,
-      "percentile": 43.5
+      "percentile": 13.6157
     },
     "efg_pct": {
       "value": 0.527,
-      "percentile": 35.7
+      "percentile": 11.1743
     },
     "fg3a_rate": {
       "value": 0.4662,
-      "percentile": 66.1
+      "percentile": 20.6896
     },
     "fta_rate": {
       "value": 0.3716,
-      "percentile": 47.8
+      "percentile": 14.9616
     },
     "similar_nba_players": [
       {
@@ -905,7 +921,9 @@
       "rpg": 4.2,
       "apg": 1.6,
       "spg": 1.4,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.3062,
+      "apfv": 0.4701
     }
   },
   {
@@ -922,39 +940,39 @@
     },
     "pts_per36": {
       "value": 19.5738,
-      "percentile": 80.0
-    },
-    "ast_per36": {
-      "value": 3.8361,
-      "percentile": 76.5
+      "percentile": 77.9687
     },
     "reb_per36": {
       "value": 5.0164,
-      "percentile": 29.6
+      "percentile": 28.8484
     },
-    "stl_per36": {
-      "value": 1.1803,
-      "percentile": 51.3
+    "ast_per36": {
+      "value": 3.8361,
+      "percentile": 74.5576
     },
     "blk_per36": {
       "value": 0.2951,
-      "percentile": 24.3
+      "percentile": 23.683
+    },
+    "stl_per36": {
+      "value": 1.1803,
+      "percentile": 49.9974
     },
     "ts_pct": {
       "value": 0.6723,
-      "percentile": 96.5
+      "percentile": 94.0497
     },
     "efg_pct": {
       "value": 0.627,
-      "percentile": 92.2
+      "percentile": 89.8589
     },
     "fg3a_rate": {
       "value": 0.3651,
-      "percentile": 53.9
+      "percentile": 52.5314
     },
     "fta_rate": {
       "value": 0.3968,
-      "percentile": 55.7
+      "percentile": 54.2857
     },
     "similar_nba_players": [
       {
@@ -1006,7 +1024,9 @@
       "rpg": 5.1,
       "apg": 3.9,
       "spg": 1.2,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.3401,
+      "apfv": 0.9515
     }
   },
   {
@@ -1023,39 +1043,39 @@
     },
     "pts_per36": {
       "value": 18.8571,
-      "percentile": 64.3
-    },
-    "ast_per36": {
-      "value": 4.1905,
-      "percentile": 80.9
+      "percentile": 63.4339
     },
     "reb_per36": {
       "value": 2.4762,
-      "percentile": 0.9
+      "percentile": 0.8879
     },
-    "stl_per36": {
-      "value": 1.3333,
-      "percentile": 62.6
+    "ast_per36": {
+      "value": 4.1905,
+      "percentile": 79.8103
     },
     "blk_per36": {
       "value": 0.1905,
-      "percentile": 11.3
+      "percentile": 11.1478
+    },
+    "stl_per36": {
+      "value": 1.3333,
+      "percentile": 61.7568
     },
     "ts_pct": {
       "value": 0.6119,
-      "percentile": 60.0
+      "percentile": 59.1918
     },
     "efg_pct": {
       "value": 0.5669,
-      "percentile": 56.5
+      "percentile": 55.739
     },
     "fg3a_rate": {
       "value": 0.4859,
-      "percentile": 70.4
+      "percentile": 69.4517
     },
     "fta_rate": {
       "value": 0.3169,
-      "percentile": 34.8
+      "percentile": 34.3313
     },
     "similar_nba_players": [
       {
@@ -1107,7 +1127,9 @@
       "rpg": 2.6,
       "apg": 4.4,
       "spg": 1.4,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1561,
+      "apfv": 0.607
     }
   },
   {
@@ -1124,39 +1146,39 @@
     },
     "pts_per36": {
       "value": 22.7732,
-      "percentile": 93.9
-    },
-    "ast_per36": {
-      "value": 3.1054,
-      "percentile": 62.6
+      "percentile": 50.4624
     },
     "reb_per36": {
       "value": 10.8115,
-      "percentile": 89.6
+      "percentile": 48.1515
     },
-    "stl_per36": {
-      "value": 1.7252,
-      "percentile": 80.0
+    "ast_per36": {
+      "value": 3.1054,
+      "percentile": 33.6416
     },
     "blk_per36": {
       "value": 1.6102,
-      "percentile": 80.9
+      "percentile": 43.4761
+    },
+    "stl_per36": {
+      "value": 1.7252,
+      "percentile": 42.9924
     },
     "ts_pct": {
       "value": 0.6346,
-      "percentile": 79.1
+      "percentile": 42.5088
     },
     "efg_pct": {
       "value": 0.5894,
-      "percentile": 74.8
+      "percentile": 40.1979
     },
     "fg3a_rate": {
       "value": 0.0894,
-      "percentile": 13.9
+      "percentile": 7.4699
     },
     "fta_rate": {
       "value": 0.6098,
-      "percentile": 93.0
+      "percentile": 49.9787
     },
     "similar_nba_players": [
       {
@@ -1208,7 +1230,9 @@
       "rpg": 9.4,
       "apg": 2.7,
       "spg": 1.5,
-      "bpg": 1.4
+      "bpg": 1.4,
+      "pfv": 0.6552,
+      "apfv": 0.9643
     }
   },
   {
@@ -1225,39 +1249,39 @@
     },
     "pts_per36": {
       "value": 19.2787,
-      "percentile": 73.0
-    },
-    "ast_per36": {
-      "value": 2.0656,
-      "percentile": 35.7
+      "percentile": 71.1464
     },
     "reb_per36": {
       "value": 5.3115,
-      "percentile": 33.9
+      "percentile": 33.0392
     },
-    "stl_per36": {
-      "value": 0.7869,
-      "percentile": 16.5
+    "ast_per36": {
+      "value": 2.0656,
+      "percentile": 34.7935
     },
     "blk_per36": {
       "value": 0.1967,
-      "percentile": 13.0
+      "percentile": 12.6699
+    },
+    "stl_per36": {
+      "value": 0.7869,
+      "percentile": 16.081
     },
     "ts_pct": {
       "value": 0.66,
-      "percentile": 92.2
+      "percentile": 89.8589
     },
     "efg_pct": {
       "value": 0.5966,
-      "percentile": 76.5
+      "percentile": 74.5576
     },
     "fg3a_rate": {
       "value": 0.4538,
-      "percentile": 63.5
+      "percentile": 61.8877
     },
     "fta_rate": {
       "value": 0.563,
-      "percentile": 87.0
+      "percentile": 84.791
     },
     "similar_nba_players": [
       {
@@ -1309,7 +1333,9 @@
       "rpg": 5.4,
       "apg": 2.1,
       "spg": 0.8,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2103,
+      "apfv": 0.7788
     }
   },
   {
@@ -1326,39 +1352,39 @@
     },
     "pts_per36": {
       "value": 20.9552,
-      "percentile": 89.6
-    },
-    "ast_per36": {
-      "value": 5.4806,
-      "percentile": 88.7
+      "percentile": 66.1669
     },
     "reb_per36": {
       "value": 3.8687,
-      "percentile": 15.7
+      "percentile": 11.594
     },
-    "stl_per36": {
-      "value": 2.5791,
-      "percentile": 96.5
+    "ast_per36": {
+      "value": 5.4806,
+      "percentile": 65.5023
     },
     "blk_per36": {
       "value": 0.3224,
-      "percentile": 29.6
+      "percentile": 21.8587
+    },
+    "stl_per36": {
+      "value": 2.5791,
+      "percentile": 71.2624
     },
     "ts_pct": {
       "value": 0.6177,
-      "percentile": 66.1
+      "percentile": 48.8129
     },
     "efg_pct": {
       "value": 0.5458,
-      "percentile": 44.3
+      "percentile": 32.7142
     },
     "fg3a_rate": {
       "value": 0.3435,
-      "percentile": 47.0
+      "percentile": 34.7081
     },
     "fta_rate": {
       "value": 0.4656,
-      "percentile": 70.4
+      "percentile": 51.9883
     },
     "similar_nba_players": [
       {
@@ -1410,7 +1436,9 @@
       "rpg": 3.6,
       "apg": 5.1,
       "spg": 2.4,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.343,
+      "apfv": 0.8885
     }
   },
   {
@@ -1427,39 +1455,39 @@
     },
     "pts_per36": {
       "value": 20.3432,
-      "percentile": 86.1
-    },
-    "ast_per36": {
-      "value": 2.4497,
-      "percentile": 45.2
+      "percentile": 67.7115
     },
     "reb_per36": {
       "value": 5.432,
-      "percentile": 36.5
+      "percentile": 28.7047
     },
-    "stl_per36": {
-      "value": 1.1716,
-      "percentile": 50.4
+    "ast_per36": {
+      "value": 2.4497,
+      "percentile": 35.5466
     },
     "blk_per36": {
       "value": 0.1065,
-      "percentile": 3.5
+      "percentile": 2.7525
+    },
+    "stl_per36": {
+      "value": 1.1716,
+      "percentile": 39.636
     },
     "ts_pct": {
       "value": 0.5978,
-      "percentile": 51.3
+      "percentile": 40.3438
     },
     "efg_pct": {
       "value": 0.5294,
-      "percentile": 36.5
+      "percentile": 28.7047
     },
     "fg3a_rate": {
       "value": 0.5368,
-      "percentile": 78.3
+      "percentile": 61.5774
     },
     "fta_rate": {
       "value": 0.3971,
-      "percentile": 56.5
+      "percentile": 44.4332
     },
     "similar_nba_players": [
       {
@@ -1511,7 +1539,9 @@
       "rpg": 5.1,
       "apg": 2.3,
       "spg": 1.1,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.2022,
+      "apfv": 0.618
     }
   },
   {
@@ -1528,39 +1558,39 @@
     },
     "pts_per36": {
       "value": 20.25,
-      "percentile": 84.3
-    },
-    "ast_per36": {
-      "value": 2.7857,
-      "percentile": 53.0
+      "percentile": 64.3217
     },
     "reb_per36": {
       "value": 6.2143,
-      "percentile": 49.6
+      "percentile": 37.8453
     },
-    "stl_per36": {
-      "value": 0.9643,
-      "percentile": 29.6
+    "ast_per36": {
+      "value": 2.7857,
+      "percentile": 40.4395
     },
     "blk_per36": {
       "value": 1.3929,
-      "percentile": 73.0
+      "percentile": 55.6997
+    },
+    "stl_per36": {
+      "value": 0.9643,
+      "percentile": 22.5851
     },
     "ts_pct": {
       "value": 0.6277,
-      "percentile": 73.9
+      "percentile": 56.3864
     },
     "efg_pct": {
       "value": 0.5853,
-      "percentile": 71.3
+      "percentile": 54.4025
     },
     "fg3a_rate": {
       "value": 0.4729,
-      "percentile": 67.8
+      "percentile": 51.732
     },
     "fta_rate": {
       "value": 0.3798,
-      "percentile": 51.3
+      "percentile": 39.1424
     },
     "similar_nba_players": [
       {
@@ -1612,7 +1642,9 @@
       "rpg": 5.8,
       "apg": 2.6,
       "spg": 0.9,
-      "bpg": 1.3
+      "bpg": 1.3,
+      "pfv": 0.3543,
+      "apfv": 0.901
     }
   },
   {
@@ -1629,39 +1661,39 @@
     },
     "pts_per36": {
       "value": 21.9029,
-      "percentile": 91.3
-    },
-    "ast_per36": {
-      "value": 3.1456,
-      "percentile": 63.5
+      "percentile": 46.1989
     },
     "reb_per36": {
       "value": 5.5922,
-      "percentile": 40.9
+      "percentile": 20.6959
     },
-    "stl_per36": {
-      "value": 1.2816,
-      "percentile": 59.1
+    "ast_per36": {
+      "value": 3.1456,
+      "percentile": 32.1317
     },
     "blk_per36": {
       "value": 0.233,
-      "percentile": 18.3
+      "percentile": 9.26
+    },
+    "stl_per36": {
+      "value": 1.2816,
+      "percentile": 29.9053
     },
     "ts_pct": {
       "value": 0.5719,
-      "percentile": 32.2
+      "percentile": 16.2936
     },
     "efg_pct": {
       "value": 0.5207,
-      "percentile": 30.4
+      "percentile": 15.3828
     },
     "fg3a_rate": {
       "value": 0.6621,
-      "percentile": 93.0
+      "percentile": 47.0591
     },
     "fta_rate": {
       "value": 0.3034,
-      "percentile": 32.2
+      "percentile": 16.2936
     },
     "similar_nba_players": [
       {
@@ -1713,7 +1745,9 @@
       "rpg": 4.8,
       "apg": 2.7,
       "spg": 1.1,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2236,
+      "apfv": 0.511
     }
   },
   {
@@ -1730,39 +1764,39 @@
     },
     "pts_per36": {
       "value": 20.4146,
-      "percentile": 87.0
-    },
-    "ast_per36": {
-      "value": 2.9634,
-      "percentile": 59.1
+      "percentile": 59.2421
     },
     "reb_per36": {
       "value": 5.2683,
-      "percentile": 33.0
+      "percentile": 22.4712
     },
-    "stl_per36": {
-      "value": 1.9756,
-      "percentile": 88.7
+    "ast_per36": {
+      "value": 2.9634,
+      "percentile": 40.2438
     },
     "blk_per36": {
       "value": 0.3293,
-      "percentile": 31.3
+      "percentile": 21.3135
+    },
+    "stl_per36": {
+      "value": 1.9756,
+      "percentile": 60.3997
     },
     "ts_pct": {
       "value": 0.5589,
-      "percentile": 26.1
+      "percentile": 17.7726
     },
     "efg_pct": {
       "value": 0.5107,
-      "percentile": 20.9
+      "percentile": 14.2317
     },
     "fg3a_rate": {
       "value": 0.2714,
-      "percentile": 34.8
+      "percentile": 23.6969
     },
     "fta_rate": {
       "value": 0.4286,
-      "percentile": 65.2
+      "percentile": 44.3976
     },
     "similar_nba_players": [
       {
@@ -1814,7 +1848,9 @@
       "rpg": 4.8,
       "apg": 2.7,
       "spg": 1.8,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.2339,
+      "apfv": 0.6291
     }
   },
   {
@@ -1831,39 +1867,39 @@
     },
     "pts_per36": {
       "value": 19.2486,
-      "percentile": 72.2
-    },
-    "ast_per36": {
-      "value": 1.6647,
-      "percentile": 20.0
+      "percentile": 62.0569
     },
     "reb_per36": {
       "value": 12.2775,
-      "percentile": 99.1
+      "percentile": 85.1778
     },
-    "stl_per36": {
-      "value": 1.1445,
-      "percentile": 43.5
+    "ast_per36": {
+      "value": 1.6647,
+      "percentile": 17.1903
     },
     "blk_per36": {
       "value": 1.2486,
-      "percentile": 68.7
+      "percentile": 59.0486
+    },
+    "stl_per36": {
+      "value": 1.1445,
+      "percentile": 37.3888
     },
     "ts_pct": {
       "value": 0.6409,
-      "percentile": 82.6
+      "percentile": 70.9958
     },
     "efg_pct": {
       "value": 0.6033,
-      "percentile": 81.7
+      "percentile": 70.2222
     },
     "fg3a_rate": {
       "value": 0.1488,
-      "percentile": 17.4
+      "percentile": 14.9555
     },
     "fta_rate": {
       "value": 0.438,
-      "percentile": 66.1
+      "percentile": 56.8138
     },
     "similar_nba_players": [
       {
@@ -1915,7 +1951,9 @@
       "rpg": 11.8,
       "apg": 1.6,
       "spg": 1.1,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.3843,
+      "apfv": 0.9388
     }
   },
   {
@@ -1934,21 +1972,21 @@
       "value": 17.3438,
       "percentile": 50.4
     },
-    "ast_per36": {
-      "value": 6.9375,
-      "percentile": 95.7
-    },
     "reb_per36": {
       "value": 3.375,
       "percentile": 7.8
     },
-    "stl_per36": {
-      "value": 1.4062,
-      "percentile": 64.3
+    "ast_per36": {
+      "value": 6.9375,
+      "percentile": 95.7
     },
     "blk_per36": {
       "value": 0.1875,
       "percentile": 10.4
+    },
+    "stl_per36": {
+      "value": 1.4062,
+      "percentile": 64.3
     },
     "ts_pct": {
       "value": 0.6299,
@@ -2016,7 +2054,9 @@
       "rpg": 3.6,
       "apg": 7.4,
       "spg": 1.5,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1947,
+      "apfv": 0.7316
     }
   },
   {
@@ -2033,39 +2073,39 @@
     },
     "pts_per36": {
       "value": 19.0893,
-      "percentile": 69.6
-    },
-    "ast_per36": {
-      "value": 5.6023,
-      "percentile": 90.4
+      "percentile": 60.7177
     },
     "reb_per36": {
       "value": 2.9049,
-      "percentile": 3.5
+      "percentile": 3.0533
     },
-    "stl_per36": {
-      "value": 2.1787,
-      "percentile": 91.3
+    "ast_per36": {
+      "value": 5.6023,
+      "percentile": 78.8632
     },
     "blk_per36": {
       "value": 0.2075,
-      "percentile": 14.8
+      "percentile": 12.9112
+    },
+    "stl_per36": {
+      "value": 2.1787,
+      "percentile": 79.6484
     },
     "ts_pct": {
       "value": 0.5421,
-      "percentile": 14.8
+      "percentile": 12.9112
     },
     "efg_pct": {
       "value": 0.5033,
-      "percentile": 15.7
+      "percentile": 13.6964
     },
     "fg3a_rate": {
       "value": 0.5359,
-      "percentile": 77.4
+      "percentile": 67.5223
     },
     "fta_rate": {
       "value": 0.2484,
-      "percentile": 16.5
+      "percentile": 14.3943
     },
     "similar_nba_players": [
       {
@@ -2117,7 +2157,9 @@
       "rpg": 2.8,
       "apg": 5.4,
       "spg": 2.1,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.0938,
+      "apfv": 0.411
     }
   },
   {
@@ -2134,39 +2176,39 @@
     },
     "pts_per36": {
       "value": 19.549,
-      "percentile": 77.4
-    },
-    "ast_per36": {
-      "value": 3.8457,
-      "percentile": 77.4
+      "percentile": 59.9077
     },
     "reb_per36": {
       "value": 5.5549,
-      "percentile": 38.3
+      "percentile": 29.6442
     },
-    "stl_per36": {
-      "value": 0.7478,
-      "percentile": 13.0
+    "ast_per36": {
+      "value": 3.8457,
+      "percentile": 59.9077
     },
     "blk_per36": {
       "value": 0.5341,
-      "percentile": 45.2
+      "percentile": 34.9848
+    },
+    "stl_per36": {
+      "value": 0.7478,
+      "percentile": 10.062
     },
     "ts_pct": {
       "value": 0.6156,
-      "percentile": 65.2
+      "percentile": 50.4648
     },
     "efg_pct": {
       "value": 0.5752,
-      "percentile": 63.5
+      "percentile": 49.149
     },
     "fg3a_rate": {
       "value": 0.1327,
-      "percentile": 15.7
+      "percentile": 12.1518
     },
     "fta_rate": {
       "value": 0.7168,
-      "percentile": 97.4
+      "percentile": 75.3877
     },
     "similar_nba_players": [
       {
@@ -2218,7 +2260,9 @@
       "rpg": 5.2,
       "apg": 3.6,
       "spg": 0.7,
-      "bpg": 0.5
+      "bpg": 0.5,
+      "pfv": 0.2651,
+      "apfv": 0.7908
     }
   },
   {
@@ -2235,39 +2279,39 @@
     },
     "pts_per36": {
       "value": 22.5931,
-      "percentile": 93.0
-    },
-    "ast_per36": {
-      "value": 5.8345,
-      "percentile": 92.2
+      "percentile": 27.4213
     },
     "reb_per36": {
       "value": 4.0966,
-      "percentile": 20.9
+      "percentile": 6.1624
     },
-    "stl_per36": {
-      "value": 1.4897,
-      "percentile": 69.6
+    "ast_per36": {
+      "value": 5.8345,
+      "percentile": 27.1854
     },
     "blk_per36": {
       "value": 0.1241,
-      "percentile": 7.8
+      "percentile": 2.2999
+    },
+    "stl_per36": {
+      "value": 1.4897,
+      "percentile": 20.5218
     },
     "ts_pct": {
       "value": 0.5851,
-      "percentile": 42.6
+      "percentile": 12.5607
     },
     "efg_pct": {
       "value": 0.5077,
-      "percentile": 17.4
+      "percentile": 5.1304
     },
     "fg3a_rate": {
       "value": 0.5846,
-      "percentile": 83.5
+      "percentile": 24.6202
     },
     "fta_rate": {
       "value": 0.4462,
-      "percentile": 68.7
+      "percentile": 20.2564
     },
     "similar_nba_players": [
       {
@@ -2319,7 +2363,9 @@
       "rpg": 3.3,
       "apg": 4.7,
       "spg": 1.2,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.201,
+      "apfv": 0.3274
     }
   },
   {
@@ -2336,39 +2382,39 @@
     },
     "pts_per36": {
       "value": 19.3929,
-      "percentile": 74.8
-    },
-    "ast_per36": {
-      "value": 2.1429,
-      "percentile": 37.4
+      "percentile": 57.0731
     },
     "reb_per36": {
       "value": 5.25,
-      "percentile": 32.2
+      "percentile": 24.5689
     },
-    "stl_per36": {
-      "value": 1.0714,
-      "percentile": 37.4
+    "ast_per36": {
+      "value": 2.1429,
+      "percentile": 28.5365
     },
     "blk_per36": {
       "value": 0.3214,
-      "percentile": 28.7
+      "percentile": 21.8984
+    },
+    "stl_per36": {
+      "value": 1.0714,
+      "percentile": 28.5365
     },
     "ts_pct": {
       "value": 0.6485,
-      "percentile": 84.3
+      "percentile": 64.3217
     },
     "efg_pct": {
       "value": 0.624,
-      "percentile": 91.3
+      "percentile": 69.6627
     },
     "fg3a_rate": {
       "value": 0.6899,
-      "percentile": 95.7
+      "percentile": 73.02
     },
     "fta_rate": {
       "value": 0.186,
-      "percentile": 5.2
+      "percentile": 3.9676
     },
     "similar_nba_players": [
       {
@@ -2420,7 +2466,9 @@
       "rpg": 4.9,
       "apg": 2.0,
       "spg": 1.0,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.2536,
+      "apfv": 0.7084
     }
   },
   {
@@ -2437,39 +2485,39 @@
     },
     "pts_per36": {
       "value": 20.6369,
-      "percentile": 87.8
-    },
-    "ast_per36": {
-      "value": 2.4076,
-      "percentile": 43.5
+      "percentile": 49.9954
     },
     "reb_per36": {
       "value": 6.6497,
-      "percentile": 53.9
+      "percentile": 30.6919
     },
-    "stl_per36": {
-      "value": 1.949,
-      "percentile": 87.8
+    "ast_per36": {
+      "value": 2.4076,
+      "percentile": 24.7699
     },
     "blk_per36": {
       "value": 0.3439,
-      "percentile": 33.9
+      "percentile": 19.3034
+    },
+    "stl_per36": {
+      "value": 1.949,
+      "percentile": 49.9954
     },
     "ts_pct": {
       "value": 0.6367,
-      "percentile": 80.9
+      "percentile": 46.0663
     },
     "efg_pct": {
       "value": 0.5984,
-      "percentile": 77.4
+      "percentile": 44.0734
     },
     "fg3a_rate": {
       "value": 0.5574,
-      "percentile": 81.7
+      "percentile": 46.5219
     },
     "fta_rate": {
       "value": 0.3607,
-      "percentile": 45.2
+      "percentile": 25.7379
     },
     "similar_nba_players": [
       {
@@ -2521,7 +2569,9 @@
       "rpg": 5.8,
       "apg": 2.1,
       "spg": 1.7,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.4289,
+      "apfv": 0.8761
     }
   },
   {
@@ -2538,39 +2588,39 @@
     },
     "pts_per36": {
       "value": 19.0088,
-      "percentile": 67.0
-    },
-    "ast_per36": {
-      "value": 4.4602,
-      "percentile": 86.1
+      "percentile": 53.5278
     },
     "reb_per36": {
       "value": 5.4159,
-      "percentile": 35.7
+      "percentile": 28.5215
     },
-    "stl_per36": {
-      "value": 0.9558,
-      "percentile": 27.8
+    "ast_per36": {
+      "value": 4.4602,
+      "percentile": 68.7872
     },
     "blk_per36": {
       "value": 0.4248,
-      "percentile": 37.4
+      "percentile": 29.8797
+    },
+    "stl_per36": {
+      "value": 0.9558,
+      "percentile": 22.21
     },
     "ts_pct": {
       "value": 0.6026,
-      "percentile": 54.8
+      "percentile": 43.781
     },
     "efg_pct": {
       "value": 0.5447,
-      "percentile": 43.5
+      "percentile": 34.7531
     },
     "fg3a_rate": {
       "value": 0.4797,
-      "percentile": 69.6
+      "percentile": 55.605
     },
     "fta_rate": {
       "value": 0.4715,
-      "percentile": 73.9
+      "percentile": 59.0404
     },
     "similar_nba_players": [
       {
@@ -2622,7 +2672,9 @@
       "rpg": 5.1,
       "apg": 4.2,
       "spg": 0.9,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.2487,
+      "apfv": 0.7433
     }
   },
   {
@@ -2639,39 +2691,39 @@
     },
     "pts_per36": {
       "value": 19.7169,
-      "percentile": 80.9
-    },
-    "ast_per36": {
-      "value": 1.7723,
-      "percentile": 24.3
+      "percentile": 53.2835
     },
     "reb_per36": {
       "value": 6.5354,
-      "percentile": 51.3
+      "percentile": 33.7879
     },
-    "stl_per36": {
-      "value": 2.2154,
-      "percentile": 92.2
+    "ast_per36": {
+      "value": 1.7723,
+      "percentile": 16.0048
     },
     "blk_per36": {
       "value": 0.6646,
-      "percentile": 52.2
+      "percentile": 34.3807
+    },
+    "stl_per36": {
+      "value": 2.2154,
+      "percentile": 60.726
     },
     "ts_pct": {
       "value": 0.5557,
-      "percentile": 22.6
+      "percentile": 14.8851
     },
     "efg_pct": {
       "value": 0.5175,
-      "percentile": 27.8
+      "percentile": 18.31
     },
     "fg3a_rate": {
       "value": 0.3706,
-      "percentile": 54.8
+      "percentile": 36.0931
     },
     "fta_rate": {
       "value": 0.2727,
-      "percentile": 24.3
+      "percentile": 16.0048
     },
     "similar_nba_players": [
       {
@@ -2723,7 +2775,9 @@
       "rpg": 5.9,
       "apg": 1.6,
       "spg": 2.0,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.2565,
+      "apfv": 0.6514
     }
   },
   {
@@ -2740,39 +2794,39 @@
     },
     "pts_per36": {
       "value": 20.9109,
-      "percentile": 88.7
-    },
-    "ast_per36": {
-      "value": 1.3069,
-      "percentile": 11.3
+      "percentile": 36.8728
     },
     "reb_per36": {
       "value": 6.6535,
-      "percentile": 54.8
+      "percentile": 22.7805
     },
-    "stl_per36": {
-      "value": 0.5941,
-      "percentile": 7.8
+    "ast_per36": {
+      "value": 1.3069,
+      "percentile": 4.6974
     },
     "blk_per36": {
       "value": 0.4752,
-      "percentile": 39.1
+      "percentile": 16.254
+    },
+    "stl_per36": {
+      "value": 0.5941,
+      "percentile": 3.2425
     },
     "ts_pct": {
       "value": 0.6621,
-      "percentile": 93.0
+      "percentile": 38.6603
     },
     "efg_pct": {
       "value": 0.6096,
-      "percentile": 88.7
+      "percentile": 36.8728
     },
     "fg3a_rate": {
       "value": 0.3947,
-      "percentile": 57.4
+      "percentile": 23.8613
     },
     "fta_rate": {
       "value": 0.3772,
-      "percentile": 50.4
+      "percentile": 20.9514
     },
     "similar_nba_players": [
       {
@@ -2824,7 +2878,9 @@
       "rpg": 5.6,
       "apg": 1.1,
       "spg": 0.5,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.2534,
+      "apfv": 0.5007
     }
   },
   {
@@ -2841,39 +2897,39 @@
     },
     "pts_per36": {
       "value": 19.2,
-      "percentile": 71.3
-    },
-    "ast_per36": {
-      "value": 2.2909,
-      "percentile": 41.7
+      "percentile": 50.1596
     },
     "reb_per36": {
       "value": 5.3455,
-      "percentile": 34.8
+      "percentile": 24.4818
     },
-    "stl_per36": {
-      "value": 1.0909,
-      "percentile": 40.0
+    "ast_per36": {
+      "value": 2.2909,
+      "percentile": 29.336
     },
     "blk_per36": {
       "value": 0.4364,
-      "percentile": 38.3
+      "percentile": 26.9441
+    },
+    "stl_per36": {
+      "value": 1.0909,
+      "percentile": 28.14
     },
     "ts_pct": {
       "value": 0.5723,
-      "percentile": 33.0
+      "percentile": 23.2155
     },
     "efg_pct": {
       "value": 0.5461,
-      "percentile": 45.2
+      "percentile": 31.7982
     },
     "fg3a_rate": {
       "value": 0.4539,
-      "percentile": 64.3
+      "percentile": 45.2351
     },
     "fta_rate": {
       "value": 0.2057,
-      "percentile": 11.3
+      "percentile": 7.9496
     },
     "similar_nba_players": [
       {
@@ -2925,7 +2981,9 @@
       "rpg": 4.9,
       "apg": 2.1,
       "spg": 1.0,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.1789,
+      "apfv": 0.5637
     }
   },
   {
@@ -2942,39 +3000,39 @@
     },
     "pts_per36": {
       "value": 18.9878,
-      "percentile": 66.1
-    },
-    "ast_per36": {
-      "value": 3.9512,
-      "percentile": 78.3
+      "percentile": 45.0104
     },
     "reb_per36": {
       "value": 8.2317,
-      "percentile": 64.3
+      "percentile": 43.7847
     },
-    "stl_per36": {
-      "value": 1.7561,
-      "percentile": 82.6
+    "ast_per36": {
+      "value": 3.9512,
+      "percentile": 53.3179
     },
     "blk_per36": {
       "value": 0.3293,
-      "percentile": 31.3
+      "percentile": 21.3135
+    },
+    "stl_per36": {
+      "value": 1.7561,
+      "percentile": 56.246
     },
     "ts_pct": {
       "value": 0.6425,
-      "percentile": 83.5
+      "percentile": 56.8588
     },
     "efg_pct": {
       "value": 0.5773,
-      "percentile": 65.2
+      "percentile": 44.3976
     },
     "fg3a_rate": {
       "value": 0.2364,
-      "percentile": 29.6
+      "percentile": 20.1559
     },
     "fta_rate": {
       "value": 0.5091,
-      "percentile": 80.0
+      "percentile": 54.4755
     },
     "similar_nba_players": [
       {
@@ -3026,7 +3084,9 @@
       "rpg": 7.5,
       "apg": 3.6,
       "spg": 1.6,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.4456,
+      "apfv": 0.9135
     }
   },
   {
@@ -3043,39 +3103,39 @@
     },
     "pts_per36": {
       "value": 18.4311,
-      "percentile": 59.1
-    },
-    "ast_per36": {
-      "value": 2.2635,
-      "percentile": 40.9
+      "percentile": 42.2885
     },
     "reb_per36": {
       "value": 6.5749,
-      "percentile": 52.2
+      "percentile": 37.3513
     },
-    "stl_per36": {
-      "value": 1.1856,
-      "percentile": 53.0
+    "ast_per36": {
+      "value": 2.2635,
+      "percentile": 29.2657
     },
     "blk_per36": {
       "value": 1.0778,
-      "percentile": 67.8
+      "percentile": 48.5137
+    },
+    "stl_per36": {
+      "value": 1.1856,
+      "percentile": 37.9237
     },
     "ts_pct": {
       "value": 0.5939,
-      "percentile": 47.0
+      "percentile": 33.6305
     },
     "efg_pct": {
       "value": 0.5297,
-      "percentile": 37.4
+      "percentile": 26.7613
     },
     "fg3a_rate": {
       "value": 0.4407,
-      "percentile": 62.6
+      "percentile": 44.7929
     },
     "fta_rate": {
       "value": 0.5,
-      "percentile": 79.1
+      "percentile": 56.5994
     },
     "similar_nba_players": [
       {
@@ -3127,7 +3187,9 @@
       "rpg": 6.1,
       "apg": 2.1,
       "spg": 1.1,
-      "bpg": 1.0
+      "bpg": 1.0,
+      "pfv": 0.2809,
+      "apfv": 0.7551
     }
   },
   {
@@ -3144,39 +3206,39 @@
     },
     "pts_per36": {
       "value": 19.5527,
-      "percentile": 78.3
-    },
-    "ast_per36": {
-      "value": 2.4153,
-      "percentile": 44.3
+      "percentile": 42.0789
     },
     "reb_per36": {
       "value": 10.0064,
-      "percentile": 80.9
+      "percentile": 43.4761
     },
-    "stl_per36": {
-      "value": 0.6901,
-      "percentile": 11.3
+    "ast_per36": {
+      "value": 2.4153,
+      "percentile": 23.8071
     },
     "blk_per36": {
       "value": 1.3802,
-      "percentile": 72.2
+      "percentile": 38.8007
+    },
+    "stl_per36": {
+      "value": 0.6901,
+      "percentile": 6.0727
     },
     "ts_pct": {
       "value": 0.6708,
-      "percentile": 95.7
+      "percentile": 51.4297
     },
     "efg_pct": {
       "value": 0.6682,
-      "percentile": 96.5
+      "percentile": 51.8596
     },
     "fg3a_rate": {
       "value": 0.2727,
-      "percentile": 35.7
+      "percentile": 19.1854
     },
     "fta_rate": {
       "value": 0.3455,
-      "percentile": 42.6
+      "percentile": 22.8935
     },
     "similar_nba_players": [
       {
@@ -3228,7 +3290,9 @@
       "rpg": 8.7,
       "apg": 2.1,
       "spg": 0.6,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.3751,
+      "apfv": 0.7669
     }
   },
   {
@@ -3245,39 +3309,39 @@
     },
     "pts_per36": {
       "value": 19.9475,
-      "percentile": 81.7
-    },
-    "ast_per36": {
-      "value": 1.1803,
-      "percentile": 10.4
+      "percentile": 34.6972
     },
     "reb_per36": {
       "value": 3.659,
-      "percentile": 9.6
+      "percentile": 4.077
     },
-    "stl_per36": {
-      "value": 0.9443,
-      "percentile": 27.0
+    "ast_per36": {
+      "value": 1.1803,
+      "percentile": 4.4168
     },
     "blk_per36": {
       "value": 0.2361,
-      "percentile": 19.1
+      "percentile": 8.1116
+    },
+    "stl_per36": {
+      "value": 0.9443,
+      "percentile": 11.4666
     },
     "ts_pct": {
       "value": 0.7002,
-      "percentile": 100.0
+      "percentile": 42.4691
     },
     "efg_pct": {
       "value": 0.6712,
-      "percentile": 97.4
+      "percentile": 41.3649
     },
     "fg3a_rate": {
       "value": 0.6757,
-      "percentile": 93.9
+      "percentile": 39.8784
     },
     "fta_rate": {
       "value": 0.1982,
-      "percentile": 7.0
+      "percentile": 2.9728
     },
     "similar_nba_players": [
       {
@@ -3329,7 +3393,9 @@
       "rpg": 3.1,
       "apg": 1.0,
       "spg": 0.8,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2078,
+      "apfv": 0.4304
     }
   },
   {
@@ -3346,39 +3412,39 @@
     },
     "pts_per36": {
       "value": 19.4469,
-      "percentile": 75.7
-    },
-    "ast_per36": {
-      "value": 3.0096,
-      "percentile": 60.9
+      "percentile": 39.0312
     },
     "reb_per36": {
       "value": 7.9871,
-      "percentile": 60.9
+      "percentile": 31.4003
     },
-    "stl_per36": {
-      "value": 1.0418,
-      "percentile": 33.9
+    "ast_per36": {
+      "value": 3.0096,
+      "percentile": 31.4003
     },
     "blk_per36": {
       "value": 2.0836,
-      "percentile": 88.7
+      "percentile": 45.7341
+    },
+    "stl_per36": {
+      "value": 1.0418,
+      "percentile": 17.479
     },
     "ts_pct": {
       "value": 0.5697,
-      "percentile": 30.4
+      "percentile": 15.6744
     },
     "efg_pct": {
       "value": 0.52,
-      "percentile": 29.6
+      "percentile": 15.2619
     },
     "fg3a_rate": {
       "value": 0.36,
-      "percentile": 52.2
+      "percentile": 26.9145
     },
     "fta_rate": {
       "value": 0.408,
-      "percentile": 57.4
+      "percentile": 29.5957
     },
     "similar_nba_players": [
       {
@@ -3430,7 +3496,9 @@
       "rpg": 6.9,
       "apg": 2.6,
       "spg": 0.9,
-      "bpg": 1.8
+      "bpg": 1.8,
+      "pfv": 0.3343,
+      "apfv": 0.674
     }
   },
   {
@@ -3447,39 +3515,39 @@
     },
     "pts_per36": {
       "value": 20.2424,
-      "percentile": 83.5
-    },
-    "ast_per36": {
-      "value": 2.7879,
-      "percentile": 53.9
+      "percentile": 28.3779
     },
     "reb_per36": {
       "value": 7.6364,
-      "percentile": 58.3
+      "percentile": 19.8135
     },
-    "stl_per36": {
-      "value": 1.2121,
-      "percentile": 54.8
+    "ast_per36": {
+      "value": 2.7879,
+      "percentile": 18.3182
     },
     "blk_per36": {
       "value": 0.7273,
-      "percentile": 56.5
+      "percentile": 19.2018
+    },
+    "stl_per36": {
+      "value": 1.2121,
+      "percentile": 18.624
     },
     "ts_pct": {
       "value": 0.5414,
-      "percentile": 13.9
+      "percentile": 4.724
     },
     "efg_pct": {
       "value": 0.4512,
-      "percentile": 4.3
+      "percentile": 1.4614
     },
     "fg3a_rate": {
       "value": 0.3171,
-      "percentile": 41.7
+      "percentile": 14.1719
     },
     "fta_rate": {
       "value": 0.5772,
-      "percentile": 90.4
+      "percentile": 30.7229
     },
     "similar_nba_players": [
       {
@@ -3531,7 +3599,9 @@
       "rpg": 6.3,
       "apg": 2.3,
       "spg": 1.0,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.2679,
+      "apfv": 0.4403
     }
   },
   {
@@ -3548,39 +3618,39 @@
     },
     "pts_per36": {
       "value": 19.1068,
-      "percentile": 70.4
-    },
-    "ast_per36": {
-      "value": 5.5922,
-      "percentile": 89.6
+      "percentile": 35.6232
     },
     "reb_per36": {
       "value": 8.6214,
-      "percentile": 69.6
+      "percentile": 35.2184
     },
-    "stl_per36": {
-      "value": 1.8641,
-      "percentile": 87.0
+    "ast_per36": {
+      "value": 5.5922,
+      "percentile": 45.3387
     },
     "blk_per36": {
       "value": 0.932,
-      "percentile": 65.2
+      "percentile": 32.992
+    },
+    "stl_per36": {
+      "value": 1.8641,
+      "percentile": 44.023
     },
     "ts_pct": {
       "value": 0.5661,
-      "percentile": 28.7
+      "percentile": 14.5225
     },
     "efg_pct": {
       "value": 0.5127,
-      "percentile": 24.3
+      "percentile": 12.2961
     },
     "fg3a_rate": {
       "value": 0.2627,
-      "percentile": 33.0
+      "percentile": 16.6984
     },
     "fta_rate": {
       "value": 0.5169,
-      "percentile": 82.6
+      "percentile": 41.7966
     },
     "similar_nba_players": [
       {
@@ -3632,7 +3702,9 @@
       "rpg": 7.4,
       "apg": 4.8,
       "spg": 1.6,
-      "bpg": 0.8
+      "bpg": 0.8,
+      "pfv": 0.4528,
+      "apfv": 0.8514
     }
   },
   {
@@ -3649,39 +3721,39 @@
     },
     "pts_per36": {
       "value": 19.56,
-      "percentile": 79.1
-    },
-    "ast_per36": {
-      "value": 4.2,
-      "percentile": 81.7
+      "percentile": 30.5204
     },
     "reb_per36": {
       "value": 8.76,
-      "percentile": 71.3
+      "percentile": 27.5108
     },
-    "stl_per36": {
-      "value": 1.44,
-      "percentile": 66.1
+    "ast_per36": {
+      "value": 4.2,
+      "percentile": 31.5236
     },
     "blk_per36": {
       "value": 2.52,
-      "percentile": 93.9
+      "percentile": 36.2309
+    },
+    "stl_per36": {
+      "value": 1.44,
+      "percentile": 25.5044
     },
     "ts_pct": {
       "value": 0.6184,
-      "percentile": 67.0
+      "percentile": 25.8517
     },
     "efg_pct": {
       "value": 0.5594,
-      "percentile": 53.9
+      "percentile": 20.7971
     },
     "fg3a_rate": {
       "value": 0.1584,
-      "percentile": 18.3
+      "percentile": 7.061
     },
     "fta_rate": {
       "value": 0.6931,
-      "percentile": 93.9
+      "percentile": 36.2309
     },
     "similar_nba_players": [
       {
@@ -3733,7 +3805,9 @@
       "rpg": 7.3,
       "apg": 3.5,
       "spg": 1.2,
-      "bpg": 2.1
+      "bpg": 2.1,
+      "pfv": 0.5845,
+      "apfv": 0.8392
     }
   },
   {
@@ -3750,39 +3824,39 @@
     },
     "pts_per36": {
       "value": 18.2839,
-      "percentile": 58.3
-    },
-    "ast_per36": {
-      "value": 5.9054,
-      "percentile": 93.9
+      "percentile": 35.0997
     },
     "reb_per36": {
       "value": 4.6562,
-      "percentile": 27.8
+      "percentile": 16.7371
     },
-    "stl_per36": {
-      "value": 1.7035,
-      "percentile": 77.4
+    "ast_per36": {
+      "value": 5.9054,
+      "percentile": 56.5327
     },
     "blk_per36": {
       "value": 0.3407,
-      "percentile": 32.2
+      "percentile": 19.3861
+    },
+    "stl_per36": {
+      "value": 1.7035,
+      "percentile": 46.5989
     },
     "ts_pct": {
       "value": 0.5693,
-      "percentile": 29.6
+      "percentile": 17.8208
     },
     "efg_pct": {
       "value": 0.5198,
-      "percentile": 28.7
+      "percentile": 17.2789
     },
     "fg3a_rate": {
       "value": 0.2302,
-      "percentile": 27.8
+      "percentile": 16.7371
     },
     "fta_rate": {
       "value": 0.2778,
-      "percentile": 27.8
+      "percentile": 16.7371
     },
     "similar_nba_players": [
       {
@@ -3834,7 +3908,9 @@
       "rpg": 4.1,
       "apg": 5.2,
       "spg": 1.5,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.2294,
+      "apfv": 0.5852
     }
   },
   {
@@ -3851,39 +3927,39 @@
     },
     "pts_per36": {
       "value": 19.4497,
-      "percentile": 76.5
-    },
-    "ast_per36": {
-      "value": 2.8993,
-      "percentile": 58.3
+      "percentile": 26.7229
     },
     "reb_per36": {
       "value": 5.9195,
-      "percentile": 45.2
+      "percentile": 15.7892
     },
-    "stl_per36": {
-      "value": 1.8121,
-      "percentile": 86.1
+    "ast_per36": {
+      "value": 2.8993,
+      "percentile": 20.3653
     },
     "blk_per36": {
       "value": 0.2416,
-      "percentile": 20.0
+      "percentile": 6.9864
+    },
+    "stl_per36": {
+      "value": 1.8121,
+      "percentile": 30.0764
     },
     "ts_pct": {
       "value": 0.6244,
-      "percentile": 73.0
+      "percentile": 25.5003
     },
     "efg_pct": {
       "value": 0.5727,
-      "percentile": 59.1
+      "percentile": 20.6448
     },
     "fg3a_rate": {
       "value": 0.4182,
-      "percentile": 60.9
+      "percentile": 21.2735
     },
     "fta_rate": {
       "value": 0.3909,
-      "percentile": 53.9
+      "percentile": 18.8283
     },
     "similar_nba_players": [
       {
@@ -3935,7 +4011,9 @@
       "rpg": 4.9,
       "apg": 2.4,
       "spg": 1.5,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.3475,
+      "apfv": 0.5319
     }
   },
   {
@@ -3952,39 +4030,39 @@
     },
     "pts_per36": {
       "value": 18.897,
-      "percentile": 65.2
-    },
-    "ast_per36": {
-      "value": 1.5548,
-      "percentile": 17.4
+      "percentile": 25.8007
     },
     "reb_per36": {
       "value": 8.2525,
-      "percentile": 65.2
+      "percentile": 25.8007
     },
-    "stl_per36": {
-      "value": 0.9568,
-      "percentile": 28.7
+    "ast_per36": {
+      "value": 1.5548,
+      "percentile": 6.8855
     },
     "blk_per36": {
       "value": 1.0764,
-      "percentile": 67.0
+      "percentile": 26.5129
+    },
+    "stl_per36": {
+      "value": 0.9568,
+      "percentile": 11.357
     },
     "ts_pct": {
       "value": 0.5843,
-      "percentile": 39.1
+      "percentile": 15.4725
     },
     "efg_pct": {
       "value": 0.527,
-      "percentile": 35.7
+      "percentile": 14.127
     },
     "fg3a_rate": {
       "value": 0.3243,
-      "percentile": 44.3
+      "percentile": 17.5302
     },
     "fta_rate": {
       "value": 0.4955,
-      "percentile": 77.4
+      "percentile": 30.6284
     },
     "similar_nba_players": [
       {
@@ -4036,7 +4114,9 @@
       "rpg": 6.9,
       "apg": 1.3,
       "spg": 0.8,
-      "bpg": 0.9
+      "bpg": 0.9,
+      "pfv": 0.2024,
+      "apfv": 0.3919
     }
   },
   {
@@ -4053,39 +4133,39 @@
     },
     "pts_per36": {
       "value": 19.0444,
-      "percentile": 67.8
-    },
-    "ast_per36": {
-      "value": 2.0887,
-      "percentile": 36.5
+      "percentile": 22.4064
     },
     "reb_per36": {
       "value": 3.686,
-      "percentile": 11.3
+      "percentile": 3.7344
     },
-    "stl_per36": {
-      "value": 1.4744,
-      "percentile": 68.7
+    "ast_per36": {
+      "value": 2.0887,
+      "percentile": 12.0624
     },
     "blk_per36": {
       "value": 0.1229,
-      "percentile": 7.0
+      "percentile": 2.3133
+    },
+    "stl_per36": {
+      "value": 1.4744,
+      "percentile": 22.7038
     },
     "ts_pct": {
       "value": 0.5903,
-      "percentile": 45.2
+      "percentile": 14.9376
     },
     "efg_pct": {
       "value": 0.5304,
-      "percentile": 38.3
+      "percentile": 12.6573
     },
     "fg3a_rate": {
       "value": 0.6174,
-      "percentile": 89.6
+      "percentile": 29.6108
     },
     "fta_rate": {
       "value": 0.3217,
-      "percentile": 35.7
+      "percentile": 11.798
     },
     "similar_nba_players": [
       {
@@ -4137,7 +4217,9 @@
       "rpg": 3.0,
       "apg": 1.7,
       "spg": 1.2,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.1347,
+      "apfv": 0.2343
     }
   },
   {
@@ -4154,39 +4236,39 @@
     },
     "pts_per36": {
       "value": 17.2174,
-      "percentile": 47.8
-    },
-    "ast_per36": {
-      "value": 4.2484,
-      "percentile": 83.5
+      "percentile": 29.8134
     },
     "reb_per36": {
       "value": 3.354,
-      "percentile": 7.0
+      "percentile": 4.366
     },
-    "stl_per36": {
-      "value": 1.2298,
-      "percentile": 55.7
+    "ast_per36": {
+      "value": 4.2484,
+      "percentile": 52.08
     },
     "blk_per36": {
       "value": 0.6708,
-      "percentile": 53.0
+      "percentile": 33.0568
+    },
+    "stl_per36": {
+      "value": 1.2298,
+      "percentile": 34.7408
     },
     "ts_pct": {
       "value": 0.5178,
-      "percentile": 8.7
+      "percentile": 5.4263
     },
     "efg_pct": {
       "value": 0.4659,
-      "percentile": 7.0
+      "percentile": 4.366
     },
     "fg3a_rate": {
       "value": 0.5,
-      "percentile": 73.9
+      "percentile": 46.0923
     },
     "fta_rate": {
       "value": 0.2879,
-      "percentile": 29.6
+      "percentile": 18.4619
     },
     "similar_nba_players": [
       {
@@ -4238,7 +4320,9 @@
       "rpg": 3.0,
       "apg": 3.8,
       "spg": 1.1,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.1533,
+      "apfv": 0.4601
     }
   },
   {
@@ -4255,39 +4339,39 @@
     },
     "pts_per36": {
       "value": 20.25,
-      "percentile": 85.2
-    },
-    "ast_per36": {
-      "value": 2.25,
-      "percentile": 39.1
+      "percentile": 15.5677
     },
     "reb_per36": {
       "value": 12.0441,
-      "percentile": 98.3
+      "percentile": 17.9613
     },
-    "stl_per36": {
-      "value": 2.3824,
-      "percentile": 93.9
+    "ast_per36": {
+      "value": 2.25,
+      "percentile": 7.1443
     },
     "blk_per36": {
       "value": 2.25,
-      "percentile": 91.3
+      "percentile": 16.6822
+    },
+    "stl_per36": {
+      "value": 2.3824,
+      "percentile": 17.1573
     },
     "ts_pct": {
       "value": 0.6593,
-      "percentile": 91.3
+      "percentile": 16.6822
     },
     "efg_pct": {
       "value": 0.6207,
-      "percentile": 90.4
+      "percentile": 16.5178
     },
     "fg3a_rate": {
       "value": 0.0,
-      "percentile": 4.3
+      "percentile": 0.7857
     },
     "fta_rate": {
       "value": 0.7586,
-      "percentile": 98.3
+      "percentile": 17.9613
     },
     "similar_nba_players": [
       {
@@ -4339,7 +4423,9 @@
       "rpg": 9.1,
       "apg": 1.7,
       "spg": 1.8,
-      "bpg": 1.7
+      "bpg": 1.7,
+      "pfv": 0.6786,
+      "apfv": 0.5424
     }
   },
   {
@@ -4356,39 +4442,39 @@
     },
     "pts_per36": {
       "value": 16.8369,
-      "percentile": 44.3
-    },
-    "ast_per36": {
-      "value": 10.4123,
-      "percentile": 100.0
+      "percentile": 29.1775
     },
     "reb_per36": {
       "value": 2.6585,
-      "percentile": 1.7
+      "percentile": 1.1197
     },
-    "stl_per36": {
-      "value": 1.44,
-      "percentile": 66.1
+    "ast_per36": {
+      "value": 10.4123,
+      "percentile": 65.8634
     },
     "blk_per36": {
       "value": 0.0,
-      "percentile": 2.6
+      "percentile": 1.7124
+    },
+    "stl_per36": {
+      "value": 1.44,
+      "percentile": 43.5357
     },
     "ts_pct": {
       "value": 0.5848,
-      "percentile": 40.9
+      "percentile": 26.9381
     },
     "efg_pct": {
       "value": 0.4808,
-      "percentile": 8.7
+      "percentile": 5.7301
     },
     "fg3a_rate": {
       "value": 0.2981,
-      "percentile": 39.1
+      "percentile": 25.7526
     },
     "fta_rate": {
       "value": 0.5673,
-      "percentile": 88.7
+      "percentile": 58.4208
     },
     "similar_nba_players": [
       {
@@ -4440,7 +4526,9 @@
       "rpg": 2.4,
       "apg": 9.4,
       "spg": 1.3,
-      "bpg": 0.0
+      "bpg": 0.0,
+      "pfv": 0.0865,
+      "apfv": 0.3097
     }
   },
   {
@@ -4457,39 +4545,39 @@
     },
     "pts_per36": {
       "value": 17.7647,
-      "percentile": 53.0
-    },
-    "ast_per36": {
-      "value": 4.2353,
-      "percentile": 82.6
+      "percentile": 24.08
     },
     "reb_per36": {
       "value": 8.8235,
-      "percentile": 73.0
+      "percentile": 33.1668
     },
-    "stl_per36": {
-      "value": 0.8235,
-      "percentile": 21.7
+    "ast_per36": {
+      "value": 4.2353,
+      "percentile": 37.5285
     },
     "blk_per36": {
       "value": 1.6471,
-      "percentile": 82.6
+      "percentile": 37.5285
+    },
+    "stl_per36": {
+      "value": 0.8235,
+      "percentile": 9.8592
     },
     "ts_pct": {
       "value": 0.6036,
-      "percentile": 56.5
+      "percentile": 25.6702
     },
     "efg_pct": {
       "value": 0.575,
-      "percentile": 62.6
+      "percentile": 28.4417
     },
     "fg3a_rate": {
       "value": 0.16,
-      "percentile": 19.1
+      "percentile": 8.6779
     },
     "fta_rate": {
       "value": 0.57,
-      "percentile": 89.6
+      "percentile": 40.7089
     },
     "similar_nba_players": [
       {
@@ -4541,7 +4629,9 @@
       "rpg": 7.5,
       "apg": 3.6,
       "spg": 0.7,
-      "bpg": 1.4
+      "bpg": 1.4,
+      "pfv": 0.3789,
+      "apfv": 0.6627
     }
   },
   {
@@ -4558,39 +4648,39 @@
     },
     "pts_per36": {
       "value": 18.0,
-      "percentile": 54.8
-    },
-    "ast_per36": {
-      "value": 3.8146,
-      "percentile": 73.9
+      "percentile": 22.2306
     },
     "reb_per36": {
       "value": 8.106,
-      "percentile": 62.6
+      "percentile": 25.3948
     },
-    "stl_per36": {
-      "value": 1.3113,
-      "percentile": 60.0
+    "ast_per36": {
+      "value": 3.8146,
+      "percentile": 29.9789
     },
     "blk_per36": {
       "value": 1.4305,
-      "percentile": 76.5
+      "percentile": 31.0336
+    },
+    "stl_per36": {
+      "value": 1.3113,
+      "percentile": 24.3401
     },
     "ts_pct": {
       "value": 0.6563,
-      "percentile": 90.4
+      "percentile": 36.6724
     },
     "efg_pct": {
       "value": 0.6031,
-      "percentile": 80.9
+      "percentile": 32.8185
     },
     "fg3a_rate": {
       "value": 0.4639,
-      "percentile": 65.2
+      "percentile": 26.4496
     },
     "fta_rate": {
       "value": 0.4227,
-      "percentile": 61.7
+      "percentile": 25.0297
     },
     "similar_nba_players": [
       {
@@ -4642,7 +4732,9 @@
       "rpg": 6.8,
       "apg": 3.2,
       "spg": 1.1,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.478,
+      "apfv": 0.72
     }
   },
   {
@@ -4659,39 +4751,39 @@
     },
     "pts_per36": {
       "value": 19.0813,
-      "percentile": 68.7
-    },
-    "ast_per36": {
-      "value": 1.6537,
-      "percentile": 19.1
+      "percentile": 18.4995
     },
     "reb_per36": {
       "value": 4.0707,
-      "percentile": 18.3
+      "percentile": 4.9278
     },
-    "stl_per36": {
-      "value": 0.8905,
-      "percentile": 25.2
+    "ast_per36": {
+      "value": 1.6537,
+      "percentile": 5.1432
     },
     "blk_per36": {
       "value": 0.8905,
-      "percentile": 61.7
+      "percentile": 16.6146
+    },
+    "stl_per36": {
+      "value": 0.8905,
+      "percentile": 6.7859
     },
     "ts_pct": {
       "value": 0.5943,
-      "percentile": 47.8
+      "percentile": 12.8716
     },
     "efg_pct": {
       "value": 0.5531,
-      "percentile": 48.7
+      "percentile": 13.1139
     },
     "fg3a_rate": {
       "value": 0.6549,
-      "percentile": 92.2
+      "percentile": 24.8276
     },
     "fta_rate": {
       "value": 0.2655,
-      "percentile": 21.7
+      "percentile": 5.8434
     },
     "similar_nba_players": [
       {
@@ -4743,7 +4835,9 @@
       "rpg": 3.2,
       "apg": 1.3,
       "spg": 0.7,
-      "bpg": 0.7
+      "bpg": 0.7,
+      "pfv": 0.1471,
+      "apfv": 0.2107
     }
   },
   {
@@ -4760,39 +4854,39 @@
     },
     "pts_per36": {
       "value": 17.88,
-      "percentile": 53.9
-    },
-    "ast_per36": {
-      "value": 3.0,
-      "percentile": 60.0
+      "percentile": 20.7971
     },
     "reb_per36": {
       "value": 6.12,
-      "percentile": 47.8
+      "percentile": 18.4434
     },
-    "stl_per36": {
-      "value": 2.52,
-      "percentile": 95.7
+    "ast_per36": {
+      "value": 3.0,
+      "percentile": 23.1507
     },
     "blk_per36": {
       "value": 0.72,
-      "percentile": 54.8
+      "percentile": 21.1444
+    },
+    "stl_per36": {
+      "value": 2.52,
+      "percentile": 36.9254
     },
     "ts_pct": {
       "value": 0.5235,
-      "percentile": 9.6
+      "percentile": 3.7041
     },
     "efg_pct": {
       "value": 0.458,
-      "percentile": 5.2
+      "percentile": 2.0064
     },
     "fg3a_rate": {
       "value": 0.3193,
-      "percentile": 42.6
+      "percentile": 16.437
     },
     "fta_rate": {
       "value": 0.4454,
-      "percentile": 67.8
+      "percentile": 26.1603
     },
     "similar_nba_players": [
       {
@@ -4844,7 +4938,9 @@
       "rpg": 5.1,
       "apg": 2.5,
       "spg": 2.1,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.2569,
+      "apfv": 0.4803
     }
   },
   {
@@ -4861,39 +4957,39 @@
     },
     "pts_per36": {
       "value": 19.3846,
-      "percentile": 73.9
-    },
-    "ast_per36": {
-      "value": 3.033,
-      "percentile": 61.7
+      "percentile": 14.0093
     },
     "reb_per36": {
       "value": 11.8681,
-      "percentile": 97.4
+      "percentile": 18.4642
     },
-    "stl_per36": {
-      "value": 1.1868,
-      "percentile": 53.9
+    "ast_per36": {
+      "value": 3.033,
+      "percentile": 11.6965
     },
     "blk_per36": {
       "value": 2.6374,
-      "percentile": 94.8
+      "percentile": 17.9713
+    },
+    "stl_per36": {
+      "value": 1.1868,
+      "percentile": 10.2179
     },
     "ts_pct": {
       "value": 0.621,
-      "percentile": 70.4
+      "percentile": 13.3458
     },
     "efg_pct": {
       "value": 0.6061,
-      "percentile": 84.3
+      "percentile": 15.9808
     },
     "fg3a_rate": {
       "value": 0.0101,
-      "percentile": 5.2
+      "percentile": 0.9858
     },
     "fta_rate": {
       "value": 0.4444,
-      "percentile": 67.0
+      "percentile": 12.7012
     },
     "similar_nba_players": [
       {
@@ -4945,7 +5041,9 @@
       "rpg": 9.0,
       "apg": 2.3,
       "spg": 0.9,
-      "bpg": 2.0
+      "bpg": 2.0,
+      "pfv": 0.5527,
+      "apfv": 0.4904
     }
   },
   {
@@ -4962,39 +5060,39 @@
     },
     "pts_per36": {
       "value": 14.9217,
-      "percentile": 29.6
-    },
-    "ast_per36": {
-      "value": 9.1826,
-      "percentile": 99.1
+      "percentile": 25.1046
     },
     "reb_per36": {
       "value": 3.6522,
-      "percentile": 8.7
+      "percentile": 7.3787
     },
-    "stl_per36": {
-      "value": 1.7739,
-      "percentile": 83.5
+    "ast_per36": {
+      "value": 9.1826,
+      "percentile": 84.0496
     },
     "blk_per36": {
       "value": 0.2087,
-      "percentile": 15.7
+      "percentile": 13.3156
+    },
+    "stl_per36": {
+      "value": 1.7739,
+      "percentile": 70.8188
     },
     "ts_pct": {
       "value": 0.5558,
-      "percentile": 24.3
+      "percentile": 20.6095
     },
     "efg_pct": {
       "value": 0.513,
-      "percentile": 25.2
+      "percentile": 21.3729
     },
     "fg3a_rate": {
       "value": 0.3913,
-      "percentile": 56.5
+      "percentile": 47.9193
     },
     "fta_rate": {
       "value": 0.2696,
-      "percentile": 22.6
+      "percentile": 19.1677
     },
     "similar_nba_players": [
       {
@@ -5046,7 +5144,9 @@
       "rpg": 3.5,
       "apg": 8.8,
       "spg": 1.7,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1122,
+      "apfv": 0.4501
     }
   },
   {
@@ -5063,39 +5163,39 @@
     },
     "pts_per36": {
       "value": 18.1922,
-      "percentile": 55.7
-    },
-    "ast_per36": {
-      "value": 3.2028,
-      "percentile": 64.3
+      "percentile": 12.7398
     },
     "reb_per36": {
       "value": 10.6335,
-      "percentile": 87.8
+      "percentile": 20.0818
     },
-    "stl_per36": {
-      "value": 0.5125,
-      "percentile": 4.3
+    "ast_per36": {
+      "value": 3.2028,
+      "percentile": 14.7068
     },
     "blk_per36": {
       "value": 0.2562,
-      "percentile": 21.7
+      "percentile": 4.9633
+    },
+    "stl_per36": {
+      "value": 0.5125,
+      "percentile": 0.9835
     },
     "ts_pct": {
       "value": 0.5978,
-      "percentile": 52.2
+      "percentile": 11.9393
     },
     "efg_pct": {
       "value": 0.5802,
-      "percentile": 67.8
+      "percentile": 15.5073
     },
     "fg3a_rate": {
       "value": 0.0377,
-      "percentile": 8.7
+      "percentile": 1.9899
     },
     "fta_rate": {
       "value": 0.2736,
-      "percentile": 25.2
+      "percentile": 5.7638
     },
     "similar_nba_players": [
       {
@@ -5147,7 +5247,9 @@
       "rpg": 8.3,
       "apg": 2.5,
       "spg": 0.4,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2526,
+      "apfv": 0.3186
     }
   },
   {
@@ -5164,39 +5266,39 @@
     },
     "pts_per36": {
       "value": 18.1935,
-      "percentile": 56.5
-    },
-    "ast_per36": {
-      "value": 2.7097,
-      "percentile": 52.2
+      "percentile": 12.0518
     },
     "reb_per36": {
       "value": 3.7419,
-      "percentile": 13.0
+      "percentile": 2.773
     },
-    "stl_per36": {
-      "value": 1.1613,
-      "percentile": 47.8
+    "ast_per36": {
+      "value": 2.7097,
+      "percentile": 11.1346
     },
     "blk_per36": {
       "value": 0.6452,
-      "percentile": 51.3
+      "percentile": 10.9426
+    },
+    "stl_per36": {
+      "value": 1.1613,
+      "percentile": 10.196
     },
     "ts_pct": {
       "value": 0.4572,
-      "percentile": 1.7
+      "percentile": 0.3626
     },
     "efg_pct": {
       "value": 0.3731,
-      "percentile": 0.9
+      "percentile": 0.192
     },
     "fg3a_rate": {
       "value": 0.3385,
-      "percentile": 46.1
+      "percentile": 9.8334
     },
     "fta_rate": {
       "value": 0.4231,
-      "percentile": 62.6
+      "percentile": 13.3529
     },
     "similar_nba_players": [
       {
@@ -5248,7 +5350,9 @@
       "rpg": 2.9,
       "apg": 2.1,
       "spg": 0.9,
-      "bpg": 0.5
+      "bpg": 0.5,
+      "pfv": 0.112,
+      "apfv": 0.1254
     }
   },
   {
@@ -5265,39 +5369,39 @@
     },
     "pts_per36": {
       "value": 18.259,
-      "percentile": 57.4
-    },
-    "ast_per36": {
-      "value": 3.3669,
-      "percentile": 68.7
+      "percentile": 11.7837
     },
     "reb_per36": {
       "value": 7.2518,
-      "percentile": 56.5
+      "percentile": 11.5989
     },
-    "stl_per36": {
-      "value": 0.777,
-      "percentile": 15.7
+    "ast_per36": {
+      "value": 3.3669,
+      "percentile": 14.1035
     },
     "blk_per36": {
       "value": 0.9065,
-      "percentile": 64.3
+      "percentile": 13.2002
+    },
+    "stl_per36": {
+      "value": 0.777,
+      "percentile": 3.2231
     },
     "ts_pct": {
       "value": 0.5649,
-      "percentile": 27.0
+      "percentile": 5.5428
     },
     "efg_pct": {
       "value": 0.5429,
-      "percentile": 42.6
+      "percentile": 8.7454
     },
     "fg3a_rate": {
       "value": 0.0571,
-      "percentile": 12.2
+      "percentile": 2.5045
     },
     "fta_rate": {
       "value": 0.4286,
-      "percentile": 65.2
+      "percentile": 13.3849
     },
     "similar_nba_players": [
       {
@@ -5349,7 +5453,9 @@
       "rpg": 5.6,
       "apg": 2.6,
       "spg": 0.6,
-      "bpg": 0.7
+      "bpg": 0.7,
+      "pfv": 0.2421,
+      "apfv": 0.2587
     }
   },
   {
@@ -5366,39 +5472,39 @@
     },
     "pts_per36": {
       "value": 17.3242,
-      "percentile": 49.6
-    },
-    "ast_per36": {
-      "value": 2.5802,
-      "percentile": 48.7
+      "percentile": 16.3917
     },
     "reb_per36": {
       "value": 2.8259,
-      "percentile": 2.6
+      "percentile": 0.8592
     },
-    "stl_per36": {
-      "value": 0.8601,
-      "percentile": 24.3
+    "ast_per36": {
+      "value": 2.5802,
+      "percentile": 16.0943
     },
     "blk_per36": {
       "value": 0.1229,
-      "percentile": 7.0
+      "percentile": 2.3133
+    },
+    "stl_per36": {
+      "value": 0.8601,
+      "percentile": 8.0306
     },
     "ts_pct": {
       "value": 0.6489,
-      "percentile": 85.2
+      "percentile": 28.1567
     },
     "efg_pct": {
       "value": 0.6053,
-      "percentile": 82.6
+      "percentile": 27.2974
     },
     "fg3a_rate": {
       "value": 0.6947,
-      "percentile": 96.5
+      "percentile": 31.8911
     },
     "fta_rate": {
       "value": 0.3263,
-      "percentile": 37.4
+      "percentile": 12.3599
     },
     "similar_nba_players": [
       {
@@ -5450,7 +5556,9 @@
       "rpg": 2.3,
       "apg": 2.1,
       "spg": 0.7,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.1177,
+      "apfv": 0.2031
     }
   },
   {
@@ -5467,39 +5575,39 @@
     },
     "pts_per36": {
       "value": 15.5556,
-      "percentile": 37.4
-    },
-    "ast_per36": {
-      "value": 3.3333,
-      "percentile": 67.0
+      "percentile": 23.7596
     },
     "reb_per36": {
       "value": 4.2222,
-      "percentile": 21.7
+      "percentile": 13.7856
     },
-    "stl_per36": {
-      "value": 1.4444,
-      "percentile": 67.8
+    "ast_per36": {
+      "value": 3.3333,
+      "percentile": 42.5639
     },
     "blk_per36": {
       "value": 0.2222,
-      "percentile": 16.5
+      "percentile": 10.4822
+    },
+    "stl_per36": {
+      "value": 1.4444,
+      "percentile": 43.0721
     },
     "ts_pct": {
       "value": 0.5547,
-      "percentile": 21.7
+      "percentile": 13.7856
     },
     "efg_pct": {
       "value": 0.5098,
-      "percentile": 20.0
+      "percentile": 12.7056
     },
     "fg3a_rate": {
       "value": 0.2549,
-      "percentile": 32.2
+      "percentile": 20.4561
     },
     "fta_rate": {
       "value": 0.5392,
-      "percentile": 85.2
+      "percentile": 54.126
     },
     "similar_nba_players": [
       {
@@ -5551,7 +5659,9 @@
       "rpg": 3.8,
       "apg": 3.0,
       "spg": 1.3,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1129,
+      "apfv": 0.3638
     }
   },
   {
@@ -5568,39 +5678,39 @@
     },
     "pts_per36": {
       "value": 16.8562,
-      "percentile": 45.2
-    },
-    "ast_per36": {
-      "value": 3.3712,
-      "percentile": 69.6
+      "percentile": 16.1728
     },
     "reb_per36": {
       "value": 5.5385,
-      "percentile": 37.4
+      "percentile": 13.3819
     },
-    "stl_per36": {
-      "value": 1.3244,
-      "percentile": 60.9
+    "ast_per36": {
+      "value": 3.3712,
+      "percentile": 24.9032
     },
     "blk_per36": {
       "value": 0.3612,
-      "percentile": 34.8
+      "percentile": 12.4516
+    },
+    "stl_per36": {
+      "value": 1.3244,
+      "percentile": 21.7903
     },
     "ts_pct": {
       "value": 0.5352,
-      "percentile": 13.0
+      "percentile": 4.6515
     },
     "efg_pct": {
       "value": 0.5082,
-      "percentile": 18.3
+      "percentile": 6.5478
     },
     "fg3a_rate": {
       "value": 0.4754,
-      "percentile": 68.7
+      "percentile": 24.5812
     },
     "fta_rate": {
       "value": 0.1639,
-      "percentile": 4.3
+      "percentile": 1.5386
     },
     "similar_nba_players": [
       {
@@ -5652,7 +5762,9 @@
       "rpg": 4.6,
       "apg": 2.8,
       "spg": 1.1,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.1702,
+      "apfv": 0.3364
     }
   },
   {
@@ -5669,39 +5781,39 @@
     },
     "pts_per36": {
       "value": 17.375,
-      "percentile": 51.3
-    },
-    "ast_per36": {
-      "value": 8.125,
-      "percentile": 98.3
+      "percentile": 14.7181
     },
     "reb_per36": {
       "value": 4.5,
-      "percentile": 24.3
+      "percentile": 6.9717
     },
-    "stl_per36": {
-      "value": 2.25,
-      "percentile": 93.0
+    "ast_per36": {
+      "value": 8.125,
+      "percentile": 28.2025
     },
     "blk_per36": {
       "value": 0.125,
-      "percentile": 8.7
+      "percentile": 2.496
+    },
+    "stl_per36": {
+      "value": 2.25,
+      "percentile": 26.6819
     },
     "ts_pct": {
       "value": 0.6004,
-      "percentile": 53.0
+      "percentile": 15.2058
     },
     "efg_pct": {
       "value": 0.538,
-      "percentile": 40.9
+      "percentile": 11.7343
     },
     "fg3a_rate": {
       "value": 0.1848,
-      "percentile": 23.5
+      "percentile": 6.7422
     },
     "fta_rate": {
       "value": 0.587,
-      "percentile": 92.2
+      "percentile": 26.4524
     },
     "similar_nba_players": [
       {
@@ -5753,7 +5865,9 @@
       "rpg": 3.6,
       "apg": 6.5,
       "spg": 1.8,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.2158,
+      "apfv": 0.3455
     }
   },
   {
@@ -5770,39 +5884,39 @@
     },
     "pts_per36": {
       "value": 17.3101,
-      "percentile": 48.7
-    },
-    "ast_per36": {
-      "value": 1.0035,
-      "percentile": 6.1
+      "percentile": 13.5408
     },
     "reb_per36": {
       "value": 4.5157,
-      "percentile": 25.2
+      "percentile": 7.0067
     },
-    "stl_per36": {
-      "value": 0.7526,
-      "percentile": 13.9
+    "ast_per36": {
+      "value": 1.0035,
+      "percentile": 1.6961
     },
     "blk_per36": {
       "value": 0.5017,
-      "percentile": 41.7
+      "percentile": 11.5945
+    },
+    "stl_per36": {
+      "value": 0.7526,
+      "percentile": 3.8648
     },
     "ts_pct": {
       "value": 0.6384,
-      "percentile": 81.7
+      "percentile": 22.7162
     },
     "efg_pct": {
       "value": 0.6011,
-      "percentile": 79.1
+      "percentile": 21.9933
     },
     "fg3a_rate": {
       "value": 0.766,
-      "percentile": 100.0
+      "percentile": 27.8045
     },
     "fta_rate": {
       "value": 0.3404,
-      "percentile": 40.9
+      "percentile": 11.372
     },
     "similar_nba_players": [
       {
@@ -5854,7 +5968,9 @@
       "rpg": 3.6,
       "apg": 0.8,
       "spg": 0.6,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.1222,
+      "apfv": 0.1955
     }
   },
   {
@@ -5871,39 +5987,39 @@
     },
     "pts_per36": {
       "value": 14.379,
-      "percentile": 20.9
-    },
-    "ast_per36": {
-      "value": 3.4636,
-      "percentile": 70.4
+      "percentile": 17.1944
     },
     "reb_per36": {
       "value": 5.5627,
-      "percentile": 40.0
+      "percentile": 32.908
     },
-    "stl_per36": {
-      "value": 1.1545,
-      "percentile": 44.3
+    "ast_per36": {
+      "value": 3.4636,
+      "percentile": 57.9181
     },
     "blk_per36": {
       "value": 0.6297,
-      "percentile": 49.6
+      "percentile": 40.8059
+    },
+    "stl_per36": {
+      "value": 1.1545,
+      "percentile": 36.4456
     },
     "ts_pct": {
       "value": 0.5544,
-      "percentile": 20.9
+      "percentile": 17.1944
     },
     "efg_pct": {
       "value": 0.5133,
-      "percentile": 26.1
+      "percentile": 21.4725
     },
     "fg3a_rate": {
       "value": 0.6814,
-      "percentile": 94.8
+      "percentile": 77.992
     },
     "fta_rate": {
       "value": 0.2124,
-      "percentile": 12.2
+      "percentile": 10.0369
     },
     "similar_nba_players": [
       {
@@ -5955,108 +6071,9 @@
       "rpg": 5.3,
       "apg": 3.3,
       "spg": 1.1,
-      "bpg": 0.6
-    }
-  },
-  {
-    "prospect_id": "tyler-nickel",
-    "player_name": "Tyler Nickel",
-    "team": "VANDY",
-    "height": "6-7",
-    "weight": "220",
-    "role": "Perimeter Specialist",
-    "gp": 36,
-    "mpg": {
-      "value": 30.6,
-      "percentile": 59.1
-    },
-    "pts_per36": {
-      "value": 15.8824,
-      "percentile": 39.1
-    },
-    "ast_per36": {
-      "value": 1.4118,
-      "percentile": 13.0
-    },
-    "reb_per36": {
-      "value": 3.8824,
-      "percentile": 16.5
-    },
-    "stl_per36": {
-      "value": 0.9412,
-      "percentile": 26.1
-    },
-    "blk_per36": {
-      "value": 0.5882,
-      "percentile": 47.8
-    },
-    "ts_pct": {
-      "value": 0.619,
-      "percentile": 67.8
-    },
-    "efg_pct": {
-      "value": 0.5931,
-      "percentile": 75.7
-    },
-    "fg3a_rate": {
-      "value": 0.7451,
-      "percentile": 98.3
-    },
-    "fta_rate": {
-      "value": 0.1569,
-      "percentile": 3.5
-    },
-    "similar_nba_players": [
-      {
-        "player_id": 1630534,
-        "player_name": "Ochai Agbaji",
-        "similarity_score": 97.9,
-        "career_span": "2022-23 to 2025-26",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
-        "player_id": 203493,
-        "player_name": "Reggie Bullock Jr.",
-        "similarity_score": 96.0,
-        "career_span": "2013-14 to 2023-24",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
-        "player_id": 1641783,
-        "player_name": "Tristan da Silva",
-        "similarity_score": 95.1,
-        "career_span": "2024-25 to 2025-26",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
-        "player_id": 203459,
-        "player_name": "Allen Crabbe",
-        "similarity_score": 94.8,
-        "career_span": "2013-14 to 2019-20",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      }
-    ],
-    "raw_stats": {
-      "gp": 36,
-      "mpg": 30.6,
-      "ppg": 13.5,
-      "fgm": 4.5,
-      "fga": 10.2,
-      "fg_pct": 0.445,
-      "fg3m": 3.1,
-      "fg3a": 7.6,
-      "fg3_pct": 0.4,
-      "ftm": 1.4,
-      "fta": 1.6,
-      "ft_pct": 0.847,
-      "rpg": 3.3,
-      "apg": 1.2,
-      "spg": 0.8,
-      "bpg": 0.5
+      "bpg": 0.6,
+      "pfv": 0.1784,
+      "apfv": 0.5961
     }
   },
   {
@@ -6073,39 +6090,39 @@
     },
     "pts_per36": {
       "value": 18.4791,
-      "percentile": 60.0
-    },
-    "ast_per36": {
-      "value": 1.3688,
-      "percentile": 12.2
+      "percentile": 9.2252
     },
     "reb_per36": {
       "value": 6.1597,
-      "percentile": 48.7
+      "percentile": 7.4878
     },
-    "stl_per36": {
-      "value": 0.5475,
-      "percentile": 6.1
+    "ast_per36": {
+      "value": 1.3688,
+      "percentile": 1.8758
     },
     "blk_per36": {
       "value": 0.5475,
-      "percentile": 46.1
+      "percentile": 7.088
+    },
+    "stl_per36": {
+      "value": 0.5475,
+      "percentile": 0.9379
     },
     "ts_pct": {
       "value": 0.5833,
-      "percentile": 38.3
+      "percentile": 5.8887
     },
     "efg_pct": {
       "value": 0.5253,
-      "percentile": 33.0
+      "percentile": 5.0738
     },
     "fg3a_rate": {
       "value": 0.2424,
-      "percentile": 30.4
+      "percentile": 4.6741
     },
     "fta_rate": {
       "value": 0.3838,
-      "percentile": 53.0
+      "percentile": 8.1489
     },
     "similar_nba_players": [
       {
@@ -6157,7 +6174,112 @@
       "rpg": 4.5,
       "apg": 1.0,
       "spg": 0.4,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.1149,
+      "apfv": 0.0944
+    }
+  },
+  {
+    "prospect_id": "tyler-nickel",
+    "player_name": "Tyler Nickel",
+    "team": "VANDY",
+    "height": "6-7",
+    "weight": "220",
+    "role": "Perimeter Specialist",
+    "gp": 36,
+    "mpg": {
+      "value": 30.6,
+      "percentile": 59.1
+    },
+    "pts_per36": {
+      "value": 15.8824,
+      "percentile": 17.7647
+    },
+    "reb_per36": {
+      "value": 3.8824,
+      "percentile": 7.4966
+    },
+    "ast_per36": {
+      "value": 1.4118,
+      "percentile": 5.9064
+    },
+    "blk_per36": {
+      "value": 0.5882,
+      "percentile": 21.7175
+    },
+    "stl_per36": {
+      "value": 0.9412,
+      "percentile": 11.8583
+    },
+    "ts_pct": {
+      "value": 0.619,
+      "percentile": 30.8043
+    },
+    "efg_pct": {
+      "value": 0.5931,
+      "percentile": 34.3936
+    },
+    "fg3a_rate": {
+      "value": 0.7451,
+      "percentile": 44.6616
+    },
+    "fta_rate": {
+      "value": 0.1569,
+      "percentile": 1.5902
+    },
+    "similar_nba_players": [
+      {
+        "player_id": 1630534,
+        "player_name": "Ochai Agbaji",
+        "similarity_score": 97.9,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203493,
+        "player_name": "Reggie Bullock Jr.",
+        "similarity_score": 96.0,
+        "career_span": "2013-14 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1641783,
+        "player_name": "Tristan da Silva",
+        "similarity_score": 95.1,
+        "career_span": "2024-25 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203459,
+        "player_name": "Allen Crabbe",
+        "similarity_score": 94.8,
+        "career_span": "2013-14 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 36,
+      "mpg": 30.6,
+      "ppg": 13.5,
+      "fgm": 4.5,
+      "fga": 10.2,
+      "fg_pct": 0.445,
+      "fg3m": 3.1,
+      "fg3a": 7.6,
+      "fg3_pct": 0.4,
+      "ftm": 1.4,
+      "fta": 1.6,
+      "ft_pct": 0.847,
+      "rpg": 3.3,
+      "apg": 1.2,
+      "spg": 0.8,
+      "bpg": 0.5,
+      "pfv": 0.1192,
+      "apfv": 0.2753
     }
   },
   {
@@ -6174,39 +6296,39 @@
     },
     "pts_per36": {
       "value": 15.4777,
-      "percentile": 35.7
-    },
-    "ast_per36": {
-      "value": 5.8471,
-      "percentile": 93.0
+      "percentile": 20.3284
     },
     "reb_per36": {
       "value": 4.4713,
-      "percentile": 23.5
+      "percentile": 13.3814
     },
-    "stl_per36": {
-      "value": 2.6369,
-      "percentile": 97.4
+    "ast_per36": {
+      "value": 5.8471,
+      "percentile": 52.9564
     },
     "blk_per36": {
       "value": 0.0,
-      "percentile": 2.6
+      "percentile": 1.4805
+    },
+    "stl_per36": {
+      "value": 2.6369,
+      "percentile": 55.4618
     },
     "ts_pct": {
       "value": 0.5451,
-      "percentile": 17.4
+      "percentile": 9.908
     },
     "efg_pct": {
       "value": 0.5093,
-      "percentile": 19.1
+      "percentile": 10.876
     },
     "fg3a_rate": {
       "value": 0.3611,
-      "percentile": 53.0
+      "percentile": 30.1794
     },
     "fta_rate": {
       "value": 0.3333,
-      "percentile": 40.0
+      "percentile": 22.7769
     },
     "similar_nba_players": [
       {
@@ -6258,7 +6380,9 @@
       "rpg": 3.9,
       "apg": 5.1,
       "spg": 2.3,
-      "bpg": 0.0
+      "bpg": 0.0,
+      "pfv": 0.0973,
+      "apfv": 0.301
     }
   },
   {
@@ -6275,39 +6399,39 @@
     },
     "pts_per36": {
       "value": 15.5455,
-      "percentile": 36.5
-    },
-    "ast_per36": {
-      "value": 2.3377,
-      "percentile": 42.6
+      "percentile": 17.3468
     },
     "reb_per36": {
       "value": 8.6494,
-      "percentile": 70.4
+      "percentile": 33.4579
     },
-    "stl_per36": {
-      "value": 1.1688,
-      "percentile": 49.6
+    "ast_per36": {
+      "value": 2.3377,
+      "percentile": 20.2458
     },
     "blk_per36": {
       "value": 1.5195,
-      "percentile": 78.3
+      "percentile": 37.2124
+    },
+    "stl_per36": {
+      "value": 1.1688,
+      "percentile": 23.5726
     },
     "ts_pct": {
       "value": 0.5914,
-      "percentile": 46.1
+      "percentile": 21.9092
     },
     "efg_pct": {
       "value": 0.5111,
-      "percentile": 23.5
+      "percentile": 11.1685
     },
     "fg3a_rate": {
       "value": 0.3778,
-      "percentile": 55.7
+      "percentile": 26.4717
     },
     "fta_rate": {
       "value": 0.5667,
-      "percentile": 87.8
+      "percentile": 41.7273
     },
     "similar_nba_players": [
       {
@@ -6359,7 +6483,9 @@
       "rpg": 7.4,
       "apg": 2.0,
       "spg": 1.0,
-      "bpg": 1.3
+      "bpg": 1.3,
+      "pfv": 0.2793,
+      "apfv": 0.5744
     }
   },
   {
@@ -6376,39 +6502,39 @@
     },
     "pts_per36": {
       "value": 13.9186,
-      "percentile": 19.1
-    },
-    "ast_per36": {
-      "value": 7.9535,
-      "percentile": 97.4
+      "percentile": 15.9558
     },
     "reb_per36": {
       "value": 3.0349,
-      "percentile": 5.2
+      "percentile": 4.344
     },
-    "stl_per36": {
-      "value": 1.7791,
-      "percentile": 84.3
+    "ast_per36": {
+      "value": 7.9535,
+      "percentile": 81.3663
     },
     "blk_per36": {
       "value": 0.314,
-      "percentile": 27.8
+      "percentile": 23.2236
+    },
+    "stl_per36": {
+      "value": 1.7791,
+      "percentile": 70.4228
     },
     "ts_pct": {
       "value": 0.4719,
-      "percentile": 2.6
+      "percentile": 2.172
     },
     "efg_pct": {
       "value": 0.4303,
-      "percentile": 2.6
+      "percentile": 2.172
     },
     "fg3a_rate": {
       "value": 0.1639,
-      "percentile": 20.0
+      "percentile": 16.7077
     },
     "fta_rate": {
       "value": 0.3525,
-      "percentile": 44.3
+      "percentile": 37.0074
     },
     "similar_nba_players": [
       {
@@ -6460,7 +6586,9 @@
       "rpg": 2.9,
       "apg": 7.6,
       "spg": 1.7,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.0988,
+      "apfv": 0.4207
     }
   },
   {
@@ -6477,39 +6605,39 @@
     },
     "pts_per36": {
       "value": 15.6471,
-      "percentile": 38.3
-    },
-    "ast_per36": {
-      "value": 5.1765,
-      "percentile": 87.8
+      "percentile": 17.4012
     },
     "reb_per36": {
       "value": 4.0,
-      "percentile": 17.4
+      "percentile": 7.9055
     },
-    "stl_per36": {
-      "value": 1.6471,
-      "percentile": 74.8
+    "ast_per36": {
+      "value": 5.1765,
+      "percentile": 39.8911
     },
     "blk_per36": {
       "value": 0.1176,
-      "percentile": 5.2
+      "percentile": 2.3626
+    },
+    "stl_per36": {
+      "value": 1.6471,
+      "percentile": 33.9847
     },
     "ts_pct": {
       "value": 0.5777,
-      "percentile": 36.5
+      "percentile": 16.5834
     },
     "efg_pct": {
       "value": 0.5053,
-      "percentile": 16.5
+      "percentile": 7.4966
     },
     "fg3a_rate": {
       "value": 0.1809,
-      "percentile": 22.6
+      "percentile": 10.2681
     },
     "fta_rate": {
       "value": 0.5106,
-      "percentile": 80.9
+      "percentile": 36.7561
     },
     "similar_nba_players": [
       {
@@ -6561,7 +6689,9 @@
       "rpg": 3.4,
       "apg": 4.4,
       "spg": 1.4,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.1195,
+      "apfv": 0.2838
     }
   },
   {
@@ -6578,39 +6708,39 @@
     },
     "pts_per36": {
       "value": 15.2,
-      "percentile": 30.4
-    },
-    "ast_per36": {
-      "value": 1.7143,
-      "percentile": 21.7
+      "percentile": 17.9569
     },
     "reb_per36": {
       "value": 10.2857,
-      "percentile": 82.6
+      "percentile": 48.7909
     },
-    "stl_per36": {
-      "value": 0.8,
-      "percentile": 19.1
+    "ast_per36": {
+      "value": 1.7143,
+      "percentile": 12.818
     },
     "blk_per36": {
       "value": 2.9714,
-      "percentile": 97.4
+      "percentile": 57.5331
+    },
+    "stl_per36": {
+      "value": 0.8,
+      "percentile": 11.2822
     },
     "ts_pct": {
       "value": 0.6543,
-      "percentile": 88.7
+      "percentile": 52.3941
     },
     "efg_pct": {
       "value": 0.6364,
-      "percentile": 93.9
+      "percentile": 55.4657
     },
     "fg3a_rate": {
       "value": 0.0114,
-      "percentile": 6.1
+      "percentile": 3.6032
     },
     "fta_rate": {
       "value": 0.3523,
-      "percentile": 43.5
+      "percentile": 25.695
     },
     "similar_nba_players": [
       {
@@ -6662,7 +6792,9 @@
       "rpg": 9.0,
       "apg": 1.5,
       "spg": 0.7,
-      "bpg": 2.6
+      "bpg": 2.6,
+      "pfv": 0.2111,
+      "apfv": 0.553
     }
   },
   {
@@ -6679,39 +6811,39 @@
     },
     "pts_per36": {
       "value": 13.8542,
-      "percentile": 17.4
-    },
-    "ast_per36": {
-      "value": 2.519,
-      "percentile": 47.0
+      "percentile": 14.315
     },
     "reb_per36": {
       "value": 5.5627,
-      "percentile": 40.0
+      "percentile": 32.908
     },
-    "stl_per36": {
-      "value": 0.8397,
-      "percentile": 22.6
+    "ast_per36": {
+      "value": 2.519,
+      "percentile": 38.6669
     },
     "blk_per36": {
       "value": 0.8397,
-      "percentile": 60.0
+      "percentile": 49.362
+    },
+    "stl_per36": {
+      "value": 0.8397,
+      "percentile": 18.593
     },
     "ts_pct": {
       "value": 0.5963,
-      "percentile": 48.7
+      "percentile": 40.0655
     },
     "efg_pct": {
       "value": 0.5594,
-      "percentile": 53.9
+      "percentile": 44.3436
     },
     "fg3a_rate": {
       "value": 0.5149,
-      "percentile": 76.5
+      "percentile": 62.9366
     },
     "fta_rate": {
       "value": 0.2178,
-      "percentile": 13.9
+      "percentile": 11.4355
     },
     "similar_nba_players": [
       {
@@ -6763,7 +6895,9 @@
       "rpg": 5.3,
       "apg": 2.4,
       "spg": 0.8,
-      "bpg": 0.8
+      "bpg": 0.8,
+      "pfv": 0.145,
+      "apfv": 0.5214
     }
   },
   {
@@ -6780,39 +6914,39 @@
     },
     "pts_per36": {
       "value": 18.7888,
-      "percentile": 63.5
-    },
-    "ast_per36": {
-      "value": 1.7211,
-      "percentile": 22.6
+      "percentile": 8.0329
     },
     "reb_per36": {
       "value": 10.4701,
-      "percentile": 85.2
+      "percentile": 10.7781
     },
-    "stl_per36": {
-      "value": 1.004,
-      "percentile": 33.0
+    "ast_per36": {
+      "value": 1.7211,
+      "percentile": 2.859
     },
     "blk_per36": {
       "value": 1.5777,
-      "percentile": 80.0
+      "percentile": 10.1202
+    },
+    "stl_per36": {
+      "value": 1.004,
+      "percentile": 4.1746
     },
     "ts_pct": {
       "value": 0.6883,
-      "percentile": 98.3
+      "percentile": 12.4352
     },
     "efg_pct": {
       "value": 0.6474,
-      "percentile": 95.7
+      "percentile": 12.1063
     },
     "fg3a_rate": {
       "value": 0.1154,
-      "percentile": 14.8
+      "percentile": 1.8722
     },
     "fta_rate": {
       "value": 0.5,
-      "percentile": 79.1
+      "percentile": 10.0064
     },
     "similar_nba_players": [
       {
@@ -6864,7 +6998,9 @@
       "rpg": 7.3,
       "apg": 1.2,
       "spg": 0.7,
-      "bpg": 1.1
+      "bpg": 1.1,
+      "pfv": 0.3545,
+      "apfv": 0.2423
     }
   },
   {
@@ -6881,39 +7017,39 @@
     },
     "pts_per36": {
       "value": 15.3616,
-      "percentile": 33.9
-    },
-    "ast_per36": {
-      "value": 1.759,
-      "percentile": 23.5
+      "percentile": 15.7553
     },
     "reb_per36": {
       "value": 9.9674,
-      "percentile": 80.0
+      "percentile": 37.1806
     },
-    "stl_per36": {
-      "value": 0.5863,
-      "percentile": 7.0
+    "ast_per36": {
+      "value": 1.759,
+      "percentile": 10.9218
     },
     "blk_per36": {
       "value": 1.4072,
-      "percentile": 74.8
+      "percentile": 34.7639
+    },
+    "stl_per36": {
+      "value": 0.5863,
+      "percentile": 3.2533
     },
     "ts_pct": {
       "value": 0.6537,
-      "percentile": 87.8
+      "percentile": 40.8058
     },
     "efg_pct": {
       "value": 0.6207,
-      "percentile": 90.4
+      "percentile": 42.0141
     },
     "fg3a_rate": {
       "value": 0.3563,
-      "percentile": 50.4
+      "percentile": 23.4238
     },
     "fta_rate": {
       "value": 0.3448,
-      "percentile": 41.7
+      "percentile": 19.3804
     },
     "similar_nba_players": [
       {
@@ -6965,7 +7101,9 @@
       "rpg": 8.5,
       "apg": 1.5,
       "spg": 0.5,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.1744,
+      "apfv": 0.4014
     }
   },
   {
@@ -6982,39 +7120,39 @@
     },
     "pts_per36": {
       "value": 14.717,
-      "percentile": 25.2
-    },
-    "ast_per36": {
-      "value": 4.1887,
-      "percentile": 80.0
+      "percentile": 15.4599
     },
     "reb_per36": {
       "value": 11.6604,
-      "percentile": 96.5
+      "percentile": 59.2016
     },
-    "stl_per36": {
-      "value": 0.7925,
-      "percentile": 17.4
+    "ast_per36": {
+      "value": 4.1887,
+      "percentile": 49.079
     },
     "blk_per36": {
       "value": 1.3585,
-      "percentile": 70.4
+      "percentile": 43.1895
+    },
+    "stl_per36": {
+      "value": 0.7925,
+      "percentile": 10.6747
     },
     "ts_pct": {
       "value": 0.585,
-      "percentile": 41.7
+      "percentile": 25.5824
     },
     "efg_pct": {
       "value": 0.55,
-      "percentile": 47.0
+      "percentile": 28.8339
     },
     "fg3a_rate": {
       "value": 0.1889,
-      "percentile": 24.3
+      "percentile": 14.9077
     },
     "fta_rate": {
       "value": 0.5333,
-      "percentile": 84.3
+      "percentile": 51.717
     },
     "similar_nba_players": [
       {
@@ -7066,7 +7204,9 @@
       "rpg": 10.3,
       "apg": 3.7,
       "spg": 0.7,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.3131,
+      "apfv": 0.6969
     }
   },
   {
@@ -7083,39 +7223,39 @@
     },
     "pts_per36": {
       "value": 14.8571,
-      "percentile": 28.7
-    },
-    "ast_per36": {
-      "value": 1.8286,
-      "percentile": 27.8
+      "percentile": 16.9528
     },
     "reb_per36": {
       "value": 8.3429,
-      "percentile": 66.1
+      "percentile": 39.0446
     },
-    "stl_per36": {
-      "value": 1.7143,
-      "percentile": 78.3
+    "ast_per36": {
+      "value": 1.8286,
+      "percentile": 16.4212
     },
     "blk_per36": {
       "value": 1.8286,
-      "percentile": 86.1
+      "percentile": 50.8583
+    },
+    "stl_per36": {
+      "value": 1.7143,
+      "percentile": 46.251
     },
     "ts_pct": {
       "value": 0.6279,
-      "percentile": 74.8
+      "percentile": 44.1835
     },
     "efg_pct": {
       "value": 0.6011,
-      "percentile": 80.0
+      "percentile": 47.2551
     },
     "fg3a_rate": {
       "value": 0.4157,
-      "percentile": 60.0
+      "percentile": 35.4413
     },
     "fta_rate": {
       "value": 0.3708,
-      "percentile": 47.0
+      "percentile": 27.7624
     },
     "similar_nba_players": [
       {
@@ -7167,7 +7307,9 @@
       "rpg": 7.3,
       "apg": 1.6,
       "spg": 1.5,
-      "bpg": 1.6
+      "bpg": 1.6,
+      "pfv": 0.3479,
+      "apfv": 0.8028
     }
   },
   {
@@ -7184,39 +7326,39 @@
     },
     "pts_per36": {
       "value": 16.2827,
-      "percentile": 40.9
-    },
-    "ast_per36": {
-      "value": 1.9081,
-      "percentile": 28.7
+      "percentile": 11.0136
     },
     "reb_per36": {
       "value": 3.8163,
-      "percentile": 14.8
+      "percentile": 3.9853
     },
-    "stl_per36": {
-      "value": 0.5088,
-      "percentile": 3.5
+    "ast_per36": {
+      "value": 1.9081,
+      "percentile": 7.7283
     },
     "blk_per36": {
       "value": 0.2544,
-      "percentile": 20.9
+      "percentile": 5.628
+    },
+    "stl_per36": {
+      "value": 0.5088,
+      "percentile": 0.9425
     },
     "ts_pct": {
       "value": 0.5344,
-      "percentile": 11.3
+      "percentile": 3.0429
     },
     "efg_pct": {
       "value": 0.486,
-      "percentile": 11.3
+      "percentile": 3.0429
     },
     "fg3a_rate": {
       "value": 0.6168,
-      "percentile": 88.7
+      "percentile": 23.8851
     },
     "fta_rate": {
       "value": 0.271,
-      "percentile": 23.5
+      "percentile": 6.3281
     },
     "similar_nba_players": [
       {
@@ -7268,7 +7410,9 @@
       "rpg": 3.0,
       "apg": 1.5,
       "spg": 0.4,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.0367,
+      "apfv": 0.0665
     }
   },
   {
@@ -7285,39 +7429,39 @@
     },
     "pts_per36": {
       "value": 16.9412,
-      "percentile": 47.0
-    },
-    "ast_per36": {
-      "value": 0.6618,
-      "percentile": 3.5
+      "percentile": 8.5878
     },
     "reb_per36": {
       "value": 9.3971,
-      "percentile": 75.7
+      "percentile": 13.8318
     },
-    "stl_per36": {
-      "value": 1.0588,
-      "percentile": 34.8
+    "ast_per36": {
+      "value": 0.6618,
+      "percentile": 0.6395
     },
     "blk_per36": {
       "value": 2.1176,
-      "percentile": 89.6
+      "percentile": 16.3716
+    },
+    "stl_per36": {
+      "value": 1.0588,
+      "percentile": 6.3586
     },
     "ts_pct": {
       "value": 0.571,
-      "percentile": 31.3
+      "percentile": 5.7191
     },
     "efg_pct": {
       "value": 0.5561,
-      "percentile": 51.3
+      "percentile": 9.3735
     },
     "fg3a_rate": {
       "value": 0.1735,
-      "percentile": 21.7
+      "percentile": 3.965
     },
     "fta_rate": {
       "value": 0.3265,
-      "percentile": 38.3
+      "percentile": 6.9981
     },
     "similar_nba_players": [
       {
@@ -7369,7 +7513,9 @@
       "rpg": 7.1,
       "apg": 0.5,
       "spg": 0.8,
-      "bpg": 1.6
+      "bpg": 1.6,
+      "pfv": 0.1636,
+      "apfv": 0.1522
     }
   },
   {
@@ -7386,39 +7532,39 @@
     },
     "pts_per36": {
       "value": 14.5605,
-      "percentile": 23.5
-    },
-    "ast_per36": {
-      "value": 1.4904,
-      "percentile": 16.5
+      "percentile": 13.3814
     },
     "reb_per36": {
       "value": 3.7834,
-      "percentile": 13.9
+      "percentile": 7.915
     },
-    "stl_per36": {
-      "value": 1.7197,
-      "percentile": 79.1
+    "ast_per36": {
+      "value": 1.4904,
+      "percentile": 9.3955
     },
     "blk_per36": {
       "value": 0.3439,
-      "percentile": 33.9
+      "percentile": 19.3034
+    },
+    "stl_per36": {
+      "value": 1.7197,
+      "percentile": 45.0414
     },
     "ts_pct": {
       "value": 0.497,
-      "percentile": 6.1
+      "percentile": 3.4735
     },
     "efg_pct": {
       "value": 0.4609,
-      "percentile": 6.1
+      "percentile": 3.4735
     },
     "fg3a_rate": {
       "value": 0.5478,
-      "percentile": 80.0
+      "percentile": 45.5539
     },
     "fta_rate": {
       "value": 0.2522,
-      "percentile": 18.3
+      "percentile": 10.4204
     },
     "similar_nba_players": [
       {
@@ -7470,7 +7616,9 @@
       "rpg": 3.3,
       "apg": 1.3,
       "spg": 1.5,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.0737,
+      "apfv": 0.2264
     }
   },
   {
@@ -7487,39 +7635,39 @@
     },
     "pts_per36": {
       "value": 14.76,
-      "percentile": 27.8
-    },
-    "ast_per36": {
-      "value": 3.6,
-      "percentile": 71.3
+      "percentile": 10.7265
     },
     "reb_per36": {
       "value": 4.8,
-      "percentile": 28.7
+      "percentile": 11.0738
     },
-    "stl_per36": {
-      "value": 0.84,
-      "percentile": 23.5
+    "ast_per36": {
+      "value": 3.6,
+      "percentile": 27.5108
     },
     "blk_per36": {
       "value": 0.0,
-      "percentile": 2.6
+      "percentile": 1.0032
+    },
+    "stl_per36": {
+      "value": 0.84,
+      "percentile": 9.0674
     },
     "ts_pct": {
       "value": 0.5657,
-      "percentile": 27.8
+      "percentile": 10.7265
     },
     "efg_pct": {
       "value": 0.5109,
-      "percentile": 21.7
+      "percentile": 8.3729
     },
     "fg3a_rate": {
       "value": 0.413,
-      "percentile": 59.1
+      "percentile": 22.8035
     },
     "fta_rate": {
       "value": 0.413,
-      "percentile": 59.1
+      "percentile": 22.8035
     },
     "similar_nba_players": [
       {
@@ -7571,7 +7719,9 @@
       "rpg": 4.0,
       "apg": 3.0,
       "spg": 0.7,
-      "bpg": 0.0
+      "bpg": 0.0,
+      "pfv": 0.0753,
+      "apfv": 0.1453
     }
   },
   {
@@ -7588,39 +7738,39 @@
     },
     "pts_per36": {
       "value": 15.2165,
-      "percentile": 31.3
-    },
-    "ast_per36": {
-      "value": 0.7423,
-      "percentile": 5.2
+      "percentile": 9.7971
     },
     "reb_per36": {
       "value": 10.5155,
-      "percentile": 86.1
+      "percentile": 26.9497
     },
-    "stl_per36": {
-      "value": 0.3711,
-      "percentile": 0.9
+    "ast_per36": {
+      "value": 0.7423,
+      "percentile": 1.6276
     },
     "blk_per36": {
       "value": 1.3608,
-      "percentile": 71.3
+      "percentile": 22.3173
+    },
+    "stl_per36": {
+      "value": 0.3711,
+      "percentile": 0.2817
     },
     "ts_pct": {
       "value": 0.6512,
-      "percentile": 87.0
+      "percentile": 27.2314
     },
     "efg_pct": {
       "value": 0.5764,
-      "percentile": 64.3
+      "percentile": 20.1262
     },
     "fg3a_rate": {
       "value": 0.2917,
-      "percentile": 37.4
+      "percentile": 11.7064
     },
     "fta_rate": {
       "value": 0.7083,
-      "percentile": 96.5
+      "percentile": 30.205
     },
     "similar_nba_players": [
       {
@@ -7672,7 +7822,9 @@
       "rpg": 8.5,
       "apg": 0.6,
       "spg": 0.3,
-      "bpg": 1.1
+      "bpg": 1.1,
+      "pfv": 0.1063,
+      "apfv": 0.1807
     }
   },
   {
@@ -7689,39 +7841,39 @@
     },
     "pts_per36": {
       "value": 18.5362,
-      "percentile": 61.7
-    },
-    "ast_per36": {
-      "value": 3.6766,
-      "percentile": 72.2
+      "percentile": 5.8953
     },
     "reb_per36": {
       "value": 10.417,
-      "percentile": 84.3
+      "percentile": 8.0547
     },
-    "stl_per36": {
-      "value": 0.6128,
-      "percentile": 8.7
+    "ast_per36": {
+      "value": 3.6766,
+      "percentile": 6.8985
     },
     "blk_per36": {
       "value": 3.983,
-      "percentile": 99.1
+      "percentile": 9.4688
+    },
+    "stl_per36": {
+      "value": 0.6128,
+      "percentile": 0.8313
     },
     "ts_pct": {
       "value": 0.6692,
-      "percentile": 94.8
+      "percentile": 9.0579
     },
     "efg_pct": {
       "value": 0.6733,
-      "percentile": 98.3
+      "percentile": 9.3923
     },
     "fg3a_rate": {
       "value": 0.04,
-      "percentile": 9.6
+      "percentile": 0.9173
     },
     "fta_rate": {
       "value": 0.4667,
-      "percentile": 72.2
+      "percentile": 6.8985
     },
     "similar_nba_players": [
       {
@@ -7773,7 +7925,9 @@
       "rpg": 6.8,
       "apg": 2.4,
       "spg": 0.4,
-      "bpg": 2.6
+      "bpg": 2.6,
+      "pfv": 0.433,
+      "apfv": 0.2185
     }
   },
   {
@@ -7790,39 +7944,39 @@
     },
     "pts_per36": {
       "value": 15.3191,
-      "percentile": 33.0
-    },
-    "ast_per36": {
-      "value": 1.7872,
-      "percentile": 25.2
+      "percentile": 8.3484
     },
     "reb_per36": {
       "value": 4.4681,
-      "percentile": 22.6
+      "percentile": 5.7174
     },
-    "stl_per36": {
-      "value": 1.2766,
-      "percentile": 58.3
+    "ast_per36": {
+      "value": 1.7872,
+      "percentile": 6.3752
     },
     "blk_per36": {
       "value": 0.766,
-      "percentile": 58.3
+      "percentile": 14.7489
+    },
+    "stl_per36": {
+      "value": 1.2766,
+      "percentile": 14.7489
     },
     "ts_pct": {
       "value": 0.5462,
-      "percentile": 19.1
+      "percentile": 4.832
     },
     "efg_pct": {
       "value": 0.5238,
-      "percentile": 31.3
+      "percentile": 7.9183
     },
     "fg3a_rate": {
       "value": 0.619,
-      "percentile": 90.4
+      "percentile": 22.8696
     },
     "fta_rate": {
       "value": 0.1048,
-      "percentile": 0.9
+      "percentile": 0.2277
     },
     "similar_nba_players": [
       {
@@ -7874,7 +8028,9 @@
       "rpg": 3.5,
       "apg": 1.4,
       "spg": 1.0,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.1321,
+      "apfv": 0.188
     }
   },
   {
@@ -7891,39 +8047,39 @@
     },
     "pts_per36": {
       "value": 16.7344,
-      "percentile": 42.6
-    },
-    "ast_per36": {
-      "value": 2.6719,
-      "percentile": 51.3
+      "percentile": 6.2442
     },
     "reb_per36": {
       "value": 8.5781,
-      "percentile": 68.7
+      "percentile": 10.0699
     },
-    "stl_per36": {
-      "value": 1.6875,
-      "percentile": 76.5
+    "ast_per36": {
+      "value": 2.6719,
+      "percentile": 7.5194
     },
     "blk_per36": {
       "value": 1.4062,
-      "percentile": 73.9
+      "percentile": 10.8321
+    },
+    "stl_per36": {
+      "value": 1.6875,
+      "percentile": 11.2132
     },
     "ts_pct": {
       "value": 0.5847,
-      "percentile": 40.0
+      "percentile": 5.8631
     },
     "efg_pct": {
       "value": 0.5506,
-      "percentile": 47.8
+      "percentile": 7.0064
     },
     "fg3a_rate": {
       "value": 0.3371,
-      "percentile": 45.2
+      "percentile": 6.6253
     },
     "fta_rate": {
       "value": 0.3258,
-      "percentile": 36.5
+      "percentile": 5.3501
     },
     "similar_nba_players": [
       {
@@ -7975,7 +8131,9 @@
       "rpg": 6.1,
       "apg": 1.9,
       "spg": 1.2,
-      "bpg": 1.0
+      "bpg": 1.0,
+      "pfv": 0.3443,
+      "apfv": 0.267
     }
   },
   {
@@ -7992,39 +8150,39 @@
     },
     "pts_per36": {
       "value": 18.7137,
-      "percentile": 62.6
-    },
-    "ast_per36": {
-      "value": 2.8546,
-      "percentile": 56.5
+      "percentile": 5.2255
     },
     "reb_per36": {
       "value": 10.3084,
-      "percentile": 83.5
+      "percentile": 6.9701
     },
-    "stl_per36": {
-      "value": 3.0132,
-      "percentile": 99.1
+    "ast_per36": {
+      "value": 2.8546,
+      "percentile": 4.7163
     },
     "blk_per36": {
       "value": 1.4273,
-      "percentile": 75.7
+      "percentile": 6.319
+    },
+    "stl_per36": {
+      "value": 3.0132,
+      "percentile": 8.2723
     },
     "ts_pct": {
       "value": 0.6205,
-      "percentile": 69.6
+      "percentile": 5.8098
     },
     "efg_pct": {
       "value": 0.5741,
-      "percentile": 60.9
+      "percentile": 5.0836
     },
     "fg3a_rate": {
       "value": 0.321,
-      "percentile": 43.5
+      "percentile": 3.6311
     },
     "fta_rate": {
       "value": 0.3951,
-      "percentile": 54.8
+      "percentile": 4.5744
     },
     "similar_nba_players": [
       {
@@ -8076,7 +8234,9 @@
       "rpg": 6.5,
       "apg": 1.8,
       "spg": 1.9,
-      "bpg": 0.9
+      "bpg": 0.9,
+      "pfv": 0.5496,
+      "apfv": 0.2505
     }
   },
   {
@@ -8093,39 +8253,39 @@
     },
     "pts_per36": {
       "value": 15.3164,
-      "percentile": 32.2
-    },
-    "ast_per36": {
-      "value": 1.44,
-      "percentile": 14.8
+      "percentile": 6.3556
     },
     "reb_per36": {
       "value": 5.76,
-      "percentile": 43.5
+      "percentile": 8.586
     },
-    "stl_per36": {
-      "value": 0.6545,
-      "percentile": 10.4
+    "ast_per36": {
+      "value": 1.44,
+      "percentile": 2.9212
     },
     "blk_per36": {
       "value": 0.2618,
-      "percentile": 22.6
+      "percentile": 4.4608
+    },
+    "stl_per36": {
+      "value": 0.6545,
+      "percentile": 2.0527
     },
     "ts_pct": {
       "value": 0.6296,
-      "percentile": 76.5
+      "percentile": 15.0994
     },
     "efg_pct": {
       "value": 0.5743,
-      "percentile": 61.7
+      "percentile": 12.1782
     },
     "fg3a_rate": {
       "value": 0.3514,
-      "percentile": 47.8
+      "percentile": 9.4347
     },
     "fta_rate": {
       "value": 0.5811,
-      "percentile": 91.3
+      "percentile": 18.0206
     },
     "similar_nba_players": [
       {
@@ -8177,7 +8337,9 @@
       "rpg": 4.4,
       "apg": 1.1,
       "spg": 0.5,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.0979,
+      "apfv": 0.1064
     }
   },
   {
@@ -8194,39 +8356,39 @@
     },
     "pts_per36": {
       "value": 14.5532,
-      "percentile": 22.6
-    },
-    "ast_per36": {
-      "value": 3.9574,
-      "percentile": 79.1
+      "percentile": 5.7174
     },
     "reb_per36": {
       "value": 8.8085,
-      "percentile": 72.2
+      "percentile": 18.2653
     },
-    "stl_per36": {
-      "value": 1.2766,
-      "percentile": 58.3
+    "ast_per36": {
+      "value": 3.9574,
+      "percentile": 20.0109
     },
     "blk_per36": {
       "value": 0.8936,
-      "percentile": 63.5
+      "percentile": 16.0644
+    },
+    "stl_per36": {
+      "value": 1.2766,
+      "percentile": 14.7489
     },
     "ts_pct": {
       "value": 0.5753,
-      "percentile": 35.7
+      "percentile": 9.0315
     },
     "efg_pct": {
       "value": 0.5353,
-      "percentile": 39.1
+      "percentile": 9.8916
     },
     "fg3a_rate": {
       "value": 0.5059,
-      "percentile": 74.8
+      "percentile": 18.9231
     },
     "fta_rate": {
       "value": 0.3765,
-      "percentile": 49.6
+      "percentile": 12.5479
     },
     "similar_nba_players": [
       {
@@ -8278,7 +8440,9 @@
       "rpg": 6.9,
       "apg": 3.1,
       "spg": 1.0,
-      "bpg": 0.7
+      "bpg": 0.7,
+      "pfv": 0.3159,
+      "apfv": 0.3825
     }
   },
   {
@@ -8295,39 +8459,39 @@
     },
     "pts_per36": {
       "value": 12.1091,
-      "percentile": 9.6
-    },
-    "ast_per36": {
-      "value": 4.3636,
-      "percentile": 84.3
+      "percentile": 6.7536
     },
     "reb_per36": {
       "value": 2.9455,
-      "percentile": 4.3
+      "percentile": 3.0251
     },
-    "stl_per36": {
-      "value": 1.0909,
-      "percentile": 40.0
+    "ast_per36": {
+      "value": 4.3636,
+      "percentile": 59.3051
     },
     "blk_per36": {
       "value": 0.1091,
-      "percentile": 4.3
+      "percentile": 3.0251
+    },
+    "stl_per36": {
+      "value": 1.0909,
+      "percentile": 28.14
     },
     "ts_pct": {
       "value": 0.4954,
-      "percentile": 5.2
+      "percentile": 3.6582
     },
     "efg_pct": {
       "value": 0.4714,
-      "percentile": 7.8
+      "percentile": 5.4873
     },
     "fg3a_rate": {
       "value": 0.5429,
-      "percentile": 79.1
+      "percentile": 55.6469
     },
     "fta_rate": {
       "value": 0.1524,
-      "percentile": 2.6
+      "percentile": 1.8291
     },
     "similar_nba_players": [
       {
@@ -8379,7 +8543,9 @@
       "rpg": 2.7,
       "apg": 4.0,
       "spg": 1.0,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.0199,
+      "apfv": 0.0885
     }
   },
   {
@@ -8396,39 +8562,39 @@
     },
     "pts_per36": {
       "value": 16.082,
-      "percentile": 40.0
-    },
-    "ast_per36": {
-      "value": 1.0328,
-      "percentile": 7.8
+      "percentile": 4.2976
     },
     "reb_per36": {
       "value": 16.5246,
-      "percentile": 100.0
+      "percentile": 10.7439
     },
-    "stl_per36": {
-      "value": 1.1803,
-      "percentile": 52.2
+    "ast_per36": {
+      "value": 1.0328,
+      "percentile": 0.838
     },
     "blk_per36": {
       "value": 1.4754,
-      "percentile": 77.4
+      "percentile": 8.3158
+    },
+    "stl_per36": {
+      "value": 1.1803,
+      "percentile": 5.6083
     },
     "ts_pct": {
       "value": 0.6196,
-      "percentile": 68.7
+      "percentile": 7.3811
     },
     "efg_pct": {
       "value": 0.589,
-      "percentile": 73.9
+      "percentile": 7.9398
     },
     "fg3a_rate": {
       "value": 0.0137,
-      "percentile": 7.0
+      "percentile": 0.7521
     },
     "fta_rate": {
       "value": 0.4658,
-      "percentile": 71.3
+      "percentile": 7.6604
     },
     "similar_nba_players": [
       {
@@ -8480,7 +8646,9 @@
       "rpg": 11.2,
       "apg": 0.7,
       "spg": 0.8,
-      "bpg": 1.0
+      "bpg": 1.0,
+      "pfv": 0.2626,
+      "apfv": 0.1386
     }
   },
   {
@@ -8497,39 +8665,39 @@
     },
     "pts_per36": {
       "value": 14.7273,
-      "percentile": 26.1
-    },
-    "ast_per36": {
-      "value": 3.2727,
-      "percentile": 65.2
+      "percentile": 4.2032
     },
     "reb_per36": {
       "value": 11.1818,
-      "percentile": 93.9
+      "percentile": 15.1218
     },
-    "stl_per36": {
-      "value": 2.7273,
-      "percentile": 98.3
+    "ast_per36": {
+      "value": 3.2727,
+      "percentile": 10.4999
     },
     "blk_per36": {
       "value": 0.6818,
-      "percentile": 53.9
+      "percentile": 8.6801
+    },
+    "stl_per36": {
+      "value": 2.7273,
+      "percentile": 15.8304
     },
     "ts_pct": {
       "value": 0.5558,
-      "percentile": 23.5
+      "percentile": 3.7845
     },
     "efg_pct": {
       "value": 0.4813,
-      "percentile": 9.6
+      "percentile": 1.546
     },
     "fg3a_rate": {
       "value": 0.3,
-      "percentile": 40.9
+      "percentile": 6.5866
     },
     "fta_rate": {
       "value": 0.4875,
-      "percentile": 74.8
+      "percentile": 12.0459
     },
     "similar_nba_players": [
       {
@@ -8581,7 +8749,9 @@
       "rpg": 8.2,
       "apg": 2.4,
       "spg": 2.0,
-      "bpg": 0.5
+      "bpg": 0.5,
+      "pfv": 0.3385,
+      "apfv": 0.2924
     }
   },
   {
@@ -8598,39 +8768,39 @@
     },
     "pts_per36": {
       "value": 15.4494,
-      "percentile": 34.8
-    },
-    "ast_per36": {
-      "value": 2.6235,
-      "percentile": 49.6
+      "percentile": 3.9644
     },
     "reb_per36": {
       "value": 10.9312,
-      "percentile": 90.4
+      "percentile": 10.2984
     },
-    "stl_per36": {
-      "value": 0.7287,
-      "percentile": 12.2
+    "ast_per36": {
+      "value": 2.6235,
+      "percentile": 5.6505
     },
     "blk_per36": {
       "value": 1.3117,
-      "percentile": 69.6
+      "percentile": 7.9289
+    },
+    "stl_per36": {
+      "value": 0.7287,
+      "percentile": 1.3898
     },
     "ts_pct": {
       "value": 0.6966,
-      "percentile": 99.1
+      "percentile": 11.2895
     },
     "efg_pct": {
       "value": 0.6774,
-      "percentile": 99.1
+      "percentile": 11.2895
     },
     "fg3a_rate": {
       "value": 0.0,
-      "percentile": 4.3
+      "percentile": 0.4899
     },
     "fta_rate": {
       "value": 0.5161,
-      "percentile": 81.7
+      "percentile": 9.3073
     },
     "similar_nba_players": [
       {
@@ -8682,7 +8852,9 @@
       "rpg": 7.5,
       "apg": 1.8,
       "spg": 0.5,
-      "bpg": 0.9
+      "bpg": 0.9,
+      "pfv": 0.2765,
+      "apfv": 0.1662
     }
   },
   {
@@ -8699,39 +8871,39 @@
     },
     "pts_per36": {
       "value": 14.7402,
-      "percentile": 27.0
-    },
-    "ast_per36": {
-      "value": 1.5591,
-      "percentile": 18.3
+      "percentile": 3.6002
     },
     "reb_per36": {
       "value": 11.622,
-      "percentile": 95.7
+      "percentile": 12.7606
     },
-    "stl_per36": {
-      "value": 0.9921,
-      "percentile": 31.3
+    "ast_per36": {
+      "value": 1.5591,
+      "percentile": 2.4401
     },
     "blk_per36": {
       "value": 2.6929,
-      "percentile": 95.7
+      "percentile": 12.7606
+    },
+    "stl_per36": {
+      "value": 0.9921,
+      "percentile": 4.1735
     },
     "ts_pct": {
       "value": 0.6507,
-      "percentile": 86.1
+      "percentile": 11.4806
     },
     "efg_pct": {
       "value": 0.582,
-      "percentile": 70.4
+      "percentile": 9.3871
     },
     "fg3a_rate": {
       "value": 0.0492,
-      "percentile": 10.4
+      "percentile": 1.3867
     },
     "fta_rate": {
       "value": 0.7049,
-      "percentile": 95.7
+      "percentile": 12.7606
     },
     "similar_nba_players": [
       {
@@ -8783,7 +8955,9 @@
       "rpg": 8.2,
       "apg": 1.1,
       "spg": 0.7,
-      "bpg": 1.9
+      "bpg": 1.9,
+      "pfv": 0.235,
+      "apfv": 0.1592
     }
   },
   {
@@ -8800,39 +8974,39 @@
     },
     "pts_per36": {
       "value": 20.0214,
-      "percentile": 82.6
-    },
-    "ast_per36": {
-      "value": 2.5027,
-      "percentile": 46.1
+      "percentile": 3.5198
     },
     "reb_per36": {
       "value": 9.4332,
-      "percentile": 77.4
+      "percentile": 3.2982
     },
-    "stl_per36": {
-      "value": 1.1551,
-      "percentile": 45.2
+    "ast_per36": {
+      "value": 2.5027,
+      "percentile": 1.9644
     },
     "blk_per36": {
       "value": 0.1925,
-      "percentile": 12.2
+      "percentile": 0.5199
+    },
+    "stl_per36": {
+      "value": 1.1551,
+      "percentile": 1.9261
     },
     "ts_pct": {
       "value": 0.5499,
-      "percentile": 20.0
+      "percentile": 0.8523
     },
     "efg_pct": {
       "value": 0.494,
-      "percentile": 12.2
+      "percentile": 0.5199
     },
     "fg3a_rate": {
       "value": 0.5952,
-      "percentile": 86.1
+      "percentile": 3.669
     },
     "fta_rate": {
       "value": 0.2857,
-      "percentile": 28.7
+      "percentile": 1.223
     },
     "similar_nba_players": [
       {
@@ -8884,7 +9058,9 @@
       "rpg": 4.9,
       "apg": 1.3,
       "spg": 0.6,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.2272,
+      "apfv": 0.0613
     }
   },
   {
@@ -8901,39 +9077,39 @@
     },
     "pts_per36": {
       "value": 13.3714,
-      "percentile": 13.9
-    },
-    "ast_per36": {
-      "value": 3.3429,
-      "percentile": 67.8
+      "percentile": 3.0652
     },
     "reb_per36": {
       "value": 6.0429,
-      "percentile": 47.0
+      "percentile": 10.3642
     },
-    "stl_per36": {
-      "value": 2.4429,
-      "percentile": 94.8
+    "ast_per36": {
+      "value": 3.3429,
+      "percentile": 14.951
     },
     "blk_per36": {
       "value": 1.5429,
-      "percentile": 79.1
+      "percentile": 17.4428
+    },
+    "stl_per36": {
+      "value": 2.4429,
+      "percentile": 20.9049
     },
     "ts_pct": {
       "value": 0.5313,
-      "percentile": 10.4
+      "percentile": 2.2934
     },
     "efg_pct": {
       "value": 0.4826,
-      "percentile": 10.4
+      "percentile": 2.2934
     },
     "fg3a_rate": {
       "value": 0.5,
-      "percentile": 73.9
+      "percentile": 16.2961
     },
     "fta_rate": {
       "value": 0.314,
-      "percentile": 33.9
+      "percentile": 7.4755
     },
     "similar_nba_players": [
       {
@@ -8985,7 +9161,9 @@
       "rpg": 4.7,
       "apg": 2.6,
       "spg": 1.9,
-      "bpg": 1.2
+      "bpg": 1.2,
+      "pfv": 0.2972,
+      "apfv": 0.3546
     }
   },
   {
@@ -9002,39 +9180,39 @@
     },
     "pts_per36": {
       "value": 14.6824,
-      "percentile": 24.3
-    },
-    "ast_per36": {
-      "value": 2.2588,
-      "percentile": 40.0
+      "percentile": 3.4092
     },
     "reb_per36": {
       "value": 7.9059,
-      "percentile": 60.0
+      "percentile": 8.4178
     },
-    "stl_per36": {
-      "value": 0.4235,
-      "percentile": 2.6
+    "ast_per36": {
+      "value": 2.2588,
+      "percentile": 5.6118
     },
     "blk_per36": {
       "value": 0.8471,
-      "percentile": 60.9
+      "percentile": 8.544
+    },
+    "stl_per36": {
+      "value": 0.4235,
+      "percentile": 0.3648
     },
     "ts_pct": {
       "value": 0.5974,
-      "percentile": 49.6
+      "percentile": 6.9587
     },
     "efg_pct": {
       "value": 0.5813,
-      "percentile": 69.6
+      "percentile": 9.7646
     },
     "fg3a_rate": {
       "value": 0.5875,
-      "percentile": 85.2
+      "percentile": 11.9532
     },
     "fta_rate": {
       "value": 0.2,
-      "percentile": 9.6
+      "percentile": 1.3468
     },
     "similar_nba_players": [
       {
@@ -9086,7 +9264,9 @@
       "rpg": 5.6,
       "apg": 1.6,
       "spg": 0.3,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.1298,
+      "apfv": 0.1003
     }
   },
   {
@@ -9103,39 +9283,39 @@
     },
     "pts_per36": {
       "value": 16.6027,
-      "percentile": 41.7
-    },
-    "ast_per36": {
-      "value": 3.2877,
-      "percentile": 66.1
+      "percentile": 2.7949
     },
     "reb_per36": {
       "value": 9.5342,
-      "percentile": 79.1
+      "percentile": 5.3015
     },
-    "stl_per36": {
-      "value": 0.9863,
-      "percentile": 30.4
+    "ast_per36": {
+      "value": 3.2877,
+      "percentile": 4.4302
     },
     "blk_per36": {
       "value": 1.8082,
-      "percentile": 85.2
+      "percentile": 5.7104
+    },
+    "stl_per36": {
+      "value": 0.9863,
+      "percentile": 2.0375
     },
     "ts_pct": {
       "value": 0.6555,
-      "percentile": 89.6
+      "percentile": 6.0053
     },
     "efg_pct": {
       "value": 0.6356,
-      "percentile": 93.0
+      "percentile": 6.2332
     },
     "fg3a_rate": {
       "value": 0.1695,
-      "percentile": 20.9
+      "percentile": 1.4008
     },
     "fta_rate": {
       "value": 0.6949,
-      "percentile": 94.8
+      "percentile": 6.3538
     },
     "similar_nba_players": [
       {
@@ -9187,7 +9367,9 @@
       "rpg": 5.8,
       "apg": 2.0,
       "spg": 0.6,
-      "bpg": 1.1
+      "bpg": 1.1,
+      "pfv": 0.3868,
+      "apfv": 0.1319
     }
   },
   {
@@ -9204,39 +9386,39 @@
     },
     "pts_per36": {
       "value": 13.7903,
-      "percentile": 16.5
-    },
-    "ast_per36": {
-      "value": 1.0161,
-      "percentile": 7.0
+      "percentile": 1.9765
     },
     "reb_per36": {
       "value": 11.4677,
-      "percentile": 94.8
+      "percentile": 11.3558
     },
-    "stl_per36": {
-      "value": 1.1613,
-      "percentile": 47.8
+    "ast_per36": {
+      "value": 1.0161,
+      "percentile": 0.8385
     },
     "blk_per36": {
       "value": 0.7258,
-      "percentile": 55.7
+      "percentile": 6.6721
+    },
+    "stl_per36": {
+      "value": 1.1613,
+      "percentile": 5.7258
     },
     "ts_pct": {
       "value": 0.5457,
-      "percentile": 18.3
+      "percentile": 2.1921
     },
     "efg_pct": {
       "value": 0.5375,
-      "percentile": 40.0
+      "percentile": 4.7915
     },
     "fg3a_rate": {
       "value": 0.3,
-      "percentile": 40.9
+      "percentile": 4.8993
     },
     "fta_rate": {
       "value": 0.2,
-      "percentile": 9.6
+      "percentile": 1.15
     },
     "similar_nba_players": [
       {
@@ -9288,7 +9470,9 @@
       "rpg": 7.9,
       "apg": 0.7,
       "spg": 0.8,
-      "bpg": 0.5
+      "bpg": 0.5,
+      "pfv": 0.1076,
+      "apfv": 0.0828
     }
   },
   {
@@ -9305,39 +9489,39 @@
     },
     "pts_per36": {
       "value": 18.4918,
-      "percentile": 60.9
-    },
-    "ast_per36": {
-      "value": 2.5574,
-      "percentile": 47.8
+      "percentile": 1.8114
     },
     "reb_per36": {
       "value": 4.5246,
-      "percentile": 26.1
+      "percentile": 0.7763
     },
-    "stl_per36": {
-      "value": 1.5738,
-      "percentile": 72.2
+    "ast_per36": {
+      "value": 2.5574,
+      "percentile": 1.4218
     },
     "blk_per36": {
       "value": 0.3934,
-      "percentile": 35.7
+      "percentile": 1.0619
+    },
+    "stl_per36": {
+      "value": 1.5738,
+      "percentile": 2.1476
     },
     "ts_pct": {
       "value": 0.5442,
-      "percentile": 16.5
+      "percentile": 0.4908
     },
     "efg_pct": {
       "value": 0.5,
-      "percentile": 14.8
+      "percentile": 0.4402
     },
     "fg3a_rate": {
       "value": 0.5128,
-      "percentile": 75.7
+      "percentile": 2.2517
     },
     "fta_rate": {
       "value": 0.2436,
-      "percentile": 15.7
+      "percentile": 0.467
     },
     "similar_nba_players": [
       {
@@ -9389,7 +9573,9 @@
       "rpg": 2.3,
       "apg": 1.3,
       "spg": 0.8,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1553,
+      "apfv": 0.0334
     }
   },
   {
@@ -9406,39 +9592,39 @@
     },
     "pts_per36": {
       "value": 16.7749,
-      "percentile": 43.5
-    },
-    "ast_per36": {
-      "value": 0.5654,
-      "percentile": 1.7
+      "percentile": 2.0389
     },
     "reb_per36": {
       "value": 8.1047,
-      "percentile": 61.7
+      "percentile": 2.892
     },
-    "stl_per36": {
-      "value": 0.7539,
-      "percentile": 14.8
+    "ast_per36": {
+      "value": 0.5654,
+      "percentile": 0.0797
     },
     "blk_per36": {
       "value": 2.8272,
-      "percentile": 96.5
+      "percentile": 4.5232
+    },
+    "stl_per36": {
+      "value": 0.7539,
+      "percentile": 0.6937
     },
     "ts_pct": {
       "value": 0.6059,
-      "percentile": 57.4
+      "percentile": 2.6905
     },
     "efg_pct": {
       "value": 0.5806,
-      "percentile": 68.7
+      "percentile": 3.2201
     },
     "fg3a_rate": {
       "value": 0.2903,
-      "percentile": 36.5
+      "percentile": 1.7108
     },
     "fta_rate": {
       "value": 0.4194,
-      "percentile": 60.0
+      "percentile": 2.8123
     },
     "similar_nba_players": [
       {
@@ -9490,7 +9676,9 @@
       "rpg": 4.3,
       "apg": 0.3,
       "spg": 0.4,
-      "bpg": 1.5
+      "bpg": 1.5,
+      "pfv": 0.1288,
+      "apfv": 0.0376
     }
   },
   {
@@ -9507,39 +9695,39 @@
     },
     "pts_per36": {
       "value": 14.5321,
-      "percentile": 21.7
-    },
-    "ast_per36": {
-      "value": 1.4862,
-      "percentile": 15.7
+      "percentile": 1.3499
     },
     "reb_per36": {
       "value": 5.6147,
-      "percentile": 41.7
+      "percentile": 2.5941
     },
-    "stl_per36": {
-      "value": 1.9817,
-      "percentile": 89.6
+    "ast_per36": {
+      "value": 1.4862,
+      "percentile": 0.9767
     },
     "blk_per36": {
       "value": 0.4954,
-      "percentile": 40.0
+      "percentile": 2.4883
+    },
+    "stl_per36": {
+      "value": 1.9817,
+      "percentile": 5.5739
     },
     "ts_pct": {
       "value": 0.5429,
-      "percentile": 15.7
+      "percentile": 0.9767
     },
     "efg_pct": {
       "value": 0.5135,
-      "percentile": 27.0
+      "percentile": 1.6796
     },
     "fg3a_rate": {
       "value": 0.5541,
-      "percentile": 80.9
+      "percentile": 5.0327
     },
     "fta_rate": {
       "value": 0.2162,
-      "percentile": 13.0
+      "percentile": 0.8087
     },
     "similar_nba_players": [
       {
@@ -9591,7 +9779,9 @@
       "rpg": 3.4,
       "apg": 0.9,
       "spg": 1.2,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.1253,
+      "apfv": 0.0563
     }
   },
   {
@@ -9608,39 +9798,39 @@
     },
     "pts_per36": {
       "value": 16.9061,
-      "percentile": 46.1
-    },
-    "ast_per36": {
-      "value": 1.7901,
-      "percentile": 26.1
+      "percentile": 1.183
     },
     "reb_per36": {
       "value": 10.5414,
-      "percentile": 87.0
+      "percentile": 2.2325
     },
-    "stl_per36": {
-      "value": 0.9945,
-      "percentile": 32.2
+    "ast_per36": {
+      "value": 1.7901,
+      "percentile": 0.6698
     },
     "blk_per36": {
       "value": 1.989,
-      "percentile": 87.0
+      "percentile": 2.2325
+    },
+    "stl_per36": {
+      "value": 0.9945,
+      "percentile": 0.8263
     },
     "ts_pct": {
       "value": 0.6135,
-      "percentile": 63.5
+      "percentile": 1.6295
     },
     "efg_pct": {
       "value": 0.6094,
-      "percentile": 87.8
+      "percentile": 2.2531
     },
     "fg3a_rate": {
       "value": 0.2969,
-      "percentile": 38.3
+      "percentile": 0.9828
     },
     "fta_rate": {
       "value": 0.1875,
-      "percentile": 6.1
+      "percentile": 0.1565
     },
     "similar_nba_players": [
       {
@@ -9692,7 +9882,9 @@
       "rpg": 5.3,
       "apg": 0.9,
       "spg": 0.5,
-      "bpg": 1.0
+      "bpg": 1.0,
+      "pfv": 0.2721,
+      "apfv": 0.0421
     }
   },
   {
@@ -9709,39 +9901,39 @@
     },
     "pts_per36": {
       "value": 12.8681,
-      "percentile": 12.2
-    },
-    "ast_per36": {
-      "value": 1.9915,
-      "percentile": 33.9
+      "percentile": 1.1657
     },
     "reb_per36": {
       "value": 8.1191,
-      "percentile": 63.5
+      "percentile": 6.0673
     },
-    "stl_per36": {
+    "ast_per36": {
       "value": 1.9915,
-      "percentile": 90.4
+      "percentile": 3.2391
     },
     "blk_per36": {
       "value": 2.2979,
-      "percentile": 92.2
+      "percentile": 8.8095
+    },
+    "stl_per36": {
+      "value": 1.9915,
+      "percentile": 8.6375
     },
     "ts_pct": {
       "value": 0.6017,
-      "percentile": 53.9
+      "percentile": 5.15
     },
     "efg_pct": {
       "value": 0.5738,
-      "percentile": 60.0
+      "percentile": 5.7329
     },
     "fg3a_rate": {
       "value": 0.0,
-      "percentile": 4.3
+      "percentile": 0.4109
     },
     "fta_rate": {
       "value": 0.3279,
-      "percentile": 39.1
+      "percentile": 3.7359
     },
     "similar_nba_players": [
       {
@@ -9793,7 +9985,9 @@
       "rpg": 5.3,
       "apg": 1.3,
       "spg": 1.3,
-      "bpg": 1.5
+      "bpg": 1.5,
+      "pfv": 0.332,
+      "apfv": 0.1734
     }
   },
   {
@@ -9810,39 +10004,39 @@
     },
     "pts_per36": {
       "value": 10.5957,
-      "percentile": 5.2
-    },
-    "ast_per36": {
-      "value": 3.8298,
-      "percentile": 75.7
+      "percentile": 1.3155
     },
     "reb_per36": {
       "value": 8.9362,
-      "percentile": 73.9
+      "percentile": 18.6954
     },
-    "stl_per36": {
-      "value": 1.6596,
-      "percentile": 75.7
+    "ast_per36": {
+      "value": 3.8298,
+      "percentile": 19.1508
     },
     "blk_per36": {
       "value": 0.8936,
-      "percentile": 63.5
+      "percentile": 16.0644
+    },
+    "stl_per36": {
+      "value": 1.6596,
+      "percentile": 19.1508
     },
     "ts_pct": {
       "value": 0.5566,
-      "percentile": 25.2
+      "percentile": 6.3752
     },
     "efg_pct": {
       "value": 0.5625,
-      "percentile": 55.7
+      "percentile": 14.0911
     },
     "fg3a_rate": {
       "value": 0.0625,
-      "percentile": 13.0
+      "percentile": 3.2888
     },
     "fta_rate": {
       "value": 0.375,
-      "percentile": 48.7
+      "percentile": 12.3202
     },
     "similar_nba_players": [
       {
@@ -9894,7 +10088,9 @@
       "rpg": 7.0,
       "apg": 3.0,
       "spg": 1.3,
-      "bpg": 0.7
+      "bpg": 0.7,
+      "pfv": 0.2939,
+      "apfv": 0.3731
     }
   },
   {
@@ -9911,39 +10107,39 @@
     },
     "pts_per36": {
       "value": 13.1946,
-      "percentile": 13.0
-    },
-    "ast_per36": {
-      "value": 1.9548,
-      "percentile": 31.3
+      "percentile": 0.9436
     },
     "reb_per36": {
       "value": 7.3303,
-      "percentile": 57.4
+      "percentile": 4.1662
     },
-    "stl_per36": {
-      "value": 1.1403,
-      "percentile": 42.6
+    "ast_per36": {
+      "value": 1.9548,
+      "percentile": 2.2718
     },
     "blk_per36": {
       "value": 0.8145,
-      "percentile": 59.1
+      "percentile": 4.2895
+    },
+    "stl_per36": {
+      "value": 1.1403,
+      "percentile": 3.092
     },
     "ts_pct": {
       "value": 0.5819,
-      "percentile": 37.4
+      "percentile": 2.7145
     },
     "efg_pct": {
       "value": 0.5556,
-      "percentile": 50.4
+      "percentile": 3.6581
     },
     "fg3a_rate": {
       "value": 0.4921,
-      "percentile": 71.3
+      "percentile": 5.175
     },
     "fta_rate": {
       "value": 0.2381,
-      "percentile": 14.8
+      "percentile": 1.0742
     },
     "similar_nba_players": [
       {
@@ -9995,7 +10191,9 @@
       "rpg": 4.5,
       "apg": 1.2,
       "spg": 0.7,
-      "bpg": 0.5
+      "bpg": 0.5,
+      "pfv": 0.1498,
+      "apfv": 0.0773
     }
   },
   {
@@ -10012,39 +10210,39 @@
     },
     "pts_per36": {
       "value": 10.7463,
-      "percentile": 7.8
-    },
-    "ast_per36": {
-      "value": 0.6716,
-      "percentile": 4.3
+      "percentile": 1.3074
     },
     "reb_per36": {
       "value": 8.4627,
-      "percentile": 67.8
+      "percentile": 11.3642
     },
-    "stl_per36": {
-      "value": 0.5373,
-      "percentile": 5.2
+    "ast_per36": {
+      "value": 0.6716,
+      "percentile": 0.7207
     },
     "blk_per36": {
       "value": 2.0149,
-      "percentile": 87.8
+      "percentile": 14.7165
+    },
+    "stl_per36": {
+      "value": 0.5373,
+      "percentile": 0.8716
     },
     "ts_pct": {
       "value": 0.6227,
-      "percentile": 72.2
+      "percentile": 12.1017
     },
     "efg_pct": {
       "value": 0.6091,
-      "percentile": 87.0
+      "percentile": 14.5824
     },
     "fg3a_rate": {
       "value": 0.0545,
-      "percentile": 11.3
+      "percentile": 1.894
     },
     "fta_rate": {
       "value": 0.3818,
-      "percentile": 52.2
+      "percentile": 8.7495
     },
     "similar_nba_players": [
       {
@@ -10096,7 +10294,9 @@
       "rpg": 6.3,
       "apg": 0.5,
       "spg": 0.4,
-      "bpg": 1.5
+      "bpg": 1.5,
+      "pfv": 0.0432,
+      "apfv": 0.0466
     }
   },
   {
@@ -10113,39 +10313,39 @@
     },
     "pts_per36": {
       "value": 12.4248,
-      "percentile": 10.4
-    },
-    "ast_per36": {
-      "value": 2.8673,
-      "percentile": 57.4
+      "percentile": 0.8142
     },
     "reb_per36": {
       "value": 10.0354,
-      "percentile": 81.7
+      "percentile": 6.3959
     },
-    "stl_per36": {
-      "value": 0.7965,
-      "percentile": 18.3
+    "ast_per36": {
+      "value": 2.8673,
+      "percentile": 4.4935
     },
     "blk_per36": {
       "value": 2.3894,
-      "percentile": 93.0
+      "percentile": 7.2805
+    },
+    "stl_per36": {
+      "value": 0.7965,
+      "percentile": 1.4326
     },
     "ts_pct": {
       "value": 0.6352,
-      "percentile": 80.0
+      "percentile": 6.2628
     },
     "efg_pct": {
       "value": 0.587,
-      "percentile": 72.2
+      "percentile": 5.6522
     },
     "fg3a_rate": {
       "value": 0.0217,
-      "percentile": 7.8
+      "percentile": 0.6106
     },
     "fta_rate": {
       "value": 0.7609,
-      "percentile": 99.1
+      "percentile": 7.758
     },
     "similar_nba_players": [
       {
@@ -10197,7 +10397,9 @@
       "rpg": 6.3,
       "apg": 1.8,
       "spg": 0.5,
-      "bpg": 1.5
+      "bpg": 1.5,
+      "pfv": 0.2479,
+      "apfv": 0.1126
     }
   },
   {
@@ -10214,39 +10416,39 @@
     },
     "pts_per36": {
       "value": 17.7465,
-      "percentile": 52.2
-    },
-    "ast_per36": {
-      "value": 7.3521,
-      "percentile": 96.5
+      "percentile": 0.3418
     },
     "reb_per36": {
       "value": 5.0704,
-      "percentile": 30.4
+      "percentile": 0.1991
     },
-    "stl_per36": {
-      "value": 1.2676,
-      "percentile": 56.5
+    "ast_per36": {
+      "value": 7.3521,
+      "percentile": 0.6319
     },
     "blk_per36": {
       "value": 0.507,
-      "percentile": 42.6
+      "percentile": 0.2789
+    },
+    "stl_per36": {
+      "value": 1.2676,
+      "percentile": 0.37
     },
     "ts_pct": {
       "value": 0.6127,
-      "percentile": 62.6
+      "percentile": 0.4099
     },
     "efg_pct": {
       "value": 0.5426,
-      "percentile": 41.7
+      "percentile": 0.273
     },
     "fg3a_rate": {
       "value": 0.4681,
-      "percentile": 67.0
+      "percentile": 0.4387
     },
     "fta_rate": {
       "value": 0.4894,
-      "percentile": 75.7
+      "percentile": 0.4957
     },
     "similar_nba_players": [
       {
@@ -10298,7 +10500,9 @@
       "rpg": 2.0,
       "apg": 2.9,
       "spg": 0.5,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.2974,
+      "apfv": 0.0182
     }
   },
   {
@@ -10315,39 +10519,39 @@
     },
     "pts_per36": {
       "value": 14.1136,
-      "percentile": 20.0
-    },
-    "ast_per36": {
-      "value": 1.4318,
-      "percentile": 13.9
+      "percentile": 0.4357
     },
     "reb_per36": {
       "value": 7.7727,
-      "percentile": 59.1
+      "percentile": 1.2874
     },
-    "stl_per36": {
-      "value": 0.6136,
-      "percentile": 9.6
+    "ast_per36": {
+      "value": 1.4318,
+      "percentile": 0.3028
     },
     "blk_per36": {
       "value": 1.6364,
-      "percentile": 81.7
+      "percentile": 1.7798
+    },
+    "stl_per36": {
+      "value": 0.6136,
+      "percentile": 0.2091
     },
     "ts_pct": {
       "value": 0.6036,
-      "percentile": 55.7
+      "percentile": 1.2134
     },
     "efg_pct": {
       "value": 0.5784,
-      "percentile": 67.0
+      "percentile": 1.4595
     },
     "fg3a_rate": {
       "value": 0.2353,
-      "percentile": 28.7
+      "percentile": 0.6252
     },
     "fta_rate": {
       "value": 0.2745,
-      "percentile": 26.1
+      "percentile": 0.5686
     },
     "similar_nba_players": [
       {
@@ -10399,7 +10603,9 @@
       "rpg": 3.8,
       "apg": 0.7,
       "spg": 0.3,
-      "bpg": 0.8
+      "bpg": 0.8,
+      "pfv": 0.0929,
+      "apfv": 0.0217
     }
   },
   {
@@ -10416,39 +10622,39 @@
     },
     "pts_per36": {
       "value": 12.5806,
-      "percentile": 11.3
-    },
-    "ast_per36": {
-      "value": 1.1613,
-      "percentile": 9.6
+      "percentile": 0.4292
     },
     "reb_per36": {
       "value": 9.4839,
-      "percentile": 78.3
+      "percentile": 2.9743
     },
-    "stl_per36": {
+    "ast_per36": {
       "value": 1.1613,
-      "percentile": 47.8
+      "percentile": 0.3647
     },
     "blk_per36": {
       "value": 5.6129,
-      "percentile": 100.0
+      "percentile": 3.7985
+    },
+    "stl_per36": {
+      "value": 1.1613,
+      "percentile": 1.8157
     },
     "ts_pct": {
       "value": 0.6217,
-      "percentile": 71.3
+      "percentile": 2.7084
     },
     "efg_pct": {
       "value": 0.6064,
-      "percentile": 85.2
+      "percentile": 3.2364
     },
     "fg3a_rate": {
       "value": 0.2128,
-      "percentile": 26.1
+      "percentile": 0.9914
     },
     "fta_rate": {
       "value": 0.2553,
-      "percentile": 20.0
+      "percentile": 0.7597
     },
     "similar_nba_players": [
       {
@@ -10500,7 +10706,9 @@
       "rpg": 4.9,
       "apg": 0.6,
       "spg": 0.6,
-      "bpg": 2.9
+      "bpg": 2.9,
+      "pfv": 0.1932,
+      "apfv": 0.0514
     }
   },
   {
@@ -10517,39 +10725,39 @@
     },
     "pts_per36": {
       "value": 13.3953,
-      "percentile": 14.8
-    },
-    "ast_per36": {
-      "value": 0.6279,
-      "percentile": 2.6
+      "percentile": 0.2741
     },
     "reb_per36": {
       "value": 9.4186,
-      "percentile": 76.5
+      "percentile": 1.4168
     },
-    "stl_per36": {
-      "value": 0.4186,
-      "percentile": 1.7
+    "ast_per36": {
+      "value": 0.6279,
+      "percentile": 0.0482
     },
     "blk_per36": {
       "value": 3.9767,
-      "percentile": 98.3
+      "percentile": 1.8205
+    },
+    "stl_per36": {
+      "value": 0.4186,
+      "percentile": 0.0315
     },
     "ts_pct": {
       "value": 0.6135,
-      "percentile": 64.3
+      "percentile": 1.1909
     },
     "efg_pct": {
       "value": 0.6087,
-      "percentile": 86.1
+      "percentile": 1.5946
     },
     "fg3a_rate": {
       "value": 0.587,
-      "percentile": 84.3
+      "percentile": 1.5613
     },
     "fta_rate": {
       "value": 0.3043,
-      "percentile": 33.0
+      "percentile": 0.6112
     },
     "similar_nba_players": [
       {
@@ -10601,7 +10809,9 @@
       "rpg": 4.5,
       "apg": 0.3,
       "spg": 0.2,
-      "bpg": 1.9
+      "bpg": 1.9,
+      "pfv": 0.0469,
+      "apfv": 0.0064
     }
   },
   {
@@ -10618,39 +10828,39 @@
     },
     "pts_per36": {
       "value": 9.7627,
-      "percentile": 2.6
-    },
-    "ast_per36": {
-      "value": 1.678,
-      "percentile": 20.9
+      "percentile": 0.2628
     },
     "reb_per36": {
       "value": 5.7966,
-      "percentile": 44.3
+      "percentile": 4.4781
     },
-    "stl_per36": {
-      "value": 1.5254,
-      "percentile": 71.3
+    "ast_per36": {
+      "value": 1.678,
+      "percentile": 2.1127
     },
     "blk_per36": {
       "value": 0.6102,
-      "percentile": 48.7
+      "percentile": 4.9229
+    },
+    "stl_per36": {
+      "value": 1.5254,
+      "percentile": 7.2074
     },
     "ts_pct": {
       "value": 0.5158,
-      "percentile": 7.8
+      "percentile": 0.7885
     },
     "efg_pct": {
       "value": 0.5,
-      "percentile": 13.9
+      "percentile": 1.4051
     },
     "fg3a_rate": {
       "value": 0.6364,
-      "percentile": 91.3
+      "percentile": 9.2291
     },
     "fta_rate": {
       "value": 0.2909,
-      "percentile": 30.4
+      "percentile": 3.073
     },
     "similar_nba_players": [
       {
@@ -10702,7 +10912,9 @@
       "rpg": 3.8,
       "apg": 1.1,
       "spg": 1.0,
-      "bpg": 0.4
+      "bpg": 0.4,
+      "pfv": 0.1018,
+      "apfv": 0.0718
     }
   },
   {
@@ -10719,39 +10931,39 @@
     },
     "pts_per36": {
       "value": 11.6757,
-      "percentile": 8.7
-    },
-    "ast_per36": {
-      "value": 1.9459,
-      "percentile": 30.4
+      "percentile": 0.2918
     },
     "reb_per36": {
       "value": 4.0865,
-      "percentile": 20.0
+      "percentile": 0.6708
     },
-    "stl_per36": {
-      "value": 1.1676,
-      "percentile": 48.7
+    "ast_per36": {
+      "value": 1.9459,
+      "percentile": 1.0196
     },
     "blk_per36": {
       "value": 0.5838,
-      "percentile": 47.0
+      "percentile": 1.5763
+    },
+    "stl_per36": {
+      "value": 1.1676,
+      "percentile": 1.6333
     },
     "ts_pct": {
       "value": 0.6127,
-      "percentile": 62.6
+      "percentile": 2.0995
     },
     "efg_pct": {
       "value": 0.5778,
-      "percentile": 66.1
+      "percentile": 2.2169
     },
     "fg3a_rate": {
       "value": 0.7333,
-      "percentile": 97.4
+      "percentile": 3.2667
     },
     "fta_rate": {
       "value": 0.2,
-      "percentile": 9.6
+      "percentile": 0.322
     },
     "similar_nba_players": [
       {
@@ -10803,7 +11015,9 @@
       "rpg": 2.1,
       "apg": 1.0,
       "spg": 0.6,
-      "bpg": 0.3
+      "bpg": 0.3,
+      "pfv": 0.1349,
+      "apfv": 0.0293
     }
   },
   {
@@ -10820,39 +11034,39 @@
     },
     "pts_per36": {
       "value": 10.3636,
-      "percentile": 3.5
-    },
-    "ast_per36": {
-      "value": 1.8182,
-      "percentile": 27.0
+      "percentile": 0.1814
     },
     "reb_per36": {
       "value": 6.0,
-      "percentile": 46.1
+      "percentile": 2.389
     },
-    "stl_per36": {
-      "value": 1.0909,
-      "percentile": 40.0
+    "ast_per36": {
+      "value": 1.8182,
+      "percentile": 1.3992
     },
     "blk_per36": {
       "value": 0.1818,
-      "percentile": 9.6
+      "percentile": 0.4975
+    },
+    "stl_per36": {
+      "value": 1.0909,
+      "percentile": 2.0729
     },
     "ts_pct": {
       "value": 0.5732,
-      "percentile": 33.9
+      "percentile": 1.7568
     },
     "efg_pct": {
       "value": 0.5568,
-      "percentile": 52.2
+      "percentile": 2.7052
     },
     "fg3a_rate": {
       "value": 0.6136,
-      "percentile": 87.8
+      "percentile": 4.5501
     },
     "fta_rate": {
       "value": 0.2955,
-      "percentile": 31.3
+      "percentile": 1.6221
     },
     "similar_nba_players": [
       {
@@ -10904,7 +11118,9 @@
       "rpg": 3.3,
       "apg": 1.0,
       "spg": 0.6,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.0587,
+      "apfv": 0.0254
     }
   },
   {
@@ -10921,39 +11137,39 @@
     },
     "pts_per36": {
       "value": 13.8667,
-      "percentile": 18.3
-    },
-    "ast_per36": {
-      "value": 2.6667,
-      "percentile": 50.4
+      "percentile": 0.0156
     },
     "reb_per36": {
       "value": 4.5333,
-      "percentile": 27.0
+      "percentile": 0.0231
     },
-    "stl_per36": {
-      "value": 1.0667,
-      "percentile": 35.7
+    "ast_per36": {
+      "value": 2.6667,
+      "percentile": 0.043
     },
     "blk_per36": {
       "value": 0.2667,
-      "percentile": 23.5
+      "percentile": 0.0201
+    },
+    "stl_per36": {
+      "value": 1.0667,
+      "percentile": 0.0305
     },
     "ts_pct": {
       "value": 0.5345,
-      "percentile": 12.2
+      "percentile": 0.0104
     },
     "efg_pct": {
       "value": 0.5109,
-      "percentile": 22.6
+      "percentile": 0.0193
     },
     "fg3a_rate": {
       "value": 0.7609,
-      "percentile": 99.1
+      "percentile": 0.0846
     },
     "fta_rate": {
       "value": 0.1304,
-      "percentile": 1.7
+      "percentile": 0.0015
     },
     "similar_nba_players": [
       {
@@ -11005,7 +11221,9 @@
       "rpg": 1.7,
       "apg": 1.0,
       "spg": 0.4,
-      "bpg": 0.1
+      "bpg": 0.1,
+      "pfv": 0.0756,
+      "apfv": 0.0008
     }
   },
   {
@@ -11022,39 +11240,39 @@
     },
     "pts_per36": {
       "value": 13.4015,
-      "percentile": 15.7
-    },
-    "ast_per36": {
-      "value": 4.4672,
-      "percentile": 87.0
+      "percentile": 0.0348
     },
     "reb_per36": {
       "value": 3.6788,
-      "percentile": 10.4
+      "percentile": 0.0231
     },
-    "stl_per36": {
-      "value": 1.5766,
-      "percentile": 73.0
+    "ast_per36": {
+      "value": 4.4672,
+      "percentile": 0.1928
     },
     "blk_per36": {
       "value": 0.5255,
-      "percentile": 44.3
+      "percentile": 0.0982
+    },
+    "stl_per36": {
+      "value": 1.5766,
+      "percentile": 0.1618
     },
     "ts_pct": {
       "value": 0.4878,
-      "percentile": 3.5
+      "percentile": 0.0078
     },
     "efg_pct": {
       "value": 0.4362,
-      "percentile": 3.5
+      "percentile": 0.0078
     },
     "fg3a_rate": {
       "value": 0.5745,
-      "percentile": 82.6
+      "percentile": 0.1831
     },
     "fta_rate": {
       "value": 0.2553,
-      "percentile": 20.0
+      "percentile": 0.0443
     },
     "similar_nba_players": [
       {
@@ -11106,7 +11324,9 @@
       "rpg": 1.4,
       "apg": 1.7,
       "spg": 0.6,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1411,
+      "apfv": 0.0023
     }
   },
   {
@@ -11123,39 +11343,39 @@
     },
     "pts_per36": {
       "value": 10.7143,
-      "percentile": 7.0
-    },
-    "ast_per36": {
-      "value": 1.0714,
-      "percentile": 8.7
+      "percentile": 0.1055
     },
     "reb_per36": {
       "value": 10.7143,
-      "percentile": 88.7
+      "percentile": 1.3363
     },
-    "stl_per36": {
+    "ast_per36": {
       "value": 1.0714,
-      "percentile": 37.4
+      "percentile": 0.1311
     },
     "blk_per36": {
       "value": 1.7143,
-      "percentile": 83.5
+      "percentile": 1.258
+    },
+    "stl_per36": {
+      "value": 1.0714,
+      "percentile": 0.5635
     },
     "ts_pct": {
       "value": 0.5048,
-      "percentile": 7.0
+      "percentile": 0.1055
     },
     "efg_pct": {
       "value": 0.5714,
-      "percentile": 58.3
+      "percentile": 0.8783
     },
     "fg3a_rate": {
       "value": 0.0,
-      "percentile": 4.3
+      "percentile": 0.0648
     },
     "fta_rate": {
       "value": 0.9429,
-      "percentile": 100.0
+      "percentile": 1.5066
     },
     "similar_nba_players": [
       {
@@ -11207,7 +11427,9 @@
       "rpg": 5.0,
       "apg": 0.5,
       "spg": 0.5,
-      "bpg": 0.8
+      "bpg": 0.8,
+      "pfv": 0.0925,
+      "apfv": 0.0118
     }
   },
   {
@@ -11224,39 +11446,39 @@
     },
     "pts_per36": {
       "value": 8.6897,
-      "percentile": 0.9
-    },
-    "ast_per36": {
-      "value": 2.8374,
-      "percentile": 55.7
+      "percentile": 0.0512
     },
     "reb_per36": {
       "value": 9.2217,
-      "percentile": 74.8
+      "percentile": 4.2589
     },
-    "stl_per36": {
-      "value": 3.1921,
-      "percentile": 100.0
+    "ast_per36": {
+      "value": 2.8374,
+      "percentile": 3.1714
     },
     "blk_per36": {
       "value": 1.064,
-      "percentile": 66.1
+      "percentile": 3.7635
+    },
+    "stl_per36": {
+      "value": 3.1921,
+      "percentile": 5.6937
     },
     "ts_pct": {
       "value": 0.6289,
-      "percentile": 75.7
+      "percentile": 4.3101
     },
     "efg_pct": {
       "value": 0.6429,
-      "percentile": 94.8
+      "percentile": 5.3976
     },
     "fg3a_rate": {
       "value": 0.2286,
-      "percentile": 27.0
+      "percentile": 1.5373
     },
     "fta_rate": {
       "value": 0.2571,
-      "percentile": 20.9
+      "percentile": 1.19
     },
     "similar_nba_players": [
       {
@@ -11308,7 +11530,9 @@
       "rpg": 5.2,
       "apg": 1.6,
       "spg": 1.8,
-      "bpg": 0.6
+      "bpg": 0.6,
+      "pfv": 0.3694,
+      "apfv": 0.1189
     }
   },
   {
@@ -11325,39 +11549,39 @@
     },
     "pts_per36": {
       "value": 10.6012,
-      "percentile": 6.1
-    },
-    "ast_per36": {
-      "value": 0.4417,
-      "percentile": 0.9
+      "percentile": 0.0723
     },
     "reb_per36": {
       "value": 11.0429,
-      "percentile": 92.2
+      "percentile": 1.0933
     },
-    "stl_per36": {
-      "value": 1.1043,
-      "percentile": 40.9
+    "ast_per36": {
+      "value": 0.4417,
+      "percentile": 0.0107
     },
     "blk_per36": {
       "value": 2.2086,
-      "percentile": 90.4
+      "percentile": 1.0719
+    },
+    "stl_per36": {
+      "value": 1.1043,
+      "percentile": 0.485
     },
     "ts_pct": {
       "value": 0.6742,
-      "percentile": 97.4
+      "percentile": 1.155
     },
     "efg_pct": {
       "value": 0.6897,
-      "percentile": 100.0
+      "percentile": 1.1858
     },
     "fg3a_rate": {
       "value": 0.0,
-      "percentile": 4.3
+      "percentile": 0.051
     },
     "fta_rate": {
       "value": 0.5172,
-      "percentile": 83.5
+      "percentile": 0.9901
     },
     "similar_nba_players": [
       {
@@ -11409,7 +11633,9 @@
       "rpg": 5.0,
       "apg": 0.2,
       "spg": 0.5,
-      "bpg": 1.0
+      "bpg": 1.0,
+      "pfv": 0.15,
+      "apfv": 0.0149
     }
   },
   {
@@ -11426,39 +11652,39 @@
     },
     "pts_per36": {
       "value": 10.4276,
-      "percentile": 4.3
-    },
-    "ast_per36": {
-      "value": 1.9862,
-      "percentile": 33.0
+      "percentile": 0.0383
     },
     "reb_per36": {
       "value": 5.7103,
-      "percentile": 42.6
+      "percentile": 0.3799
     },
-    "stl_per36": {
-      "value": 1.7379,
-      "percentile": 81.7
+    "ast_per36": {
+      "value": 1.9862,
+      "percentile": 0.2943
     },
     "blk_per36": {
       "value": 0.4966,
-      "percentile": 40.9
+      "percentile": 0.3647
+    },
+    "stl_per36": {
+      "value": 1.7379,
+      "percentile": 0.7285
     },
     "ts_pct": {
       "value": 0.4939,
-      "percentile": 4.3
+      "percentile": 0.0383
     },
     "efg_pct": {
       "value": 0.5,
-      "percentile": 13.9
+      "percentile": 0.1239
     },
     "fg3a_rate": {
       "value": 0.359,
-      "percentile": 51.3
+      "percentile": 0.4574
     },
     "fta_rate": {
       "value": 0.2051,
-      "percentile": 10.4
+      "percentile": 0.0927
     },
     "similar_nba_players": [
       {
@@ -11510,7 +11736,9 @@
       "rpg": 2.3,
       "apg": 0.8,
       "spg": 0.7,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1108,
+      "apfv": 0.009
     }
   },
   {
@@ -11527,39 +11755,39 @@
     },
     "pts_per36": {
       "value": 9.1915,
-      "percentile": 1.7
-    },
-    "ast_per36": {
-      "value": 2.8085,
-      "percentile": 54.8
+      "percentile": 0.0071
     },
     "reb_per36": {
       "value": 8.4255,
-      "percentile": 67.0
+      "percentile": 0.2809
     },
-    "stl_per36": {
-      "value": 1.7872,
-      "percentile": 85.2
+    "ast_per36": {
+      "value": 2.8085,
+      "percentile": 0.2297
     },
     "blk_per36": {
       "value": 0.5106,
-      "percentile": 43.5
+      "percentile": 0.1824
+    },
+    "stl_per36": {
+      "value": 1.7872,
+      "percentile": 0.3572
     },
     "ts_pct": {
       "value": 0.4327,
-      "percentile": 0.9
+      "percentile": 0.0038
     },
     "efg_pct": {
       "value": 0.4,
-      "percentile": 1.7
+      "percentile": 0.0071
     },
     "fg3a_rate": {
       "value": 0.4,
-      "percentile": 58.3
+      "percentile": 0.2444
     },
     "fta_rate": {
       "value": 0.4286,
-      "percentile": 65.2
+      "percentile": 0.2733
     },
     "similar_nba_players": [
       {
@@ -11611,7 +11839,9 @@
       "rpg": 3.3,
       "apg": 1.1,
       "spg": 0.7,
-      "bpg": 0.2
+      "bpg": 0.2,
+      "pfv": 0.1659,
+      "apfv": 0.0042
     }
   }
 ]

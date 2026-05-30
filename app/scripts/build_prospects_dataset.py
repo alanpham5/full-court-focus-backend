@@ -20,6 +20,12 @@ if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
 
 from analytics.similarity_scoring import cross_pool_cosine_similarity, similarity_pct
+from analytics.player_profiles.archetypes import (
+    adjust_percentile_for_mpg,
+    calculate_adjusted_pfv,
+    calculate_apfv_batch,
+    calculate_pfv,
+)
 
 DEFAULT_SOURCE_URL = "https://basketball.realgm.com/nba/draft/prospects/stats"
 DEFAULT_STATIC_DIR = _APP_ROOT / "data" / "static"
@@ -53,10 +59,10 @@ PROSPECT_TABLE_REQUIRED_COLUMNS = {
 
 SIMILARITY_FEATURES = [
     "pts_per36",
-    "ast_per36",
     "reb_per36",
-    "stl_per36",
+    "ast_per36",
     "blk_per36",
+    "stl_per36",
     "ts_pct",
     "efg_pct",
     "fg3a_rate",
@@ -427,10 +433,10 @@ def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
     out = prospects.copy()
     profile_features = [
         "pts_per36",
-        "ast_per36",
         "reb_per36",
-        "stl_per36",
+        "ast_per36",
         "blk_per36",
+        "stl_per36",
         "ts_pct",
         "efg_pct",
         "fg3a_rate",
@@ -495,10 +501,10 @@ def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
 _PERCENTILE_COLS = [
     "mpg",
     "pts_per36",
-    "ast_per36",
     "reb_per36",
-    "stl_per36",
+    "ast_per36",
     "blk_per36",
+    "stl_per36",
     "ts_pct",
     "efg_pct",
     "fg3a_rate",
@@ -540,10 +546,10 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         "gp",
         "mpg",
         "pts_per36",
-        "ast_per36",
         "reb_per36",
-        "stl_per36",
+        "ast_per36",
         "blk_per36",
+        "stl_per36",
         "ts_pct",
         "efg_pct",
         "fg3a_rate",
@@ -569,6 +575,8 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         "SPG",
         "BPG",
     ]
+    pfvs = []
+    adjusted_pfvs = []
     for record, raw in zip(records, prospects[raw_cols].to_dict(orient="records")):
         record["raw_stats"] = {RAW_STAT_JSON_KEYS[key]: value for key, value in raw.items()}
         for col in _PERCENTILE_COLS:
@@ -577,6 +585,42 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
             val = float(record[col])
             pct = _percentile_of_score(pct_arrays[col], val) if col in pct_arrays else 0.0
             record[col] = {"value": round(val, 4), "percentile": pct}
+
+        pfv_metrics = {
+            col: dict(record[col])
+            for col in _PERCENTILE_COLS
+            if col in record and isinstance(record[col], dict)
+        }
+        pfv_val = calculate_pfv(pfv_metrics)
+        pfvs.append(pfv_val)
+        adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics))
+
+        mpg_pct = record.get("mpg", {}).get("percentile", 0.0)
+        for col in _PERCENTILE_COLS:
+            if col in record and isinstance(record[col], dict):
+                record[col]["percentile"] = adjust_percentile_for_mpg(
+                    col,
+                    record[col]["percentile"],
+                    mpg_pct,
+                )
+
+        record["pfv"] = pfv_val
+
+    if adjusted_pfvs:
+        apfvs = calculate_apfv_batch(adjusted_pfvs)
+        for record, apfv_val in zip(records, apfvs):
+            record["apfv"] = apfv_val
+        prospects["apfv"] = apfvs
+    else:
+        prospects["apfv"] = 0.0
+
+    prospects["pfv"] = pfvs
+
+    # Nest pfv and apfv inside raw_stats for the JSON output
+    for record in records:
+        record["raw_stats"]["pfv"] = record.pop("pfv", 0.0)
+        record["raw_stats"]["apfv"] = record.pop("apfv", 0.0)
+
     json_output.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
     parquet_cols = [
@@ -604,6 +648,8 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         "BPG",
         *SIMILARITY_FEATURES,
         "similar_nba_player_names",
+        "pfv",
+        "apfv",
     ]
     available_cols = [col for col in parquet_cols if col in prospects.columns]
     prospects[available_cols].to_parquet(parquet_output, index=False, engine="fastparquet")

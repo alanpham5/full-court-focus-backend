@@ -22,12 +22,12 @@ POSITION_GROUPS = {
 
 STYLE_FEATURES = [
     "pts_per36_z",
-    "ast_per36_z",
     "reb_per36_z",
-    "stl_per36_z",
+    "ast_per36_z",
     "blk_per36_z",
-    "tov_per36_z",
+    "stl_per36_z",
     "ts_pct_z",
+    "tov_per36_z",
     "efg_pct_z",
     "ast_pct_z",
     "fg3a_rate_z",

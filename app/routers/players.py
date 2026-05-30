@@ -6,17 +6,23 @@ from rapidfuzz import fuzz
 
 from config import PLAYER_METADATA_PATH, PLAYER_PROFILES_PATH
 from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, SimilarPlayer
+from analytics.player_profiles.archetypes import (
+    calculate_adjusted_pfv,
+    calculate_apfv,
+    calculate_pfv,
+    remove_mpg_adjustment_from_metrics,
+)
 
 router = APIRouter(prefix="/players", tags=["players"])
 
 PLAYSTYLE_METRIC_KEYS = (
     "pts_per36",
-    "ast_per36",
     "reb_per36",
-    "stl_per36",
+    "ast_per36",
     "blk_per36",
-    "tov_per36",
+    "stl_per36",
     "ts_pct",
+    "tov_per36",
     "efg_pct",
     "ast_pct",
     "fg3a_rate",
@@ -104,7 +110,7 @@ def get_player_profile(player_id: int, request: Request):
             _update_cached_files(request, pid_str, updated_profile, role)
             profile = updated_profile
 
-    return PlayerProfileResponse(**_profile_response_payload(profile))
+    return PlayerProfileResponse(**_profile_response_payload(profile, request))
 
 
 @router.get("/{player_id}/similar", response_model=list[SimilarPlayer])
@@ -125,10 +131,22 @@ def _profiles(request: Request) -> dict:
         return json.load(f)
 
 
-def _profile_response_payload(profile: dict) -> dict:
+def _profile_response_payload(profile: dict, request: Request = None) -> dict:
     payload = dict(profile)
     payload["career_teams"] = _collapse_career_teams(payload.get("career_teams", []))
     payload["playstyle_metrics"] = _normalize_playstyle_metrics(payload.get("playstyle_metrics", {}))
+    if "pfv" not in payload or payload["pfv"] is None:
+        payload["pfv"] = calculate_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"]))
+    payload.pop("npfv", None)
+    if "apfv" not in payload or payload["apfv"] is None:
+        all_adjusted_pfvs = getattr(request.app.state, "player_all_adjusted_pfvs", []) if request else []
+        if all_adjusted_pfvs:
+            payload["apfv"] = calculate_apfv(
+                calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"])),
+                all_adjusted_pfvs,
+            )
+        else:
+            payload["apfv"] = 0.0
     return payload
 
 
