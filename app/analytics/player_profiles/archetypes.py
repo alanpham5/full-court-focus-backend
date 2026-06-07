@@ -81,15 +81,13 @@ def assign_player_role(row: pd.Series) -> str:
     ast_pct = _v(row, "ast_pct_z")
     fg3 = _v(row, "fg3a_rate_z")
     fta = _v(row, "fta_rate_z")
-    pos_group = str(row.get("position_group", "")).upper()
+
+    # Define stats-based is_big proxy (replaces position group B)
+    # Using optimized parameters: reb_t = 0.8, blk_t = 0.8, fg3_t = -0.6
+    is_big = (reb > 0.8 or blk > 0.8) and fg3 < -0.6
 
     if ast > 1.0 and ast_pct > 0.8:
         return "Playmaker"
-
-    if pos_group == "B" and fg3 < -0.2:
-        return "Interior Presence"
-    if blk > 1.0 and reb > 0.8 and fg3 < 0.0:
-        return "Interior Presence"
 
     if pts > 1.0 and ast_pct < 0.6:
         return "Designated Scorer"
@@ -106,8 +104,15 @@ def assign_player_role(row: pd.Series) -> str:
     if (stl > 0.5 or blk > 0.5) and pts < -0.2:
         return "Defensive Specialist"
 
-    if pos_group == "B":
+    if is_big and fg3 < -0.2:
         return "Interior Presence"
+
+    if blk > 1.0 and reb > 0.8 and fg3 < 0.0:
+        return "Interior Presence"
+
+    if is_big:
+        return "Interior Presence"
+
     if fg3 > 0.3:
         return "Perimeter Specialist"
     if ast > 0.0:
@@ -197,11 +202,17 @@ def calculate_pfv(metrics: dict) -> float:
     return round(pfv, 4)
 
 
-def calculate_adjusted_pfv(metrics: dict) -> float:
+def calculate_adjusted_pfv(metrics: dict, *, is_prospect: bool = False) -> float:
     """Return PFV adjusted by MPG percentile while preserving the six-axis radar."""
     pfv = calculate_pfv(metrics)
-    mpg_pct = _metric_percentile(metrics, "mpg") / 100.0
-    return round(pfv * (mpg_pct ** 1.5), 4)
+    mpg_pct = _metric_percentile(metrics, "mpg")
+    if is_prospect:
+        # Relax the class-relative MPG percentile for prospects since all prospects play higher minutes
+        mpg_pct = 80.0 + 0.2 * mpg_pct
+    mpg_factor = mpg_pct / 100.0
+    return round(pfv * (mpg_factor ** 1.5), 4)
+
+
 
 
 def calculate_apfv(adjusted_pfv: float, all_adjusted_pfvs: list[float]) -> float:

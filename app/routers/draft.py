@@ -55,8 +55,8 @@ def _collect_all_adjusted_pfvs(all_prospects: list[dict]) -> list[float]:
     for p in all_prospects:
         raw = p.get("raw_stats", {})
         if raw.get("pfv") is None and p.get("pfv") is None:
-            raw["pfv"] = calculate_pfv(remove_mpg_adjustment_from_metrics(p))
-        adjusted_pfvs.append(calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(p)))
+            raw["pfv"] = calculate_pfv(p)
+        adjusted_pfvs.append(calculate_adjusted_pfv(p, is_prospect=True))
     return adjusted_pfvs
 
 
@@ -67,11 +67,11 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_adjusted_pfvs: list[float]
     # Resolve PFV
     pfv_val = raw.get("pfv") or prospect.get("pfv")
     if pfv_val is None:
-        pfv_val = calculate_pfv(remove_mpg_adjustment_from_metrics(prospect))
+        pfv_val = calculate_pfv(prospect)
     pfv_val = float(pfv_val)
 
     # Resolve APFV
-    adjusted_pfv = calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(prospect))
+    adjusted_pfv = calculate_adjusted_pfv(prospect, is_prospect=True)
     apfv_val = raw.get("apfv") or prospect.get("apfv")
     if apfv_val is None:
         apfv_val = calculate_apfv(adjusted_pfv, all_adjusted_pfvs)
@@ -94,7 +94,7 @@ def list_prospects(request: Request):
         raw = dict(p.get("raw_stats", {}))
         pfv_val = raw.get("pfv") or p.get("pfv")
         if pfv_val is None:
-            pfv_val = calculate_pfv(remove_mpg_adjustment_from_metrics(p))
+            pfv_val = calculate_pfv(p)
         raw["pfv"] = pfv_val
         apfv_val = raw.get("apfv") or p.get("apfv")
         if apfv_val is None:

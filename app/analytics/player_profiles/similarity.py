@@ -47,6 +47,15 @@ def build_similarity_embeddings(
     return emb, pca
 
 
+def _parse_start_year(season_str: Any) -> int:
+    if pd.isna(season_str) or not season_str:
+        return 2010
+    try:
+        return int(str(season_str).split("-", 1)[0])
+    except Exception:
+        return 2010
+
+
 def build_similarity_index(
     career_df: pd.DataFrame,
     embeddings: pd.DataFrame,
@@ -78,20 +87,30 @@ def build_similarity_index(
     feature_by_id = feature_df.set_index("player_id")
     out: dict[str, list[dict[str, Any]]] = {}
     for row_idx, pid in enumerate(player_ids):
+        query_player = career_by_id.loc[int(pid)]
+        query_year = _parse_start_year(query_player.get("first_season"))
         candidates: list[tuple[float, dict[str, Any]]] = []
         for dist, idx in zip(dists[row_idx], indices[row_idx]):
             other_id = int(player_ids[int(idx)])
             if other_id == int(pid):
                 continue
             other = career_by_id.loc[other_id]
+            other_year = _parse_start_year(other.get("first_season"))
+            
+            # Apply same-era decay penalty: c = 0.05, tau = 10.0
+            diff = abs(query_year - other_year)
+            era_penalty = 1.0 - 0.05 * np.exp(-diff / 10.0)
+            
             raw_similarity = max(0.0, min(1.0, 1.0 - float(dist)))
+            adj_similarity = raw_similarity * era_penalty
+            
             candidates.append(
                 (
-                    raw_similarity,
+                    adj_similarity,
                     {
                         "player_id": other_id,
                         "player_name": str(other["player_name"]),
-                        "similarity_score": similarity_pct(raw_similarity),
+                        "similarity_score": similarity_pct(adj_similarity),
                         "career_span": str(other.get("career_span", "")),
                         "explanation": explain_similarity(
                             feature_by_id.loc[int(pid)],

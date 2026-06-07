@@ -129,6 +129,8 @@ def main() -> None:
     prospects = add_prospect_roles(prospects)
 
     write_outputs(prospects, args.json_output, args.parquet_output)
+
+
     logger.info(
         "Wrote %s prospects to %s and %s",
         len(prospects),
@@ -382,29 +384,79 @@ def add_prospect_features(prospects: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def _parse_start_year(season_str: Any) -> int:
+    if pd.isna(season_str) or not season_str:
+        return 2010
+    try:
+        return int(str(season_str).split("-", 1)[0])
+    except Exception:
+        return 2010
+
+
 def add_similar_nba_players(
     prospects: pd.DataFrame,
     career: pd.DataFrame,
     *,
     similar_count: int,
 ) -> pd.DataFrame:
-    missing = [col for col in SIMILARITY_FEATURES if col not in career.columns]
+    # Filter the career pool to players with career_games >= 200
+    nba = career[career["career_games"] >= 200].copy().reset_index(drop=True)
+
+    nba_pct_cols = [f"{col}_career_pctile" for col in SIMILARITY_FEATURES]
+    missing = [col for col in nba_pct_cols if col not in nba.columns]
     if missing:
-        raise RuntimeError(f"Career feature table is missing required columns: {missing}")
+        raise RuntimeError(f"Career feature table is missing required percentile columns: {missing}")
 
-    nba = career.copy()
-    nba_features = nba[SIMILARITY_FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    prospect_features = prospects[SIMILARITY_FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+    # Compute prospect class-relative percentiles on the fly
+    prospect_pct_list = []
+    for col in SIMILARITY_FEATURES:
+        vals = prospects[col].to_numpy(dtype=float)
+        pcts = np.array([_percentile_of_score(vals, v) for v in vals])
+        prospect_pct_list.append(pcts / 100.0)
+    prospect_pct = np.column_stack(prospect_pct_list)
 
-    scores = cross_pool_cosine_similarity(
-        prospect_features.to_numpy(dtype=float),
-        nba_features.to_numpy(dtype=float),
-    )
+    # Extract NBA precomputed percentiles
+    nba_pct = nba[nba_pct_cols].fillna(50.0).to_numpy() / 100.0
+
+    # Standard scale both pools independently
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.metrics.pairwise import cosine_similarity
+
+    p_scaled = StandardScaler().fit_transform(prospect_pct)
+    n_scaled = StandardScaler().fit_transform(nba_pct)
+
+    # Apply feature weights aligned with NBA-to-NBA similarity
+    weights = np.array([
+        1.0,  # pts_per36
+        1.2,  # reb_per36
+        2.0,  # ast_per36
+        1.5,  # blk_per36
+        1.5,  # stl_per36
+        1.0,  # ts_pct
+        1.2,  # efg_pct
+        4.5,  # fg3a_rate
+        1.2,  # fta_rate
+        1.0,  # mpg
+    ])
+    p_weighted = p_scaled * weights
+    n_weighted = n_scaled * weights
+
+
+    # Compute cosine similarity
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        scores = cosine_similarity(p_weighted, n_weighted)
+
+    # Compute same-era decay penalty relative to the prospect draft year (max last_season_start)
+    prospect_year = int(nba["last_season_start"].max()) if "last_season_start" in nba.columns else 2025
+    nba_start_years = nba["first_season"].apply(_parse_start_year).to_numpy(dtype=int)
+    diffs = np.abs(prospect_year - nba_start_years)
+    penalties = 1.0 - 0.05 * np.exp(-diffs / 10.0)
 
     similar_payloads: list[list[dict[str, Any]]] = []
     similar_names: list[list[str]] = []
     for row_scores in scores:
-        candidate_indices = np.argsort(row_scores)[::-1][:similar_count]
+        adj_row_scores = row_scores * penalties
+        candidate_indices = np.argsort(adj_row_scores)[::-1][:similar_count]
         matches = []
         names = []
         for idx in candidate_indices:
@@ -414,7 +466,7 @@ def add_similar_nba_players(
                 {
                     "player_id": int(player["player_id"]),
                     "player_name": str(player["player_name"]),
-                    "similarity_score": similarity_pct(float(row_scores[int(idx)])),
+                    "similarity_score": similarity_pct(float(adj_row_scores[int(idx)])),
                     "career_span": str(player.get("career_span", "")),
                     "position_group": str(player.get("position_group", "")),
                     "role": str(player.get("role", "")),
@@ -427,6 +479,7 @@ def add_similar_nba_players(
     out["similar_nba_players"] = similar_payloads
     out["similar_nba_player_names"] = similar_names
     return out
+
 
 
 def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
@@ -449,11 +502,6 @@ def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
 
     roles = []
     for idx, row in out.iterrows():
-        sim_players = row.get("similar_nba_players", [])
-        pos_group = "W"
-        if isinstance(sim_players, list) and len(sim_players) > 0:
-            pos_group = sim_players[0].get("position_group", "W")
-
         pts = scaled.at[idx, "pts_per36"]
         ast = scaled.at[idx, "ast_per36"]
         reb = scaled.at[idx, "reb_per36"]
@@ -464,12 +512,12 @@ def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
         fg3 = scaled.at[idx, "fg3a_rate"]
         fta = scaled.at[idx, "fta_rate"]
 
-        if ast > 1.0 and pos_group in ("G", "W"):
+        # Define stats-based is_big proxy for prospects
+        # Using optimized parameters: reb_t = 0.8, blk_t = 0.8, fg3_t = -0.6
+        is_big = (reb > 0.8 or blk > 0.8) and fg3 < -0.6
+
+        if ast > 1.0 and not is_big:
             role = "Playmaker"
-        elif pos_group == "B" and fg3 < -0.2:
-            role = "Interior Presence"
-        elif blk > 1.0 and reb > 0.5 and fg3 < 0.0:
-            role = "Interior Presence"
         elif pts > 0.8 and ast < 0.5:
             role = "Designated Scorer"
         elif ast > 0.3 and (pts > 0.1 or ast > 0.3):
@@ -480,17 +528,20 @@ def add_prospect_roles(prospects: pd.DataFrame) -> pd.DataFrame:
             role = "Rim Attacker"
         elif (stl > 0.5 or blk > 0.5) and pts < -0.2:
             role = "Defensive Specialist"
+        elif is_big and fg3 < -0.2:
+            role = "Interior Presence"
+        elif blk > 1.0 and reb > 0.5 and fg3 < 0.0:
+            role = "Interior Presence"
+        elif is_big:
+            role = "Interior Presence"
+        elif fg3 > 0.3:
+            role = "Perimeter Specialist"
+        elif ast > 0.0:
+            role = "Secondary Creator"
+        elif pts > 0.0:
+            role = "Rim Attacker"
         else:
-            if pos_group == "B":
-                role = "Interior Presence"
-            elif fg3 > 0.3:
-                role = "Perimeter Specialist"
-            elif ast > 0.0:
-                role = "Secondary Creator"
-            elif pts > 0.0:
-                role = "Rim Attacker"
-            else:
-                role = "Defensive Specialist"
+            role = "Defensive Specialist"
 
         roles.append(role)
 
@@ -593,16 +644,11 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         }
         pfv_val = calculate_pfv(pfv_metrics)
         pfvs.append(pfv_val)
-        adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics))
+        adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
 
-        mpg_pct = record.get("mpg", {}).get("percentile", 0.0)
-        for col in _PERCENTILE_COLS:
-            if col in record and isinstance(record[col], dict):
-                record[col]["percentile"] = adjust_percentile_for_mpg(
-                    col,
-                    record[col]["percentile"],
-                    mpg_pct,
-                )
+        # Do not adjust display percentiles by mpg_pct for prospects.
+        # Prospects are ranked within their draft class, where minutes are generally high and stable.
+        pass
 
         record["pfv"] = pfv_val
 

@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+app/scratch/
 app/.env
 app/.env.*
 !app/.env.example

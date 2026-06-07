@@ -500,5 +500,28 @@ def build_embedding_features(career_df: pd.DataFrame) -> tuple[pd.DataFrame, lis
 
     all_features = feature_cols + ["height_inches", "weight_lbs"]
     X_scaled = pd.DataFrame(StandardScaler().fit_transform(X), columns=all_features, index=career_df.index)
+    
+    # Apply calibrated similarity feature weights
+    FEATURE_WEIGHTS = {
+        "height_inches": 1.2,
+        "weight_lbs": 1.2,
+        "fg3a_rate_z": 4.5,
+        "reb_per36_z": 1.2,
+        "ast_per36_z": 2.0,
+        "ast_pct_z": 1.8,
+        "stl_per36_z": 1.5,
+        "blk_per36_z": 1.5,
+        "fta_rate_z": 1.2,
+        "efg_pct_z": 1.2,
+        "pts_per36_z": 1.0,
+        "mpg_z": 1.0,
+        "ts_pct_z": 1.0,
+        "tov_per36_z": 1.0,
+    }
+    for col, w in FEATURE_WEIGHTS.items():
+        if col in X_scaled.columns:
+            X_scaled[col] *= w
+
+
     X_scaled.insert(0, "player_id", career_df["player_id"].astype(int).to_numpy())
     return X_scaled, all_features

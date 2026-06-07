@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 
-DEFAULT_SIMILARITY_GAMMA = 1.5
+DEFAULT_SIMILARITY_GAMMA = 5.5
 
 
 def cross_pool_cosine_similarity(
