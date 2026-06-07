@@ -13,3 +13,5 @@ PLAYER_PROFILES_PATH = DATA_STATIC_DIR / "player_profiles.json"
 PLAYER_METADATA_PATH = DATA_STATIC_DIR / "player_metadata.json"
 PLAYER_CAREER_FEATURES_PATH = DATA_STATIC_DIR / "player_career_features.parquet"
 PROSPECTS_JSON_PATH = DATA_STATIC_DIR / "prospects.json"
+PLAYER_SEASON_FEATURES_PATH = BASE_DIR / "data" / "player_profiles" / "features" / "player_season_features.parquet"
+

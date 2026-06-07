@@ -14,10 +14,11 @@ from config import (
     TEAM_METADATA_PATH,
     TEAM_PROFILES_PATH,
     TEAMS_PARQUET_PATH,
+    PLAYER_SEASON_FEATURES_PATH,
 )
 from analytics.normalizer import normalize_by_season
 from parquet_io import read_teams_parquet
-from routers import badges, draft, players, search, team
+from routers import badges, draft, players, search, team, lineups
 
 
 @asynccontextmanager
@@ -134,6 +135,13 @@ async def lifespan(app: FastAPI):
         app.state.prospects_by_id = {}
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
+    if PLAYER_SEASON_FEATURES_PATH.exists():
+        app.state.player_season_features_df = read_teams_parquet(PLAYER_SEASON_FEATURES_PATH)
+        print(f"  ✓ Player season features ({len(app.state.player_season_features_df)} rows) from {PLAYER_SEASON_FEATURES_PATH.name}")
+    else:
+        app.state.player_season_features_df = None
+        print(f"  [WARN] {PLAYER_SEASON_FEATURES_PATH.name} missing — lineup synergy will fail")
+
     yield
 
 
@@ -155,6 +163,7 @@ app.include_router(search.router)
 app.include_router(badges.router)
 app.include_router(players.router)
 app.include_router(draft.router)
+app.include_router(lineups.router)
 
 
 @app.get("/health")

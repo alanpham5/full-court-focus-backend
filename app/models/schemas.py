@@ -164,3 +164,67 @@ class PlayerSearchSuggestion(BaseModel):
     role: str
     career_span: str
     archetypes: list[str]
+
+
+class LineupSearchPlayer(BaseModel):
+    player_id: int
+    name: str
+    team_abbreviation: str
+    role: str
+    pts_per36: float
+    mpg: float
+
+
+class LineupSynergyRequest(BaseModel):
+    season: str
+    player_ids: list[int]
+
+
+class LineupSynergyPlayer(BaseModel):
+    player_id: int
+    name: str
+    role: str
+    archetypes: list[str]
+    pts_per36: float
+    ast_per36: float
+    reb_per36: float
+    stl_per36: float
+    blk_per36: float
+    fg3a_rate: float
+
+
+class LineupSynergyBreakdown(BaseModel):
+    playmaking: float
+    spacing: float
+    interior: float
+    defense: float
+    overlap: float
+
+
+class SimilarLineupStarter(BaseModel):
+    player_id: int
+    name: str
+    roles: list[str]
+
+
+class SimilarLineupTeam(BaseModel):
+    team_id: int
+    team_name: str
+    abbreviation: str
+    season: str
+    similarity_pct: float
+    record: str
+    style_vector: StyleVector
+    starters: list[SimilarLineupStarter]
+
+
+class LineupSynergyResponse(BaseModel):
+    season: str
+    players: list[LineupSynergyPlayer]
+    style_vector: StyleVector
+    synergy_score: float
+    synergy_breakdown: LineupSynergyBreakdown
+    strengths: list[str]
+    weaknesses: list[str]
+    similar_teams: list[SimilarLineupTeam]
+

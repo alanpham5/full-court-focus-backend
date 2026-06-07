@@ -301,6 +301,187 @@ uvicorn main:app --reload
   }
   ```
 
+
+---
+
+### Lineup Synergy Endpoints
+
+#### `GET /lineup/search`
+
+- **Description**: Searches for players active in a specific season by name or abbreviation prefix.
+- **Query Parameters**:
+  - `season` (string, required): The NBA season, e.g. `2023-24`.
+  - `q` (string, required): The search query.
+  - `limit` (integer, default=8): Max suggestions to return.
+- **Sample Request**: `GET /lineup/search?season=2023-24&q=LeBron`
+- **Sample Response**:
+  ```json
+  [
+    {
+      "player_id": 2544,
+      "name": "LeBron James",
+      "team_abbreviation": "LAL",
+      "role": "Playmaker",
+      "pts_per36": 26.2,
+      "mpg": 35.3
+    }
+  ]
+  ```
+
+#### `POST /lineup/synergy`
+
+- **Description**: Measures the strengths, weaknesses, projected style vector percentiles, and synergy score for a 5-player lineup within a specific season. Also returns matching similar historical team lineups.
+- **Request Body**:
+  - `season` (string): The NBA season, e.g. `2023-24`.
+  - `player_ids` (array of 5 integers): Exactly 5 player IDs.
+- **Sample Request**:
+  `POST /lineup/synergy`
+  ```json
+  {
+    "season": "2023-24",
+    "player_ids": [2544, 201939, 201142, 203507, 203999]
+  }
+  ```
+- **Sample Response**:
+  ```json
+  {
+    "season": "2023-24",
+    "players": [
+      {
+        "player_id": 2544,
+        "name": "LeBron James",
+        "role": "Playmaker",
+        "archetypes": ["high-volume creator"],
+        "pts_per36": 26.2,
+        "ast_per36": 8.5,
+        "reb_per36": 7.5,
+        "stl_per36": 1.3,
+        "blk_per36": 0.5,
+        "fg3a_rate": 0.287
+      },
+      {
+        "player_id": 201939,
+        "name": "Stephen Curry",
+        "role": "Designated Scorer",
+        "archetypes": ["perimeter scorer"],
+        "pts_per36": 28.1,
+        "ast_per36": 5.4,
+        "reb_per36": 4.8,
+        "stl_per36": 0.8,
+        "blk_per36": 0.4,
+        "fg3a_rate": 0.582
+      },
+      {
+        "player_id": 201142,
+        "name": "Kevin Durant",
+        "role": "Designated Scorer",
+        "archetypes": ["balanced scorer"],
+        "pts_per36": 27.5,
+        "ast_per36": 5.2,
+        "reb_per36": 6.8,
+        "stl_per36": 0.9,
+        "blk_per36": 1.2,
+        "fg3a_rate": 0.285
+      },
+      {
+        "player_id": 203507,
+        "name": "Giannis Antetokounmpo",
+        "role": "Rim Attacker",
+        "archetypes": ["free-throw pressure scorer"],
+        "pts_per36": 31.0,
+        "ast_per36": 6.6,
+        "reb_per36": 11.7,
+        "stl_per36": 1.2,
+        "blk_per36": 1.1,
+        "fg3a_rate": 0.089
+      },
+      {
+        "player_id": 203999,
+        "name": "Nikola Jokic",
+        "role": "Playmaker",
+        "archetypes": ["high-volume creator"],
+        "pts_per36": 27.5,
+        "ast_per36": 9.4,
+        "reb_per36": 12.9,
+        "stl_per36": 1.4,
+        "blk_per36": 0.9,
+        "fg3a_rate": 0.161
+      }
+    ],
+    "style_vector": {
+      "pace": 60.0,
+      "three_point_volume": 83.3,
+      "paint": 90.0,
+      "defense": 40.0,
+      "playmaking": 96.7,
+      "rebounding": 100.0
+    },
+    "synergy_score": 93.4,
+    "synergy_breakdown": {
+      "playmaking": 10.0,
+      "spacing": 12.0,
+      "interior": 5.0,
+      "defense": -10.0,
+      "overlap": -6.0
+    },
+    "strengths": [
+      "Elite Floor Spacing - With multiple perimeter specialist threats, this lineup will pull defenders out and open up driving lanes.",
+      "High-Volume Scoring Engine - Elite scoring capacity across multiple positions makes this lineup extremely difficult to contain.",
+      "Elite Playmaking & Synergy - Above-average playmaking percentiles indicate exceptional ball movement and high-quality shot creation.",
+      "Dominant Rebounding - Above-average rebounding metrics ensure the lineup can limit opponents to single-shot possessions and control the glass.",
+      "High-Volume Paint Scoring - Active paint scorers put relentless pressure on the rim and excel at finishing inside."
+    ],
+    "weaknesses": [
+      "Vulnerable Defensive Shell - Below-average defensive rating indicates this lineup lacks the collective stops to halt elite offenses."
+    ],
+    "similar_teams": [
+      {
+        "team_id": 1610612766,
+        "team_name": "Charlotte Hornets",
+        "abbreviation": "CHA",
+        "season": "2025-26",
+        "similarity_pct": 89.3,
+        "record": "44-38",
+        "style_vector": {
+          "pace": 13.3,
+          "three_point_volume": 100.0,
+          "paint": 50.0,
+          "defense": 65.0,
+          "playmaking": 55.0,
+          "rebounding": 96.7
+        },
+        "starters": [
+          {
+            "player_id": 1628970,
+            "name": "Miles Bridges",
+            "roles": ["Designated Scorer", "Rim Attacker"]
+          },
+          {
+            "player_id": 1629630,
+            "name": "LaMelo Ball",
+            "roles": ["Playmaker"]
+          },
+          {
+            "player_id": 1630625,
+            "name": "Moussa Diabaté",
+            "roles": ["Interior Presence"]
+          },
+          {
+            "player_id": 1641706,
+            "name": "Brandon Miller",
+            "roles": ["Designated Scorer"]
+          },
+          {
+            "player_id": 1642258,
+            "name": "Kon Knueppel",
+            "roles": ["Perimeter Specialist"]
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
 ---
 
 ### Search & Badge Endpoints
