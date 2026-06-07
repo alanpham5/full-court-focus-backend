@@ -92,22 +92,27 @@ async def lifespan(app: FastAPI):
             app.state.player_profiles = json.load(f)
         print(f"  ✓ Player profiles ({len(app.state.player_profiles)} players)")
 
-        # Collect MPG-adjusted PFVs for population-level APFV ranking
+        # Collect MPG-adjusted PFVs and heights for population-level APFV ranking
         from analytics.player_profiles.archetypes import (
             calculate_adjusted_pfv,
             remove_mpg_adjustment_from_metrics,
+            height_bucket,
         )
         player_adjusted_pfvs = []
+        player_heights = []
         for p in app.state.player_profiles.values():
             p_metrics = p.get("playstyle_metrics", {})
             if p_metrics:
                 player_adjusted_pfvs.append(
                     calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(p_metrics))
                 )
+                player_heights.append(p.get("height", ""))
         app.state.player_all_adjusted_pfvs = player_adjusted_pfvs
+        app.state.player_all_height_buckets = [height_bucket(h) for h in player_heights]
     else:
         app.state.player_profiles = {}
         app.state.player_all_adjusted_pfvs = []
+        app.state.player_all_height_buckets = []
         print(f"  [WARN] {PLAYER_PROFILES_PATH.name} missing — GET /players/{{id}} will 404")
 
     if PLAYER_METADATA_PATH.exists():

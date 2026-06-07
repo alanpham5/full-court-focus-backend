@@ -9,7 +9,9 @@ from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, Simila
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
     calculate_apfv,
+    calculate_apfv_batch_by_height,
     calculate_pfv,
+    height_bucket,
     remove_mpg_adjustment_from_metrics,
 )
 
@@ -140,11 +142,14 @@ def _profile_response_payload(profile: dict, request: Request = None) -> dict:
     payload.pop("npfv", None)
     if "apfv" not in payload or payload["apfv"] is None:
         all_adjusted_pfvs = getattr(request.app.state, "player_all_adjusted_pfvs", []) if request else []
-        if all_adjusted_pfvs:
-            payload["apfv"] = calculate_apfv(
-                calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"])),
-                all_adjusted_pfvs,
-            )
+        all_height_buckets = getattr(request.app.state, "player_all_height_buckets", []) if request else []
+        if all_adjusted_pfvs and all_height_buckets:
+            h_bucket = height_bucket(payload.get("height"))
+            group_vals = [val for val, hb in zip(all_adjusted_pfvs, all_height_buckets) if hb == h_bucket]
+            player_adjusted_pfv = calculate_adjusted_pfv(remove_mpg_adjustment_from_metrics(payload["playstyle_metrics"]))
+            if player_adjusted_pfv not in group_vals:
+                group_vals.append(player_adjusted_pfv)
+            payload["apfv"] = calculate_apfv(player_adjusted_pfv, group_vals)
         else:
             payload["apfv"] = 0.0
     return payload

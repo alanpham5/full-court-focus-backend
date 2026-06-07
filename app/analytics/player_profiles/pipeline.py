@@ -11,7 +11,8 @@ import pandas as pd
 from analytics.player_profiles.archetypes import (
     add_archetypes,
     calculate_adjusted_pfv,
-    calculate_apfv_batch,
+    calculate_apfv_batch_by_height,
+    height_bucket,
     profile_payload,
     style_summary,
 )
@@ -265,14 +266,16 @@ class PlayerProfilePipeline:
     ) -> dict[str, dict[str, Any]]:
         profiles = {}
         adjusted_pfvs = []
+        height_buckets = []
         for _, row in career.iterrows():
             pid = str(int(row["player_id"]))
             profiles[pid] = profile_payload(row, similar.get(pid, []))
             raw_metrics = style_summary(row, adjust_for_mpg=False)
             adjusted_pfvs.append(calculate_adjusted_pfv(raw_metrics))
+            height_buckets.append(height_bucket(row.get("height")))
 
         if adjusted_pfvs:
-            apfvs = calculate_apfv_batch(adjusted_pfvs)
+            apfvs = calculate_apfv_batch_by_height(adjusted_pfvs, height_buckets)
             for p, apfv_val in zip(profiles.values(), apfvs):
                 p["apfv"] = apfv_val
         return profiles

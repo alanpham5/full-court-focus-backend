@@ -9,7 +9,9 @@ from config import PROSPECTS_JSON_PATH
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
     calculate_apfv,
+    calculate_apfv_batch_by_height,
     calculate_pfv,
+    height_bucket,
     remove_mpg_adjustment_from_metrics,
 )
 
@@ -60,7 +62,7 @@ def _collect_all_adjusted_pfvs(all_prospects: list[dict]) -> list[float]:
     return adjusted_pfvs
 
 
-def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_adjusted_pfvs: list[float]) -> dict:
+def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_prospects: list[dict], all_adjusted_pfvs: list[float]) -> dict:
     """Ensure pfv and apfv live inside raw_stats, computing if missing."""
     raw = dict(prospect.get("raw_stats", {}))
 
@@ -71,10 +73,18 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_adjusted_pfvs: list[float]
     pfv_val = float(pfv_val)
 
     # Resolve APFV
-    adjusted_pfv = calculate_adjusted_pfv(prospect, is_prospect=True)
     apfv_val = raw.get("apfv") or prospect.get("apfv")
     if apfv_val is None:
-        apfv_val = calculate_apfv(adjusted_pfv, all_adjusted_pfvs)
+        all_heights = [p.get("height", "") for p in all_prospects]
+        all_height_buckets = [height_bucket(h) for h in all_heights]
+        apfvs = calculate_apfv_batch_by_height(all_adjusted_pfvs, all_height_buckets)
+        
+        target_idx = 0
+        for i, p in enumerate(all_prospects):
+            if p.get("prospect_id") == prospect.get("prospect_id"):
+                target_idx = i
+                break
+        apfv_val = apfvs[target_idx]
     apfv_val = float(apfv_val)
 
     raw["pfv"] = pfv_val
@@ -88,9 +98,12 @@ def list_prospects(request: Request):
     """Return every prospect's id, name, team, and raw counting-stat totals."""
     all_prospects = _prospects(request)
     all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
+    all_heights = [p.get("height", "") for p in all_prospects]
+    all_height_buckets = [height_bucket(h) for h in all_heights]
+    apfvs = calculate_apfv_batch_by_height(all_adjusted_pfvs, all_height_buckets)
 
     results = []
-    for p, adjusted_pfv in zip(all_prospects, all_adjusted_pfvs):
+    for idx, (p, adjusted_pfv) in enumerate(zip(all_prospects, all_adjusted_pfvs)):
         raw = dict(p.get("raw_stats", {}))
         pfv_val = raw.get("pfv") or p.get("pfv")
         if pfv_val is None:
@@ -98,7 +111,7 @@ def list_prospects(request: Request):
         raw["pfv"] = pfv_val
         apfv_val = raw.get("apfv") or p.get("apfv")
         if apfv_val is None:
-            apfv_val = calculate_apfv(adjusted_pfv, all_adjusted_pfvs)
+            apfv_val = apfvs[idx]
         raw["apfv"] = float(apfv_val)
         raw.pop("npfv", None)
 
@@ -133,7 +146,7 @@ def get_prospect(prospect_id: str, request: Request):
     all_prospects = _prospects(request)
     all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
 
-    raw = _ensure_pfv_apfv_in_raw_stats(prospect, all_adjusted_pfvs)
+    raw = _ensure_pfv_apfv_in_raw_stats(prospect, all_prospects, all_adjusted_pfvs)
     prospect["raw_stats"] = raw
 
     # Remove top-level pfv/apfv if they exist (they live in raw_stats now)

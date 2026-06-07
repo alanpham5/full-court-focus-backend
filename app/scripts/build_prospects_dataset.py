@@ -24,7 +24,9 @@ from analytics.player_profiles.archetypes import (
     adjust_percentile_for_mpg,
     calculate_adjusted_pfv,
     calculate_apfv_batch,
+    calculate_apfv_batch_by_height,
     calculate_pfv,
+    height_bucket,
 )
 
 DEFAULT_SOURCE_URL = "https://basketball.realgm.com/nba/draft/prospects/stats"
@@ -393,12 +395,105 @@ def _parse_start_year(season_str: Any) -> int:
         return 2010
 
 
+def _height_to_inches(height_val: Any) -> float:
+    """Convert height string like '6-5' to inches (77.0)."""
+    if pd.isna(height_val) or not height_val:
+        return 0.0
+    val_str = str(height_val).strip()
+    if not val_str:
+        return 0.0
+    try:
+        return float(val_str)
+    except ValueError:
+        pass
+    for sep in ("-", "'", '"', "/"):
+        if sep in val_str:
+            parts = val_str.split(sep)
+            if len(parts) >= 2:
+                try:
+                    feet = float(parts[0].strip())
+                    inches = float(parts[1].replace('"', "").strip())
+                    return feet * 12.0 + inches
+                except ValueError:
+                    pass
+    return 0.0
+
+
+def _clean_weight(weight_val: Any, default: float = 215.0) -> float:
+    """Convert weight to float."""
+    if pd.isna(weight_val) or not weight_val:
+        return default
+    try:
+        return float(str(weight_val).strip())
+    except ValueError:
+        return default
+
+
+def _era_bucket(career_span: str) -> str:
+    """Assign an NBA player to an era bucket based on career midpoint."""
+    try:
+        parts = career_span.split(" to ")
+        start_year = int(parts[0].split("-")[0])
+        end_year = int(parts[-1].split("-")[0])
+        mid = (start_year + end_year) / 2.0
+    except Exception:
+        return "2010s"
+    if mid < 2001:
+        return "late-90s"
+    elif mid < 2006:
+        return "early-2000s"
+    elif mid < 2011:
+        return "late-2000s"
+    elif mid < 2016:
+        return "early-2010s"
+    elif mid < 2021:
+        return "late-2010s"
+    else:
+        return "2020s"
+
+
+def _select_era_diverse(
+    ranked_indices: np.ndarray,
+    era_buckets: list[str],
+    count: int,
+    max_per_era: int = 2,
+) -> list[int]:
+    """From ranked candidates, select *count* with era diversity."""
+    selected: list[int] = []
+    era_counts: dict[str, int] = {}
+    for idx in ranked_indices:
+        if len(selected) >= count:
+            break
+        era = era_buckets[int(idx)]
+        if era_counts.get(era, 0) < max_per_era:
+            selected.append(int(idx))
+            era_counts[era] = era_counts.get(era, 0) + 1
+
+    # If era diversity prevented us from filling, relax and fill remaining
+    if len(selected) < count:
+        for idx in ranked_indices:
+            if len(selected) >= count:
+                break
+            if int(idx) not in selected:
+                selected.append(int(idx))
+
+    return selected
+
+
 def add_similar_nba_players(
     prospects: pd.DataFrame,
     career: pd.DataFrame,
     *,
     similar_count: int,
 ) -> pd.DataFrame:
+    """Find similar NBA players for each prospect using quality-affinity scoring.
+
+    Uses a Gaussian kernel (sigma=0.23) to reward matching prospects to NBA
+    players of comparable quality, height/weight gating for physical profile,
+    and era-diversity enforcement across selected comparisons.
+    """
+    QUALITY_SIGMA = 0.23
+
     # Filter the career pool to players with career_games >= 200
     nba = career[career["career_games"] >= 200].copy().reset_index(drop=True)
 
@@ -407,66 +502,155 @@ def add_similar_nba_players(
     if missing:
         raise RuntimeError(f"Career feature table is missing required percentile columns: {missing}")
 
+    # ── Step 1: Build feature vectors WITH height/weight ──
+
+    # Parse prospect height/weight to numeric
+    prospect_heights = prospects["height"].apply(_height_to_inches).to_numpy(dtype=float)
+    prospect_weights = prospects["weight"].apply(
+        lambda w: _clean_weight(w, default=215.0)
+    ).to_numpy(dtype=float)
+
+    # Fill missing prospect heights with class mean
+    valid_p_h = prospect_heights[prospect_heights > 0]
+    mean_p_h = float(valid_p_h.mean()) if len(valid_p_h) > 0 else 78.0
+    prospect_heights[prospect_heights == 0] = mean_p_h
+
+    valid_p_w = prospect_weights[prospect_weights == 0]
+    mean_p_w = float(prospect_weights[prospect_weights > 0].mean()) if (prospect_weights > 0).any() else 215.0
+    prospect_weights[prospect_weights == 0] = mean_p_w
+
+    # Parse NBA height/weight
+    nba_heights = nba["height"].apply(_height_to_inches).to_numpy(dtype=float)
+    nba_weights = nba["weight"].apply(
+        lambda w: _clean_weight(w, default=215.0)
+    ).to_numpy(dtype=float)
+    valid_n_h = nba_heights[nba_heights > 0]
+    mean_n_h = float(valid_n_h.mean()) if len(valid_n_h) > 0 else 78.0
+    nba_heights[nba_heights == 0] = mean_n_h
+    valid_n_w = nba_weights[nba_weights > 0]
+    mean_n_w = float(valid_n_w.mean()) if len(valid_n_w) > 0 else 215.0
+    nba_weights[nba_weights == 0] = mean_n_w
+
     # Compute prospect class-relative percentiles on the fly
     prospect_pct_list = []
     for col in SIMILARITY_FEATURES:
         vals = prospects[col].to_numpy(dtype=float)
         pcts = np.array([_percentile_of_score(vals, v) for v in vals])
+        if col == "mpg":
+            pcts = 80.0 + 0.2 * pcts
         prospect_pct_list.append(pcts / 100.0)
     prospect_pct = np.column_stack(prospect_pct_list)
 
     # Extract NBA precomputed percentiles
     nba_pct = nba[nba_pct_cols].fillna(50.0).to_numpy() / 100.0
 
-    # Standard scale both pools independently
+    # Append height/weight as extra features (raw values, will be scaled)
+    prospect_features = np.column_stack([prospect_pct, prospect_heights, prospect_weights])
+    nba_features = np.column_stack([nba_pct, nba_heights, nba_weights])
+
+    # Standard scale both pools using a shared scaler fitted on the NBA career dataset
     from sklearn.preprocessing import StandardScaler
     from sklearn.metrics.pairwise import cosine_similarity
 
-    p_scaled = StandardScaler().fit_transform(prospect_pct)
-    n_scaled = StandardScaler().fit_transform(nba_pct)
+    scaler = StandardScaler()
+    n_scaled = scaler.fit_transform(nba_features)
+    p_scaled = scaler.transform(prospect_features)
 
-    # Apply feature weights aligned with NBA-to-NBA similarity
+    # Apply feature weights — same as NBA-to-NBA plus height/weight
     weights = np.array([
-        1.0,  # pts_per36
-        1.2,  # reb_per36
-        2.0,  # ast_per36
-        1.5,  # blk_per36
-        1.5,  # stl_per36
-        1.0,  # ts_pct
-        1.2,  # efg_pct
-        4.5,  # fg3a_rate
-        1.2,  # fta_rate
-        1.0,  # mpg
+        1.0,   # pts_per36
+        1.2,   # reb_per36
+        2.0,   # ast_per36
+        1.5,   # blk_per36
+        1.5,   # stl_per36
+        1.0,   # ts_pct
+        1.2,   # efg_pct
+        4.5,   # fg3a_rate
+        1.2,   # fta_rate
+        1.0,   # mpg
+        1.2,   # height_inches
+        1.2,   # weight_lbs
     ])
     p_weighted = p_scaled * weights
     n_weighted = n_scaled * weights
 
-
-    # Compute cosine similarity
+    # ── Step 2: Playstyle cosine similarity ──
     with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
-        scores = cosine_similarity(p_weighted, n_weighted)
+        playstyle_scores = cosine_similarity(p_weighted, n_weighted)
 
-    # Compute same-era decay penalty relative to the prospect draft year (max last_season_start)
-    prospect_year = int(nba["last_season_start"].max()) if "last_season_start" in nba.columns else 2025
-    nba_start_years = nba["first_season"].apply(_parse_start_year).to_numpy(dtype=int)
-    diffs = np.abs(prospect_year - nba_start_years)
-    penalties = 1.0 - 0.05 * np.exp(-diffs / 10.0)
+    # ── Step 3: Prospect quality signal (Height-bucketed APFV) ──
+    # Build per-prospect PFV from class-relative percentiles, then adjust for MPG
+    pfv_keys = ["pts_per36", "reb_per36", "ast_per36", "blk_per36", "stl_per36", "ts_pct"]
+    pfv_pct_arrays = {}
+    for col in pfv_keys:
+        if col in prospects.columns:
+            pfv_pct_arrays[col] = prospects[col].to_numpy(dtype=float)
+    adjusted_pfvs = []
+    for i in range(len(prospects)):
+        metrics = {}
+        for col in pfv_keys:
+            if col in pfv_pct_arrays:
+                val = float(pfv_pct_arrays[col][i])
+                pct = _percentile_of_score(pfv_pct_arrays[col], val)
+                metrics[col] = {"value": val, "percentile": pct}
+        mpg_val = float(prospects.iloc[i]["mpg"])
+        mpg_arr = prospects["mpg"].to_numpy(dtype=float)
+        metrics["mpg"] = {"value": mpg_val, "percentile": _percentile_of_score(mpg_arr, mpg_val)}
+        adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
 
+    prospect_height_buckets = [height_bucket(h) for h in prospects["height"]]
+    prospect_quality = np.array(calculate_apfv_batch_by_height(adjusted_pfvs, prospect_height_buckets))
+
+    # ── Step 4: NBA player quality signal ──
+    nba_adjusted_pfvs = []
+    for j in range(len(nba)):
+        row_j = nba.iloc[j]
+        metrics_j = {}
+        for col in SIMILARITY_FEATURES:
+            val = float(row_j.get(col, 0.0))
+            pct = float(row_j.get(f"{col}_career_pctile", 0.0))
+            metrics_j[col] = {"value": val, "percentile": pct}
+        nba_adjusted_pfvs.append(calculate_adjusted_pfv(metrics_j, is_prospect=False))
+    
+    nba_height_buckets = [height_bucket(h) for h in nba["height"]]
+    nba_quality = np.array(calculate_apfv_batch_by_height(nba_adjusted_pfvs, nba_height_buckets))
+
+    # ── Step 5: Era buckets for diversity ──
+    era_buckets = [
+        _era_bucket(str(nba.iloc[j].get("career_span", "")))
+        for j in range(len(nba))
+    ]
+
+    # ── Step 6: Quality-affinity composite scoring + era-diverse selection ──
     similar_payloads: list[list[dict[str, Any]]] = []
     similar_names: list[list[str]] = []
-    for row_scores in scores:
-        adj_row_scores = row_scores * penalties
-        candidate_indices = np.argsort(adj_row_scores)[::-1][:similar_count]
+
+    for i in range(len(prospects)):
+        p_qual = float(prospect_quality[i])
+
+        # Gaussian quality affinity: strongest when quality levels align
+        quality_diff = np.abs(p_qual - nba_quality)
+        quality_affinity = np.exp(-(quality_diff ** 2) / (2 * QUALITY_SIGMA ** 2))
+
+        # Composite = playstyle similarity * quality affinity
+        composite = playstyle_scores[i] * quality_affinity
+
+        # Rank by composite score, then apply era-diverse selection
+        ranked = np.argsort(composite)[::-1]
+        # Pre-filter to top candidates for efficiency (top 5x what we need)
+        top_pool = ranked[: similar_count * 5]
+        selected = _select_era_diverse(top_pool, era_buckets, similar_count)
+
         matches = []
         names = []
-        for idx in candidate_indices:
-            player = nba.iloc[int(idx)]
+        for idx in selected:
+            player = nba.iloc[idx]
             names.append(str(player["player_name"]))
             matches.append(
                 {
                     "player_id": int(player["player_id"]),
                     "player_name": str(player["player_name"]),
-                    "similarity_score": similarity_pct(float(adj_row_scores[int(idx)])),
+                    "similarity_score": similarity_pct(float(composite[idx])),
                     "career_span": str(player.get("career_span", "")),
                     "position_group": str(player.get("position_group", "")),
                     "role": str(player.get("role", "")),
@@ -653,7 +837,8 @@ def write_outputs(prospects: pd.DataFrame, json_output: Path, parquet_output: Pa
         record["pfv"] = pfv_val
 
     if adjusted_pfvs:
-        apfvs = calculate_apfv_batch(adjusted_pfvs)
+        height_buckets = [height_bucket(record["height"]) for record in records]
+        apfvs = calculate_apfv_batch_by_height(adjusted_pfvs, height_buckets)
         for record, apfv_val in zip(records, apfvs):
             record["apfv"] = apfv_val
         prospects["apfv"] = apfvs

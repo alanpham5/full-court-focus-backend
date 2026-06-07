@@ -4,7 +4,7 @@ from typing import Any
 
 import pandas as pd
 
-from analytics.player_profiles.features import PLAYSTYLE_METRIC_KEYS
+from analytics.player_profiles.features import PLAYSTYLE_METRIC_KEYS, height_to_inches
 
 MPG_ADJUSTED_PERCENTILE_KEYS = {
     "pts_per36",
@@ -234,6 +234,51 @@ def calculate_apfv(adjusted_pfv: float, all_adjusted_pfvs: list[float]) -> float
 def calculate_apfv_batch(adjusted_pfvs: list[float]) -> list[float]:
     """Compute APFV for every entry in *adjusted_pfvs* against the same population."""
     return [calculate_apfv(v, adjusted_pfvs) for v in adjusted_pfvs]
+
+
+def height_bucket(height_val: Any) -> str:
+    """Classify a player into a height bucket for position-fair APFV.
+
+    Buckets:
+      - ``guard``:  under 6'4"  (< 76 inches)
+      - ``wing``:   6'4" – 6'8" (76 – 80 inches)
+      - ``big``:    6'9"+       (> 80 inches)
+    """
+    inches = height_to_inches(height_val)
+    if inches <= 0:
+        return "wing"  # default when height is unknown
+    if inches < 76:
+        return "guard"
+    elif inches <= 80:
+        return "wing"
+    else:
+        return "big"
+
+
+def calculate_apfv_batch_by_height(
+    adjusted_pfvs: list[float],
+    height_buckets: list[str],
+) -> list[float]:
+    """Compute APFV normalised within height buckets.
+
+    This ensures that the best guard and the best big both reach ~0.99,
+    removing the bias caused by bigs accumulating higher raw PFV from
+    positionally-inflated rebound and block percentiles.
+    """
+    n = len(adjusted_pfvs)
+    results = [0.0] * n
+
+    # Group indices by bucket
+    groups: dict[str, list[int]] = {}
+    for i, bucket in enumerate(height_buckets):
+        groups.setdefault(bucket, []).append(i)
+
+    for _bucket, indices in groups.items():
+        group_vals = [adjusted_pfvs[i] for i in indices]
+        for i in indices:
+            results[i] = calculate_apfv(adjusted_pfvs[i], group_vals)
+
+    return results
 
 
 def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None) -> dict[str, Any]:
