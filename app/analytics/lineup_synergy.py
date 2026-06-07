@@ -3,6 +3,8 @@ import pandas as pd
 from scipy.stats import percentileofscore
 from typing import List, Dict, Any
 
+from analytics.eras import season_to_decade
+
 ALL_ROLES = [
     "Playmaker",
     "Secondary Creator",
@@ -12,6 +14,103 @@ ALL_ROLES = [
     "Interior Presence",
     "Defensive Specialist",
 ]
+
+STYLE_AXIS_WEIGHTS = np.array([0.75, 1.20, 1.00, 1.15, 1.20, 0.95], dtype=float)
+
+
+def style_affinity(a: np.ndarray, b: np.ndarray) -> float:
+    """Distance-based style similarity for percentile vectors in 0..1 space."""
+    diff = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
+    dist = float(np.sqrt(np.average(diff * diff, weights=STYLE_AXIS_WEIGHTS)))
+    return float(max(0.0, 1.0 - dist / 0.78))
+
+
+def synergy_win_pct_target(synergy_score: float) -> float:
+    """Map lineup synergy onto a realistic team-quality band for matching."""
+    return float(min(0.82, max(0.25, 0.24 + 0.0062 * synergy_score)))
+
+
+def quality_affinity(target_win_pct: float, historical_win_pct: Any) -> float:
+    try:
+        win_pct = float(historical_win_pct)
+    except (TypeError, ValueError):
+        return 0.70
+    if not np.isfinite(win_pct):
+        return 0.70
+    return float(max(0.0, 1.0 - abs(win_pct - target_win_pct) / 0.52))
+
+
+def select_similar_lineup_candidates(candidates: list[dict], limit: int = 8) -> list[dict]:
+    if not candidates:
+        return []
+
+    ordered = sorted(candidates, key=lambda x: x["similarity_pct"], reverse=True)
+    selected: list[dict] = []
+    selected_keys: set[str] = set()
+
+    def add(item: dict) -> bool:
+        key = str(item["key"])
+        if key in selected_keys or len(selected) >= limit:
+            return False
+        selected.append(item)
+        selected_keys.add(key)
+        return True
+
+    # Preserve visible historical roster continuity before adding diversity.
+    for item in ordered:
+        if item.get("exact_overlap", 0) >= 4 and item["similarity_pct"] >= 78.0:
+            add(item)
+            if len(selected) >= min(3, limit):
+                break
+
+    for item in ordered:
+        if item.get("exact_overlap", 0) >= 3 and item["similarity_pct"] >= 64.0:
+            add(item)
+            if len(selected) >= min(5, limit):
+                break
+
+    # Ensure the strongest credible match from each era has a path into the list.
+    for decade in ("1990s", "2000s", "2010s", "2020s"):
+        if any(item.get("decade") == decade for item in selected):
+            continue
+        for item in ordered:
+            if item.get("decade") == decade and item["similarity_pct"] >= 58.0:
+                add(item)
+                break
+
+    while len(selected) < limit:
+        best_item = None
+        best_score = -np.inf
+        team_counts: dict[int, int] = {}
+        decade_counts: dict[str, int] = {}
+        starter_sets = [set(item.get("starter_ids", [])) for item in selected]
+        for item in selected:
+            team_counts[item["team_id"]] = team_counts.get(item["team_id"], 0) + 1
+            decade = item.get("decade", "")
+            decade_counts[decade] = decade_counts.get(decade, 0) + 1
+
+        for item in ordered:
+            if str(item["key"]) in selected_keys:
+                continue
+            score = float(item["similarity_pct"])
+            score -= 5.0 * team_counts.get(item["team_id"], 0)
+            score -= 3.0 * decade_counts.get(item.get("decade", ""), 0)
+
+            item_starters = set(item.get("starter_ids", []))
+            if any(len(item_starters & prev) >= 4 for prev in starter_sets):
+                score -= 4.0
+            if item.get("exact_overlap", 0) >= 3:
+                score += 6.0
+
+            if score > best_score:
+                best_score = score
+                best_item = item
+
+        if best_item is None:
+            break
+        add(best_item)
+
+    return sorted(selected, key=lambda x: x["similarity_pct"], reverse=True)
 
 def estimate_paint_fga(row: pd.Series) -> float:
     fga = float(row.get("FGA", 0.0) or 0.0)
@@ -646,7 +745,7 @@ def calculate_lineup_synergy(
         else:
             strengths = strengths[:(total_allowed - len(weaknesses))]
         
-    # 8. Similar Historical Teams (cosine similarity over roles bag + style vector)
+    # 8. Similar Historical Teams (roles, style, roster overlap, and team quality)
     custom_role_vector = np.zeros(len(ALL_ROLES))
     for pid in player_ids:
         for role in player_roles.get(pid, []):
@@ -663,6 +762,7 @@ def calculate_lineup_synergy(
     ]) / 100.0
     
     similar_teams_list = []
+    target_win_pct = synergy_win_pct_target(synergy_score)
     
     for key, h_lineup in starting_lineups.items():
         h_team_id, h_season = key.split(":")
@@ -690,14 +790,19 @@ def calculate_lineup_synergy(
             h_style_vector = np.array([0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
             
         role_sim = cosine_similarity(custom_role_vector, h_role_vector)
-        style_sim = cosine_similarity(custom_style_vector, h_style_vector)
+        style_sim = style_affinity(custom_style_vector, h_style_vector)
         
         # Calculate roster similarity
         player_sim = compute_lineup_player_similarity(player_ids, h_starter_ids, player_profiles)
+        exact_overlap = len(set(player_ids) & set(h_starter_ids))
+        quality_sim = quality_affinity(target_win_pct, h_profile.get("win_pct"))
         
-        # Dynamic blending weight for player similarity based on roster similarity
-        w_player = 0.1 + 0.3 * player_sim
-        base_sim = w_player * player_sim + (1.0 - w_player) * (0.5 * role_sim + 0.5 * style_sim)
+        # Dynamic blending weight for player similarity based on roster similarity.
+        # Exact overlap should matter most when present, while non-overlap matches
+        # should earn their spot through style, role balance, and quality.
+        w_player = min(0.55, 0.12 + 0.10 * exact_overlap + 0.22 * max(0.0, player_sim - 0.35))
+        context_sim = 0.54 * style_sim + 0.26 * role_sim + 0.20 * quality_sim
+        base_sim = w_player * player_sim + (1.0 - w_player) * context_sim
         
         # Non-linear boost for high player similarity (exact/near-exact roster matches)
         # When player_sim >= 0.6, apply a quadratic boost that pulls combined score
@@ -710,11 +815,10 @@ def calculate_lineup_synergy(
             combined_sim = base_sim
         
         # Direct overlap bonus: sharing actual players is the strongest similarity
-        # signal a user can see.  Add 6% per shared player beyond the first so
-        # lineups with 2-3 common starters reliably surface in results.
-        exact_overlap = len(set(player_ids) & set(h_starter_ids))
+        # signal a user can see. Smaller bonuses keep 2-3 player historical cores
+        # visible without overwhelming better full-lineup style matches.
         if exact_overlap >= 2:
-            overlap_bonus = 0.06 * (exact_overlap - 1)   # 2→6%, 3→12%, 4→18%, 5→24%
+            overlap_bonus = 0.045 * (exact_overlap - 1)
             combined_sim = min(1.0, combined_sim + overlap_bonus)
         
         similarity_pct = round(combined_sim * 100.0, 1)
@@ -724,6 +828,9 @@ def calculate_lineup_synergy(
             "team_id": int(h_team_id),
             "season": h_season,
             "similarity_pct": similarity_pct,
+            "decade": season_to_decade(h_season),
+            "exact_overlap": exact_overlap,
+            "starter_ids": h_starter_ids,
             "starters": h_lineup["starters"],
             "style_vector": h_style_dict or {
                 "pace": 50.0, "three_point_volume": 50.0, "paint": 50.0,
@@ -731,10 +838,10 @@ def calculate_lineup_synergy(
             }
         })
         
-    similar_teams_list.sort(key=lambda x: x["similarity_pct"], reverse=True)
+    similar_teams_list = select_similar_lineup_candidates(similar_teams_list, limit=8)
     
     top_similar = []
-    for item in similar_teams_list[:5]:
+    for item in similar_teams_list:
         tid_str = str(item["team_id"])
         meta = team_metadata.get(tid_str, {})
         t_profile = team_profiles.get(f"{tid_str}:{item['season']}", {})
