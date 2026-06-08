@@ -310,6 +310,7 @@ def copy_processed_outputs_to_static(storage_root: str, static_dir: Path) -> Non
         (static_dir / name).write_text(json.dumps(data))
     for rel in (
         "features/player_career_features.parquet",
+        "features/player_season_features.parquet",
         "features/player_similarity_features.parquet",
         "embeddings/player_similarity_embeddings.parquet",
     ):

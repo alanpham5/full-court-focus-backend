@@ -29,7 +29,7 @@ def build_similarity_embeddings(
     features = [c for c in feature_df.columns if c != "player_id"]
     ids = feature_df["player_id"].astype(int).to_numpy()
     X = feature_df[features].to_numpy(dtype=float)
-    np.nan_to_num(X, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
+    X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
 
     if X.shape[0] < 3 or X.shape[1] < 2:
         emb = pd.DataFrame({"player_id": ids})
@@ -75,7 +75,7 @@ def build_similarity_index(
 
     player_ids = matrix_source["player_id"].astype(int).to_numpy()
     X = matrix_source[emb_cols].to_numpy(dtype=float)
-    np.nan_to_num(X, copy=False, nan=0.0, posinf=0.0, neginf=0.0)
+    X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
     n_neighbors = min(max(k * 3, k + 1), len(player_ids))
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)

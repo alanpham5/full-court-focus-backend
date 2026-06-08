@@ -135,12 +135,31 @@ async def lifespan(app: FastAPI):
         app.state.prospects_by_id = {}
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
-    if PLAYER_SEASON_FEATURES_PATH.exists():
-        app.state.player_season_features_df = read_teams_parquet(PLAYER_SEASON_FEATURES_PATH)
-        print(f"  ✓ Player season features ({len(app.state.player_season_features_df)} rows) from {PLAYER_SEASON_FEATURES_PATH.name}")
-    else:
-        app.state.player_season_features_df = None
-        print(f"  [WARN] {PLAYER_SEASON_FEATURES_PATH.name} missing — lineup synergy will fail")
+    import os
+    from analytics.player_profiles.storage import ProfileStorage, StorageConfig
+
+    storage_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
+    loaded_from_storage = False
+
+    if storage_uri:
+        try:
+            storage = ProfileStorage(StorageConfig.from_uri(storage_uri))
+            if storage.exists("features/player_season_features.parquet"):
+                app.state.player_season_features_df = storage.read_parquet("features/player_season_features.parquet")
+                print(f"  ✓ Player season features ({len(app.state.player_season_features_df)} rows) loaded from storage: {storage_uri}")
+                loaded_from_storage = True
+            else:
+                print(f"  [WARN] features/player_season_features.parquet not found in storage: {storage_uri}")
+        except Exception as e:
+            print(f"  [WARN] Failed to load player season features from storage ({storage_uri}): {e}")
+
+    if not loaded_from_storage:
+        if PLAYER_SEASON_FEATURES_PATH.exists():
+            app.state.player_season_features_df = read_teams_parquet(PLAYER_SEASON_FEATURES_PATH)
+            print(f"  ✓ Player season features ({len(app.state.player_season_features_df)} rows) from {PLAYER_SEASON_FEATURES_PATH.name}")
+        else:
+            app.state.player_season_features_df = None
+            print(f"  [WARN] {PLAYER_SEASON_FEATURES_PATH.name} missing and storage not configured — lineup synergy will fail")
 
     yield
 
