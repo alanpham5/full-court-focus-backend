@@ -279,11 +279,12 @@ def fetch_heights_weights(prospects: pd.DataFrame) -> pd.DataFrame:
     out = prospects.copy()
     heights = {}
     weights = {}
+    teams = {}
 
     unique_links = {link for link in out["profile_link"] if link}
-    logger.info("Fetching profiles for %d prospects to parse height and weight...", len(unique_links))
+    logger.info("Fetching profiles for %d prospects to parse height, weight, and team...", len(unique_links))
 
-    def fetch_one(link: str) -> tuple[str, str, str]:
+    def fetch_one(link: str) -> tuple[str, str, str, str]:
         url = f"https://basketball.realgm.com{link}"
         try:
             html = fetch_html(url)
@@ -291,21 +292,46 @@ def fetch_heights_weights(prospects: pd.DataFrame) -> pd.DataFrame:
             w_match = re.search(r'<strong>Weight:</strong>\s*([0-9]+)', html, re.IGNORECASE)
             h = h_match.group(1).strip() if h_match else ""
             w = w_match.group(1).strip() if w_match else ""
-            return link, h, w
+
+            # Extract full team name
+            team = ""
+            soup = BeautifulSoup(html, "html.parser")
+            for label in ["Current Team:", "Current School:", "College:", "High School:", "Prep/High School:"]:
+                for p in soup.find_all("p"):
+                    strong = p.find("strong")
+                    if strong and label in strong.get_text(strip=True):
+                        a_tag = p.find("a")
+                        if a_tag:
+                            val = a_tag.get_text(strip=True)
+                        else:
+                            val = p.get_text(strip=True).replace(strong.get_text(strip=True), "").strip()
+                        val = re.sub(r'\s*\(\d{4}\)', '', val).strip()
+                        if val:
+                            team = val
+                            break
+                if team:
+                    break
+
+            return link, h, w, team
         except Exception as e:
             logger.warning("Error fetching/parsing profile %s: %s", url, e)
-            return link, "", ""
+            return link, "", "", ""
 
     from tqdm import tqdm
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = {executor.submit(fetch_one, link): link for link in unique_links}
         for future in tqdm(as_completed(futures), total=len(futures), desc="Fetching prospect bio details", unit="prospect"):
-            link, h, w = future.result()
+            link, h, w, t = future.result()
             heights[link] = h
             weights[link] = w
+            teams[link] = t
 
     out["height"] = out["profile_link"].map(heights).fillna("")
     out["weight"] = out["profile_link"].map(weights).fillna("")
+
+    full_teams = out["profile_link"].map(teams).fillna("")
+    out["Team"] = np.where(full_teams != "", full_teams, out["Team"])
+
     return out
 
 
@@ -325,8 +351,18 @@ def slugify_name(name: str) -> str:
 
 def add_prospect_features(prospects: pd.DataFrame) -> pd.DataFrame:
     out = prospects.copy()
-    for col in PROSPECT_TABLE_REQUIRED_COLUMNS - {"Player", "Team"}:
-        out[col] = pd.to_numeric(out[col], errors="coerce")
+    if "pick" not in out.columns:
+        out["pick"] = None
+    
+    # Coerce all numeric columns to numeric, converting non-numbers to NaN
+    numeric_cols = [
+        "GP", "MPG", "PPG", "FGM", "FGA", "FG%", 
+        "3PM", "3PA", "3P%", "FTM", "FTA", "FT%", 
+        "RPG", "APG", "SPG", "BPG"
+    ]
+    for col in numeric_cols:
+        if col in out.columns:
+            out[col] = pd.to_numeric(out[col], errors="coerce")
 
     mpg = out["MPG"].replace(0, np.nan)
     out["prospect_id"] = out["Player"].apply(slugify_name)
@@ -344,19 +380,40 @@ def add_prospect_features(prospects: pd.DataFrame) -> pd.DataFrame:
     out["ts_pct"] = safe_div(out["PPG"], 2.0 * (out["FGA"] + 0.44 * out["FTA"]))
     out["efg_pct"] = safe_div(out["FGM"] + 0.5 * out["3PM"], out["FGA"])
 
-    return out.replace([np.inf, -np.inf], np.nan).fillna(
-        {
-            "pts_per36": 0.0,
-            "ast_per36": 0.0,
-            "reb_per36": 0.0,
-            "stl_per36": 0.0,
-            "blk_per36": 0.0,
-            "fg3a_rate": 0.0,
-            "fta_rate": 0.0,
-            "ts_pct": 0.0,
-            "efg_pct": 0.0,
-        }
-    )
+    fill_vals = {
+        "GP": 0,
+        "MPG": 0.0,
+        "PPG": 0.0,
+        "FGM": 0.0,
+        "FGA": 0.0,
+        "FG%": 0.0,
+        "3PM": 0.0,
+        "3PA": 0.0,
+        "3P%": 0.0,
+        "FTM": 0.0,
+        "FTA": 0.0,
+        "FT%": 0.0,
+        "RPG": 0.0,
+        "APG": 0.0,
+        "SPG": 0.0,
+        "BPG": 0.0,
+        "pts_per36": 0.0,
+        "ast_per36": 0.0,
+        "reb_per36": 0.0,
+        "stl_per36": 0.0,
+        "blk_per36": 0.0,
+        "fg3a_rate": 0.0,
+        "fta_rate": 0.0,
+        "ts_pct": 0.0,
+        "efg_pct": 0.0,
+    }
+    
+    if "pfv" in out.columns:
+        fill_vals["pfv"] = 0.0
+    if "apfv" in out.columns:
+        fill_vals["apfv"] = 0.0
+
+    return out.replace([np.inf, -np.inf], np.nan).fillna(fill_vals)
 
 
 def _height_to_inches(height_val: Any) -> float:
@@ -595,6 +652,11 @@ class ProspectsPipeline:
             quality_diff = np.abs(p_qual - nba_quality)
             quality_affinity = np.exp(-(quality_diff ** 2) / (2 * QUALITY_SIGMA ** 2))
             composite = playstyle_scores[i] * quality_affinity
+            
+            # Name match filter: exclude NBA counterpart with the exact same name
+            prospect_name = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", "")).strip().lower()
+            name_mask = nba["player_name"].str.strip().str.lower() == prospect_name
+            composite[name_mask] = -1.0
 
             ranked = np.argsort(composite)[::-1]
             top_pool = ranked[: self.similar_count * 5]
@@ -714,6 +776,7 @@ class ProspectsPipeline:
             "efg_pct",
             "fg3a_rate",
             "fta_rate",
+            "pick",
             "similar_nba_players",
         ]
         records = prospects[json_cols].to_dict(orient="records")
@@ -801,6 +864,7 @@ class ProspectsPipeline:
             "similar_nba_player_names",
             "pfv",
             "apfv",
+            "pick",
         ]
         available_cols = [col for col in parquet_cols if col in prospects.columns]
         prospects[available_cols].to_parquet(self.parquet_output_path, index=False, engine="fastparquet")

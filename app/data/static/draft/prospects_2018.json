@@ -1,0 +1,6242 @@
+[
+  {
+    "prospect_id": "deandre-ayton",
+    "player_name": "Deandre Ayton",
+    "team": "Arizona",
+    "height": "7-0",
+    "weight": "252",
+    "role": "Designated Scorer",
+    "gp": 35,
+    "mpg": {
+      "value": 33.5,
+      "percentile": 73.3
+    },
+    "pts_per36": {
+      "value": 21.6,
+      "percentile": 91.7
+    },
+    "reb_per36": {
+      "value": 12.4657,
+      "percentile": 91.7
+    },
+    "ast_per36": {
+      "value": 1.7194,
+      "percentile": 26.7
+    },
+    "blk_per36": {
+      "value": 2.0418,
+      "percentile": 90.0
+    },
+    "stl_per36": {
+      "value": 0.6448,
+      "percentile": 15.0
+    },
+    "ts_pct": {
+      "value": 0.656,
+      "percentile": 95.0
+    },
+    "efg_pct": {
+      "value": 0.624,
+      "percentile": 95.0
+    },
+    "fg3a_rate": {
+      "value": 0.0775,
+      "percentile": 11.7
+    },
+    "fta_rate": {
+      "value": 0.4264,
+      "percentile": 75.0
+    },
+    "pick": 1,
+    "similar_nba_players": [
+      {
+        "player_id": 2405,
+        "player_name": "Amar'e Stoudemire",
+        "similarity_score": 86.7,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1628386,
+        "player_name": "Jarrett Allen",
+        "similarity_score": 78.5,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 2547,
+        "player_name": "Chris Bosh",
+        "similarity_score": 73.5,
+        "career_span": "2003-04 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 203497,
+        "player_name": "Rudy Gobert",
+        "similarity_score": 71.8,
+        "career_span": "2013-14 to 2025-26",
+        "position_group": "W",
+        "role": "Interior Presence"
+      }
+    ],
+    "raw_stats": {
+      "gp": 35,
+      "mpg": 33.5,
+      "ppg": 20.1,
+      "fgm": 7.9,
+      "fga": 12.9,
+      "fg_pct": 0.612,
+      "fg3m": 0.3,
+      "fg3a": 1.0,
+      "fg3_pct": 0.343,
+      "ftm": 4.0,
+      "fta": 5.5,
+      "ft_pct": 0.733,
+      "rpg": 11.6,
+      "apg": 1.6,
+      "spg": 0.6,
+      "bpg": 1.9,
+      "pfv": 0.4124,
+      "apfv": 0.8297
+    }
+  },
+  {
+    "prospect_id": "marvin-bagley-iii",
+    "player_name": "Marvin Bagley III",
+    "team": "Duke",
+    "height": "6-10",
+    "weight": "235",
+    "role": "Designated Scorer",
+    "gp": 33,
+    "mpg": {
+      "value": 33.9,
+      "percentile": 80.0
+    },
+    "pts_per36": {
+      "value": 22.3009,
+      "percentile": 93.3
+    },
+    "reb_per36": {
+      "value": 11.7876,
+      "percentile": 88.3
+    },
+    "ast_per36": {
+      "value": 1.5929,
+      "percentile": 23.3
+    },
+    "blk_per36": {
+      "value": 0.9558,
+      "percentile": 70.0
+    },
+    "stl_per36": {
+      "value": 0.8496,
+      "percentile": 25.0
+    },
+    "ts_pct": {
+      "value": 0.6533,
+      "percentile": 91.7
+    },
+    "efg_pct": {
+      "value": 0.6429,
+      "percentile": 100.0
+    },
+    "fg3a_rate": {
+      "value": 0.1353,
+      "percentile": 15.0
+    },
+    "fta_rate": {
+      "value": 0.4737,
+      "percentile": 85.0
+    },
+    "pick": 2,
+    "similar_nba_players": [
+      {
+        "player_id": 2730,
+        "player_name": "Dwight Howard",
+        "similarity_score": 74.6,
+        "career_span": "2004-05 to 2021-22",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1631105,
+        "player_name": "Jalen Duren",
+        "similarity_score": 55.9,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628386,
+        "player_name": "Jarrett Allen",
+        "similarity_score": 55.3,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 2405,
+        "player_name": "Amar'e Stoudemire",
+        "similarity_score": 54.9,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 33.9,
+      "ppg": 21.0,
+      "fgm": 8.2,
+      "fga": 13.3,
+      "fg_pct": 0.614,
+      "fg3m": 0.7,
+      "fg3a": 1.8,
+      "fg3_pct": 0.397,
+      "ftm": 4.0,
+      "fta": 6.3,
+      "ft_pct": 0.627,
+      "rpg": 11.1,
+      "apg": 1.5,
+      "spg": 0.8,
+      "bpg": 0.9,
+      "pfv": 0.4087,
+      "apfv": 0.9087
+    }
+  },
+  {
+    "prospect_id": "luka-doncic",
+    "player_name": "Luka Doncic",
+    "team": "Real Madrid",
+    "height": "6-8",
+    "weight": "230",
+    "role": "Playmaker",
+    "gp": 73,
+    "mpg": {
+      "value": 25.1,
+      "percentile": 21.7
+    },
+    "pts_per36": {
+      "value": 20.3665,
+      "percentile": 85.0
+    },
+    "reb_per36": {
+      "value": 7.6016,
+      "percentile": 65.0
+    },
+    "ast_per36": {
+      "value": 6.4542,
+      "percentile": 95.0
+    },
+    "blk_per36": {
+      "value": 0.5737,
+      "percentile": 46.7
+    },
+    "stl_per36": {
+      "value": 1.5777,
+      "percentile": 75.0
+    },
+    "ts_pct": {
+      "value": 0.5938,
+      "percentile": 65.0
+    },
+    "efg_pct": {
+      "value": 0.5255,
+      "percentile": 43.3
+    },
+    "fg3a_rate": {
+      "value": 0.4898,
+      "percentile": 78.3
+    },
+    "fta_rate": {
+      "value": 0.5,
+      "percentile": 86.7
+    },
+    "pick": 3,
+    "similar_nba_players": [
+      {
+        "player_id": 1629645,
+        "player_name": "Kevin Porter Jr.",
+        "similarity_score": 40.2,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1630591,
+        "player_name": "Jalen Suggs",
+        "similarity_score": 39.0,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1938,
+        "player_name": "Manu Ginobili",
+        "similarity_score": 38.5,
+        "career_span": "2002-03 to 2017-18",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 203935,
+        "player_name": "Marcus Smart",
+        "similarity_score": 31.4,
+        "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 73,
+      "mpg": 25.1,
+      "ppg": 14.2,
+      "fgm": 4.4,
+      "fga": 9.8,
+      "fg_pct": 0.45,
+      "fg3m": 1.5,
+      "fg3a": 4.8,
+      "fg3_pct": 0.31,
+      "ftm": 3.8,
+      "fta": 4.9,
+      "ft_pct": 0.789,
+      "rpg": 5.3,
+      "apg": 4.5,
+      "spg": 1.1,
+      "bpg": 0.4,
+      "pfv": 0.5006,
+      "apfv": 0.8498
+    }
+  },
+  {
+    "prospect_id": "jaren-jackson-jr",
+    "player_name": "Jaren Jackson, Jr.",
+    "team": "Michigan State",
+    "height": "6-10",
+    "weight": "242",
+    "role": "Rim Attacker",
+    "gp": 35,
+    "mpg": {
+      "value": 21.8,
+      "percentile": 15.0
+    },
+    "pts_per36": {
+      "value": 18.0,
+      "percentile": 66.7
+    },
+    "reb_per36": {
+      "value": 9.578,
+      "percentile": 78.3
+    },
+    "ast_per36": {
+      "value": 1.8165,
+      "percentile": 31.7
+    },
+    "blk_per36": {
+      "value": 4.9541,
+      "percentile": 100.0
+    },
+    "stl_per36": {
+      "value": 0.9908,
+      "percentile": 40.0
+    },
+    "ts_pct": {
+      "value": 0.6588,
+      "percentile": 98.3
+    },
+    "efg_pct": {
+      "value": 0.5985,
+      "percentile": 83.3
+    },
+    "fg3a_rate": {
+      "value": 0.4091,
+      "percentile": 56.7
+    },
+    "fta_rate": {
+      "value": 0.5758,
+      "percentile": 98.3
+    },
+    "pick": 4,
+    "similar_nba_players": [
+      {
+        "player_id": 1626167,
+        "player_name": "Myles Turner",
+        "similarity_score": 51.0,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 203924,
+        "player_name": "Jerami Grant",
+        "similarity_score": 19.9,
+        "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628381,
+        "player_name": "John Collins",
+        "similarity_score": 11.9,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628976,
+        "player_name": "Wendell Carter Jr.",
+        "similarity_score": 10.5,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 35,
+      "mpg": 21.8,
+      "ppg": 10.9,
+      "fgm": 3.4,
+      "fga": 6.6,
+      "fg_pct": 0.513,
+      "fg3m": 1.1,
+      "fg3a": 2.7,
+      "fg3_pct": 0.396,
+      "ftm": 3.0,
+      "fta": 3.8,
+      "ft_pct": 0.797,
+      "rpg": 5.8,
+      "apg": 1.1,
+      "spg": 0.6,
+      "bpg": 3.0,
+      "pfv": 0.4227,
+      "apfv": 0.6791
+    }
+  },
+  {
+    "prospect_id": "trae-young",
+    "player_name": "Trae Young",
+    "team": "Oklahoma",
+    "height": "6-2",
+    "weight": "164",
+    "role": "Playmaker",
+    "gp": 32,
+    "mpg": {
+      "value": 35.4,
+      "percentile": 90.0
+    },
+    "pts_per36": {
+      "value": 27.8644,
+      "percentile": 100.0
+    },
+    "reb_per36": {
+      "value": 3.9661,
+      "percentile": 20.0
+    },
+    "ast_per36": {
+      "value": 8.8475,
+      "percentile": 100.0
+    },
+    "blk_per36": {
+      "value": 0.2034,
+      "percentile": 20.0
+    },
+    "stl_per36": {
+      "value": 1.7288,
+      "percentile": 81.7
+    },
+    "ts_pct": {
+      "value": 0.5935,
+      "percentile": 61.7
+    },
+    "efg_pct": {
+      "value": 0.5207,
+      "percentile": 41.7
+    },
+    "fg3a_rate": {
+      "value": 0.5285,
+      "percentile": 86.7
+    },
+    "fta_rate": {
+      "value": 0.4456,
+      "percentile": 80.0
+    },
+    "pick": 5,
+    "similar_nba_players": [
+      {
+        "player_id": 1626156,
+        "player_name": "D'Angelo Russell",
+        "similarity_score": 63.7,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 202689,
+        "player_name": "Kemba Walker",
+        "similarity_score": 58.9,
+        "career_span": "2011-12 to 2022-23",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1629645,
+        "player_name": "Kevin Porter Jr.",
+        "similarity_score": 57.8,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200768,
+        "player_name": "Kyle Lowry",
+        "similarity_score": 56.4,
+        "career_span": "2006-07 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 32,
+      "mpg": 35.4,
+      "ppg": 27.4,
+      "fgm": 8.2,
+      "fga": 19.3,
+      "fg_pct": 0.422,
+      "fg3m": 3.7,
+      "fg3a": 10.2,
+      "fg3_pct": 0.36,
+      "ftm": 7.4,
+      "fta": 8.6,
+      "ft_pct": 0.861,
+      "rpg": 3.9,
+      "apg": 8.7,
+      "spg": 1.7,
+      "bpg": 0.2,
+      "pfv": 0.3141,
+      "apfv": 0.8581
+    }
+  },
+  {
+    "prospect_id": "mo-bamba",
+    "player_name": "Mo Bamba",
+    "team": "Texas",
+    "height": "7-0",
+    "weight": "231",
+    "role": "Interior Presence",
+    "gp": 30,
+    "mpg": {
+      "value": 30.2,
+      "percentile": 45.0
+    },
+    "pts_per36": {
+      "value": 15.3775,
+      "percentile": 35.0
+    },
+    "reb_per36": {
+      "value": 12.5166,
+      "percentile": 93.3
+    },
+    "ast_per36": {
+      "value": 0.596,
+      "percentile": 6.7
+    },
+    "blk_per36": {
+      "value": 4.4106,
+      "percentile": 98.3
+    },
+    "stl_per36": {
+      "value": 0.9536,
+      "percentile": 33.3
+    },
+    "ts_pct": {
+      "value": 0.5994,
+      "percentile": 66.7
+    },
+    "efg_pct": {
+      "value": 0.5722,
+      "percentile": 73.3
+    },
+    "fg3a_rate": {
+      "value": 0.1889,
+      "percentile": 23.3
+    },
+    "fta_rate": {
+      "value": 0.4444,
+      "percentile": 78.3
+    },
+    "pick": 6,
+    "similar_nba_players": [
+      {
+        "player_id": 911,
+        "player_name": "Ervin Johnson",
+        "similarity_score": 79.6,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2217,
+        "player_name": "Brendan Haywood",
+        "similarity_score": 76.1,
+        "career_span": "2001-02 to 2014-15",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1499,
+        "player_name": "Tony Battie",
+        "similarity_score": 71.3,
+        "career_span": "1997-98 to 2011-12",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2365,
+        "player_name": "Chris Andersen",
+        "similarity_score": 69.1,
+        "career_span": "2001-02 to 2016-17",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 30,
+      "mpg": 30.2,
+      "ppg": 12.9,
+      "fgm": 4.9,
+      "fga": 9.0,
+      "fg_pct": 0.541,
+      "fg3m": 0.5,
+      "fg3a": 1.7,
+      "fg3_pct": 0.275,
+      "ftm": 2.7,
+      "fta": 4.0,
+      "ft_pct": 0.681,
+      "rpg": 10.5,
+      "apg": 0.5,
+      "spg": 0.8,
+      "bpg": 3.7,
+      "pfv": 0.2063,
+      "apfv": 0.1449
+    }
+  },
+  {
+    "prospect_id": "wendell-carter-jr",
+    "player_name": "Wendell Carter, Jr.",
+    "team": "Duke",
+    "height": "6-10",
+    "weight": "270",
+    "role": "Rim Attacker",
+    "gp": 37,
+    "mpg": {
+      "value": 26.9,
+      "percentile": 28.3
+    },
+    "pts_per36": {
+      "value": 18.0669,
+      "percentile": 68.3
+    },
+    "reb_per36": {
+      "value": 12.1784,
+      "percentile": 90.0
+    },
+    "ast_per36": {
+      "value": 2.6766,
+      "percentile": 51.7
+    },
+    "blk_per36": {
+      "value": 2.8104,
+      "percentile": 95.0
+    },
+    "stl_per36": {
+      "value": 1.0706,
+      "percentile": 45.0
+    },
+    "ts_pct": {
+      "value": 0.638,
+      "percentile": 85.0
+    },
+    "efg_pct": {
+      "value": 0.5872,
+      "percentile": 78.3
+    },
+    "fg3a_rate": {
+      "value": 0.1395,
+      "percentile": 16.7
+    },
+    "fta_rate": {
+      "value": 0.5233,
+      "percentile": 93.3
+    },
+    "pick": 7,
+    "similar_nba_players": [
+      {
+        "player_id": 1495,
+        "player_name": "Tim Duncan",
+        "similarity_score": 60.6,
+        "career_span": "1997-98 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 406,
+        "player_name": "Shaquille O'Neal",
+        "similarity_score": 58.6,
+        "career_span": "1996-97 to 2010-11",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 764,
+        "player_name": "David Robinson",
+        "similarity_score": 57.6,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 203076,
+        "player_name": "Anthony Davis",
+        "similarity_score": 53.6,
+        "career_span": "2012-13 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 26.9,
+      "ppg": 13.5,
+      "fgm": 4.8,
+      "fga": 8.6,
+      "fg_pct": 0.561,
+      "fg3m": 0.5,
+      "fg3a": 1.2,
+      "fg3_pct": 0.413,
+      "ftm": 3.4,
+      "fta": 4.5,
+      "ft_pct": 0.738,
+      "rpg": 9.1,
+      "apg": 2.0,
+      "spg": 0.8,
+      "bpg": 2.1,
+      "pfv": 0.4936,
+      "apfv": 0.99
+    }
+  },
+  {
+    "prospect_id": "collin-sexton",
+    "player_name": "Collin Sexton",
+    "team": "Alabama",
+    "height": "6-3",
+    "weight": "190",
+    "role": "Secondary Creator",
+    "gp": 33,
+    "mpg": {
+      "value": 29.9,
+      "percentile": 43.3
+    },
+    "pts_per36": {
+      "value": 23.1171,
+      "percentile": 96.7
+    },
+    "reb_per36": {
+      "value": 4.5753,
+      "percentile": 30.0
+    },
+    "ast_per36": {
+      "value": 4.3344,
+      "percentile": 80.0
+    },
+    "blk_per36": {
+      "value": 0.1204,
+      "percentile": 16.7
+    },
+    "stl_per36": {
+      "value": 0.9632,
+      "percentile": 35.0
+    },
+    "ts_pct": {
+      "value": 0.5768,
+      "percentile": 45.0
+    },
+    "efg_pct": {
+      "value": 0.4925,
+      "percentile": 23.3
+    },
+    "fg3a_rate": {
+      "value": 0.3008,
+      "percentile": 31.7
+    },
+    "fta_rate": {
+      "value": 0.5714,
+      "percentile": 96.7
+    },
+    "pick": 8,
+    "similar_nba_players": [
+      {
+        "player_id": 201155,
+        "player_name": "Rodney Stuckey",
+        "similarity_score": 72.6,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1888,
+        "player_name": "Richard Hamilton",
+        "similarity_score": 55.2,
+        "career_span": "1999-00 to 2012-13",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 201196,
+        "player_name": "Ramon Sessions",
+        "similarity_score": 52.9,
+        "career_span": "2007-08 to 2017-18",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 203613,
+        "player_name": "Jonathon Simmons",
+        "similarity_score": 29.9,
+        "career_span": "2015-16 to 2018-19",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 29.9,
+      "ppg": 19.2,
+      "fgm": 5.9,
+      "fga": 13.3,
+      "fg_pct": 0.447,
+      "fg3m": 1.3,
+      "fg3a": 4.0,
+      "fg3_pct": 0.336,
+      "ftm": 5.9,
+      "fta": 7.6,
+      "ft_pct": 0.778,
+      "rpg": 3.8,
+      "apg": 3.6,
+      "spg": 0.8,
+      "bpg": 0.1,
+      "pfv": 0.2191,
+      "apfv": 0.3034
+    }
+  },
+  {
+    "prospect_id": "kevin-knox-ii",
+    "player_name": "Kevin Knox II",
+    "team": "Kentucky",
+    "height": "6-8",
+    "weight": "215",
+    "role": "Rim Attacker",
+    "gp": 37,
+    "mpg": {
+      "value": 32.4,
+      "percentile": 68.3
+    },
+    "pts_per36": {
+      "value": 17.3333,
+      "percentile": 60.0
+    },
+    "reb_per36": {
+      "value": 6.0,
+      "percentile": 55.0
+    },
+    "ast_per36": {
+      "value": 1.5556,
+      "percentile": 21.7
+    },
+    "blk_per36": {
+      "value": 0.3333,
+      "percentile": 36.7
+    },
+    "stl_per36": {
+      "value": 0.8889,
+      "percentile": 26.7
+    },
+    "ts_pct": {
+      "value": 0.5637,
+      "percentile": 33.3
+    },
+    "efg_pct": {
+      "value": 0.5084,
+      "percentile": 33.3
+    },
+    "fg3a_rate": {
+      "value": 0.3782,
+      "percentile": 48.3
+    },
+    "fta_rate": {
+      "value": 0.3697,
+      "percentile": 63.3
+    },
+    "pick": 9,
+    "similar_nba_players": [
+      {
+        "player_id": 202682,
+        "player_name": "Derrick Williams",
+        "similarity_score": 23.7,
+        "career_span": "2011-12 to 2017-18",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 101155,
+        "player_name": "Ryan Gomes",
+        "similarity_score": 10.6,
+        "career_span": "2005-06 to 2013-14",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2566,
+        "player_name": "Travis Outlaw",
+        "similarity_score": 9.9,
+        "career_span": "2003-04 to 2013-14",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 202498,
+        "player_name": "Lance Thomas",
+        "similarity_score": 8.7,
+        "career_span": "2011-12 to 2019-20",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 32.4,
+      "ppg": 15.6,
+      "fgm": 5.3,
+      "fga": 11.9,
+      "fg_pct": 0.445,
+      "fg3m": 1.5,
+      "fg3a": 4.5,
+      "fg3_pct": 0.341,
+      "ftm": 3.4,
+      "fta": 4.4,
+      "ft_pct": 0.774,
+      "rpg": 5.4,
+      "apg": 1.4,
+      "spg": 0.8,
+      "bpg": 0.3,
+      "pfv": 0.1526,
+      "apfv": 0.1549
+    }
+  },
+  {
+    "prospect_id": "mikal-bridges",
+    "player_name": "Mikal Bridges",
+    "team": "Villanova",
+    "height": "6-6",
+    "weight": "209",
+    "role": "Perimeter Specialist",
+    "gp": 40,
+    "mpg": {
+      "value": 32.1,
+      "percentile": 65.0
+    },
+    "pts_per36": {
+      "value": 19.7383,
+      "percentile": 80.0
+    },
+    "reb_per36": {
+      "value": 5.9439,
+      "percentile": 53.3
+    },
+    "ast_per36": {
+      "value": 2.1308,
+      "percentile": 38.3
+    },
+    "blk_per36": {
+      "value": 1.2336,
+      "percentile": 80.0
+    },
+    "stl_per36": {
+      "value": 1.6822,
+      "percentile": 76.7
+    },
+    "ts_pct": {
+      "value": 0.6569,
+      "percentile": 96.7
+    },
+    "efg_pct": {
+      "value": 0.6218,
+      "percentile": 91.7
+    },
+    "fg3a_rate": {
+      "value": 0.5042,
+      "percentile": 83.3
+    },
+    "fta_rate": {
+      "value": 0.2857,
+      "percentile": 35.0
+    },
+    "pick": 10,
+    "similar_nba_players": [
+      {
+        "player_id": 1628384,
+        "player_name": "OG Anunoby",
+        "similarity_score": 49.6,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1630530,
+        "player_name": "Trey Murphy III",
+        "similarity_score": 41.7,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203496,
+        "player_name": "Robert Covington",
+        "similarity_score": 37.5,
+        "career_span": "2013-14 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201939,
+        "player_name": "Stephen Curry",
+        "similarity_score": 18.9,
+        "career_span": "2009-10 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      }
+    ],
+    "raw_stats": {
+      "gp": 40,
+      "mpg": 32.1,
+      "ppg": 17.6,
+      "fgm": 6.1,
+      "fga": 11.9,
+      "fg_pct": 0.514,
+      "fg3m": 2.6,
+      "fg3a": 6.0,
+      "fg3_pct": 0.435,
+      "ftm": 2.9,
+      "fta": 3.4,
+      "ft_pct": 0.851,
+      "rpg": 5.3,
+      "apg": 1.9,
+      "spg": 1.5,
+      "bpg": 1.1,
+      "pfv": 0.511,
+      "apfv": 0.99
+    }
+  },
+  {
+    "prospect_id": "shai-gilgeous-alexander",
+    "player_name": "Shai Gilgeous-Alexander",
+    "team": "Kentucky",
+    "height": "6-6",
+    "weight": "195",
+    "role": "Playmaker",
+    "gp": 37,
+    "mpg": {
+      "value": 33.7,
+      "percentile": 76.7
+    },
+    "pts_per36": {
+      "value": 15.3828,
+      "percentile": 36.7
+    },
+    "reb_per36": {
+      "value": 4.3798,
+      "percentile": 26.7
+    },
+    "ast_per36": {
+      "value": 5.4481,
+      "percentile": 88.3
+    },
+    "blk_per36": {
+      "value": 0.5341,
+      "percentile": 45.0
+    },
+    "stl_per36": {
+      "value": 1.7092,
+      "percentile": 78.3
+    },
+    "ts_pct": {
+      "value": 0.5869,
+      "percentile": 56.7
+    },
+    "efg_pct": {
+      "value": 0.5098,
+      "percentile": 36.7
+    },
+    "fg3a_rate": {
+      "value": 0.1471,
+      "percentile": 21.7
+    },
+    "fta_rate": {
+      "value": 0.4608,
+      "percentile": 83.3
+    },
+    "pick": 11,
+    "similar_nba_players": [
+      {
+        "player_id": 393,
+        "player_name": "Rod Strickland",
+        "similarity_score": 68.0,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 383,
+        "player_name": "Kendall Gill",
+        "similarity_score": 33.9,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1729,
+        "player_name": "Ricky Davis",
+        "similarity_score": 31.0,
+        "career_span": "1998-99 to 2009-10",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1628365,
+        "player_name": "Markelle Fultz",
+        "similarity_score": 24.5,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 33.7,
+      "ppg": 14.4,
+      "fgm": 4.9,
+      "fga": 10.2,
+      "fg_pct": 0.485,
+      "fg3m": 0.6,
+      "fg3a": 1.5,
+      "fg3_pct": 0.404,
+      "ftm": 3.9,
+      "fta": 4.7,
+      "ft_pct": 0.817,
+      "rpg": 4.1,
+      "apg": 5.1,
+      "spg": 1.6,
+      "bpg": 0.5,
+      "pfv": 0.2893,
+      "apfv": 0.5919
+    }
+  },
+  {
+    "prospect_id": "miles-bridges",
+    "player_name": "Miles Bridges",
+    "team": "Michigan State",
+    "height": "6-7",
+    "weight": "225",
+    "role": "Perimeter Specialist",
+    "gp": 34,
+    "mpg": {
+      "value": 31.4,
+      "percentile": 55.0
+    },
+    "pts_per36": {
+      "value": 19.6051,
+      "percentile": 78.3
+    },
+    "reb_per36": {
+      "value": 8.0255,
+      "percentile": 66.7
+    },
+    "ast_per36": {
+      "value": 3.0955,
+      "percentile": 58.3
+    },
+    "blk_per36": {
+      "value": 0.9172,
+      "percentile": 68.3
+    },
+    "stl_per36": {
+      "value": 0.6879,
+      "percentile": 16.7
+    },
+    "ts_pct": {
+      "value": 0.5774,
+      "percentile": 46.7
+    },
+    "efg_pct": {
+      "value": 0.5336,
+      "percentile": 48.3
+    },
+    "fg3a_rate": {
+      "value": 0.4254,
+      "percentile": 61.7
+    },
+    "fta_rate": {
+      "value": 0.2388,
+      "percentile": 16.7
+    },
+    "pick": 12,
+    "similar_nba_players": [
+      {
+        "player_id": 201163,
+        "player_name": "Wilson Chandler",
+        "similarity_score": 45.9,
+        "career_span": "2007-08 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1631095,
+        "player_name": "Jabari Smith Jr.",
+        "similarity_score": 12.6,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628398,
+        "player_name": "Kyle Kuzma",
+        "similarity_score": 10.4,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 202691,
+        "player_name": "Klay Thompson",
+        "similarity_score": 6.7,
+        "career_span": "2011-12 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      }
+    ],
+    "raw_stats": {
+      "gp": 34,
+      "mpg": 31.4,
+      "ppg": 17.1,
+      "fgm": 6.1,
+      "fga": 13.4,
+      "fg_pct": 0.457,
+      "fg3m": 2.1,
+      "fg3a": 5.7,
+      "fg3_pct": 0.364,
+      "ftm": 2.7,
+      "fta": 3.2,
+      "ft_pct": 0.853,
+      "rpg": 7.0,
+      "apg": 2.7,
+      "spg": 0.6,
+      "bpg": 0.8,
+      "pfv": 0.3112,
+      "apfv": 0.6327
+    }
+  },
+  {
+    "prospect_id": "jerome-robinson",
+    "player_name": "Jerome Robinson",
+    "team": "Boston College",
+    "height": "6-5",
+    "weight": "190",
+    "role": "Designated Scorer",
+    "gp": 35,
+    "mpg": {
+      "value": 36.0,
+      "percentile": 93.3
+    },
+    "pts_per36": {
+      "value": 20.7,
+      "percentile": 86.7
+    },
+    "reb_per36": {
+      "value": 3.6,
+      "percentile": 13.3
+    },
+    "ast_per36": {
+      "value": 3.3,
+      "percentile": 63.3
+    },
+    "blk_per36": {
+      "value": 0.1,
+      "percentile": 10.0
+    },
+    "stl_per36": {
+      "value": 0.9,
+      "percentile": 30.0
+    },
+    "ts_pct": {
+      "value": 0.6124,
+      "percentile": 75.0
+    },
+    "efg_pct": {
+      "value": 0.5612,
+      "percentile": 70.0
+    },
+    "fg3a_rate": {
+      "value": 0.3878,
+      "percentile": 51.7
+    },
+    "fta_rate": {
+      "value": 0.3401,
+      "percentile": 56.7
+    },
+    "pick": 13,
+    "similar_nba_players": [
+      {
+        "player_id": 275,
+        "player_name": "Allan Houston",
+        "similarity_score": 42.3,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2732,
+        "player_name": "Ben Gordon",
+        "similarity_score": 23.6,
+        "career_span": "2004-05 to 2014-15",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1630560,
+        "player_name": "Cam Thomas",
+        "similarity_score": 20.9,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1722,
+        "player_name": "Michael Dickerson",
+        "similarity_score": 14.3,
+        "career_span": "1998-99 to 2002-03",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 35,
+      "mpg": 36.0,
+      "ppg": 20.7,
+      "fgm": 7.1,
+      "fga": 14.7,
+      "fg_pct": 0.485,
+      "fg3m": 2.3,
+      "fg3a": 5.7,
+      "fg3_pct": 0.409,
+      "ftm": 4.2,
+      "fta": 5.0,
+      "ft_pct": 0.83,
+      "rpg": 3.6,
+      "apg": 3.3,
+      "spg": 0.9,
+      "bpg": 0.1,
+      "pfv": 0.1947,
+      "apfv": 0.3332
+    }
+  },
+  {
+    "prospect_id": "michael-porter-jr",
+    "player_name": "Michael Porter, Jr.",
+    "team": "Missouri",
+    "height": "6-10",
+    "weight": "218",
+    "role": "Designated Scorer",
+    "gp": 3,
+    "mpg": {
+      "value": 17.7,
+      "percentile": 13.3
+    },
+    "pts_per36": {
+      "value": 20.339,
+      "percentile": 83.3
+    },
+    "reb_per36": {
+      "value": 13.6271,
+      "percentile": 98.3
+    },
+    "ast_per36": {
+      "value": 0.6102,
+      "percentile": 8.3
+    },
+    "blk_per36": {
+      "value": 0.6102,
+      "percentile": 51.7
+    },
+    "stl_per36": {
+      "value": 2.0339,
+      "percentile": 91.7
+    },
+    "ts_pct": {
+      "value": 0.4417,
+      "percentile": 6.7
+    },
+    "efg_pct": {
+      "value": 0.38,
+      "percentile": 6.7
+    },
+    "fg3a_rate": {
+      "value": 0.33,
+      "percentile": 36.7
+    },
+    "fta_rate": {
+      "value": 0.3,
+      "percentile": 40.0
+    },
+    "pick": 14,
+    "similar_nba_players": [
+      {
+        "player_id": 760,
+        "player_name": "Jerome Kersey",
+        "similarity_score": 19.2,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1505,
+        "player_name": "Tariq Abdul-Wahad",
+        "similarity_score": 18.6,
+        "career_span": "1997-98 to 2002-03",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 201589,
+        "player_name": "Darrell Arthur",
+        "similarity_score": 17.0,
+        "career_span": "2008-09 to 2017-18",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 201146,
+        "player_name": "Yi Jianlian",
+        "similarity_score": 12.4,
+        "career_span": "2007-08 to 2011-12",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 3,
+      "mpg": 17.7,
+      "ppg": 10.0,
+      "fgm": 3.3,
+      "fga": 10.0,
+      "fg_pct": 0.333,
+      "fg3m": 1.0,
+      "fg3a": 3.3,
+      "fg3_pct": 0.3,
+      "ftm": 2.3,
+      "fta": 3.0,
+      "ft_pct": 0.778,
+      "rpg": 6.7,
+      "apg": 0.3,
+      "spg": 1.0,
+      "bpg": 0.3,
+      "pfv": 0.2558,
+      "apfv": 0.1905
+    }
+  },
+  {
+    "prospect_id": "troy-brown-jr",
+    "player_name": "Troy Brown, Jr.",
+    "team": "Oregon",
+    "height": "6-7",
+    "weight": "215",
+    "role": "Secondary Creator",
+    "gp": 35,
+    "mpg": {
+      "value": 31.2,
+      "percentile": 53.3
+    },
+    "pts_per36": {
+      "value": 13.0385,
+      "percentile": 18.3
+    },
+    "reb_per36": {
+      "value": 7.1538,
+      "percentile": 61.7
+    },
+    "ast_per36": {
+      "value": 3.6923,
+      "percentile": 71.7
+    },
+    "blk_per36": {
+      "value": 0.2308,
+      "percentile": 25.0
+    },
+    "stl_per36": {
+      "value": 1.8462,
+      "percentile": 86.7
+    },
+    "ts_pct": {
+      "value": 0.5371,
+      "percentile": 21.7
+    },
+    "efg_pct": {
+      "value": 0.4946,
+      "percentile": 26.7
+    },
+    "fg3a_rate": {
+      "value": 0.337,
+      "percentile": 40.0
+    },
+    "fta_rate": {
+      "value": 0.3261,
+      "percentile": 53.3
+    },
+    "pick": 15,
+    "similar_nba_players": [
+      {
+        "player_id": 243,
+        "player_name": "Aaron McKie",
+        "similarity_score": 53.1,
+        "career_span": "1996-97 to 2006-07",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1541,
+        "player_name": "Alvin Williams",
+        "similarity_score": 34.7,
+        "career_span": "1997-98 to 2006-07",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2605,
+        "player_name": "Marquis Daniels",
+        "similarity_score": 23.3,
+        "career_span": "2003-04 to 2012-13",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 365,
+        "player_name": "Derrick McKey",
+        "similarity_score": 21.1,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 35,
+      "mpg": 31.2,
+      "ppg": 11.3,
+      "fgm": 4.1,
+      "fga": 9.2,
+      "fg_pct": 0.444,
+      "fg3m": 0.9,
+      "fg3a": 3.1,
+      "fg3_pct": 0.291,
+      "ftm": 2.2,
+      "fta": 3.0,
+      "ft_pct": 0.743,
+      "rpg": 6.2,
+      "apg": 3.2,
+      "spg": 1.6,
+      "bpg": 0.2,
+      "pfv": 0.1965,
+      "apfv": 0.2384
+    }
+  },
+  {
+    "prospect_id": "zhaire-smith",
+    "player_name": "Zhaire Smith",
+    "team": "Texas Tech",
+    "height": "6-4",
+    "weight": "205",
+    "role": "Defensive Specialist",
+    "gp": 37,
+    "mpg": {
+      "value": 28.4,
+      "percentile": 36.7
+    },
+    "pts_per36": {
+      "value": 14.3239,
+      "percentile": 25.0
+    },
+    "reb_per36": {
+      "value": 6.338,
+      "percentile": 58.3
+    },
+    "ast_per36": {
+      "value": 2.2817,
+      "percentile": 40.0
+    },
+    "blk_per36": {
+      "value": 1.3944,
+      "percentile": 81.7
+    },
+    "stl_per36": {
+      "value": 1.3944,
+      "percentile": 68.3
+    },
+    "ts_pct": {
+      "value": 0.6281,
+      "percentile": 83.3
+    },
+    "efg_pct": {
+      "value": 0.5933,
+      "percentile": 81.7
+    },
+    "fg3a_rate": {
+      "value": 0.1467,
+      "percentile": 20.0
+    },
+    "fta_rate": {
+      "value": 0.4533,
+      "percentile": 81.7
+    },
+    "pick": 16,
+    "similar_nba_players": [
+      {
+        "player_id": 448,
+        "player_name": "Bo Outlaw",
+        "similarity_score": 66.5,
+        "career_span": "1996-97 to 2007-08",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2735,
+        "player_name": "Josh Childress",
+        "similarity_score": 62.3,
+        "career_span": "2004-05 to 2013-14",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 203457,
+        "player_name": "Nerlens Noel",
+        "similarity_score": 52.8,
+        "career_span": "2014-15 to 2022-23",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1629011,
+        "player_name": "Mitchell Robinson",
+        "similarity_score": 35.1,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 28.4,
+      "ppg": 11.3,
+      "fgm": 4.2,
+      "fga": 7.5,
+      "fg_pct": 0.556,
+      "fg3m": 0.5,
+      "fg3a": 1.1,
+      "fg3_pct": 0.45,
+      "ftm": 2.5,
+      "fta": 3.4,
+      "ft_pct": 0.717,
+      "rpg": 5.0,
+      "apg": 1.8,
+      "spg": 1.1,
+      "bpg": 1.1,
+      "pfv": 0.3402,
+      "apfv": 0.6744
+    }
+  },
+  {
+    "prospect_id": "donte-divincenzo",
+    "player_name": "Donte DiVincenzo",
+    "team": "Villanova",
+    "height": "6-4",
+    "weight": "203",
+    "role": "Secondary Creator",
+    "gp": 40,
+    "mpg": {
+      "value": 29.3,
+      "percentile": 40.0
+    },
+    "pts_per36": {
+      "value": 16.4642,
+      "percentile": 46.7
+    },
+    "reb_per36": {
+      "value": 5.8976,
+      "percentile": 51.7
+    },
+    "ast_per36": {
+      "value": 4.3003,
+      "percentile": 78.3
+    },
+    "blk_per36": {
+      "value": 0.2457,
+      "percentile": 26.7
+    },
+    "stl_per36": {
+      "value": 1.3515,
+      "percentile": 63.3
+    },
+    "ts_pct": {
+      "value": 0.6098,
+      "percentile": 71.7
+    },
+    "efg_pct": {
+      "value": 0.5867,
+      "percentile": 76.7
+    },
+    "fg3a_rate": {
+      "value": 0.5408,
+      "percentile": 90.0
+    },
+    "fta_rate": {
+      "value": 0.2755,
+      "percentile": 31.7
+    },
+    "pick": 17,
+    "similar_nba_players": [
+      {
+        "player_id": 2747,
+        "player_name": "JR Smith",
+        "similarity_score": 70.1,
+        "career_span": "2004-05 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1626220,
+        "player_name": "Royce O'Neale",
+        "similarity_score": 63.1,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203484,
+        "player_name": "Kentavious Caldwell-Pope",
+        "similarity_score": 62.9,
+        "career_span": "2013-14 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203095,
+        "player_name": "Evan Fournier",
+        "similarity_score": 59.9,
+        "career_span": "2012-13 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 40,
+      "mpg": 29.3,
+      "ppg": 13.4,
+      "fgm": 4.7,
+      "fga": 9.8,
+      "fg_pct": 0.481,
+      "fg3m": 2.1,
+      "fg3a": 5.3,
+      "fg3_pct": 0.401,
+      "ftm": 1.9,
+      "fta": 2.7,
+      "ft_pct": 0.71,
+      "rpg": 4.8,
+      "apg": 3.5,
+      "spg": 1.1,
+      "bpg": 0.2,
+      "pfv": 0.3022,
+      "apfv": 0.513
+    }
+  },
+  {
+    "prospect_id": "lonnie-walker",
+    "player_name": "Lonnie Walker",
+    "team": "Miami (FL)",
+    "height": "6-4",
+    "weight": "204",
+    "role": "Perimeter Specialist",
+    "gp": 32,
+    "mpg": {
+      "value": 27.8,
+      "percentile": 33.3
+    },
+    "pts_per36": {
+      "value": 14.8921,
+      "percentile": 30.0
+    },
+    "reb_per36": {
+      "value": 3.3669,
+      "percentile": 8.3
+    },
+    "ast_per36": {
+      "value": 2.4604,
+      "percentile": 46.7
+    },
+    "blk_per36": {
+      "value": 0.6475,
+      "percentile": 53.3
+    },
+    "stl_per36": {
+      "value": 1.1655,
+      "percentile": 50.0
+    },
+    "ts_pct": {
+      "value": 0.5334,
+      "percentile": 18.3
+    },
+    "efg_pct": {
+      "value": 0.5051,
+      "percentile": 30.0
+    },
+    "fg3a_rate": {
+      "value": 0.5152,
+      "percentile": 85.0
+    },
+    "fta_rate": {
+      "value": 0.202,
+      "percentile": 11.7
+    },
+    "pick": 18,
+    "similar_nba_players": [
+      {
+        "player_id": 1114,
+        "player_name": "Jaren Jackson",
+        "similarity_score": 58.2,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201161,
+        "player_name": "Daequan Cook",
+        "similarity_score": 54.8,
+        "career_span": "2007-08 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1628390,
+        "player_name": "Terrance Ferguson",
+        "similarity_score": 51.0,
+        "career_span": "2017-18 to 2020-21",
+        "position_group": "G",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202341,
+        "player_name": "James Anderson",
+        "similarity_score": 49.9,
+        "career_span": "2010-11 to 2015-16",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 32,
+      "mpg": 27.8,
+      "ppg": 11.5,
+      "fgm": 4.1,
+      "fga": 9.9,
+      "fg_pct": 0.415,
+      "fg3m": 1.8,
+      "fg3a": 5.1,
+      "fg3_pct": 0.346,
+      "ftm": 1.5,
+      "fta": 2.0,
+      "ft_pct": 0.738,
+      "rpg": 2.6,
+      "apg": 1.9,
+      "spg": 0.9,
+      "bpg": 0.5,
+      "pfv": 0.1209,
+      "apfv": 0.0162
+    }
+  },
+  {
+    "prospect_id": "kevin-huerter",
+    "player_name": "Kevin Huerter",
+    "team": "Maryland",
+    "height": "6-6",
+    "weight": "190",
+    "role": "Perimeter Specialist",
+    "gp": 32,
+    "mpg": {
+      "value": 34.4,
+      "percentile": 83.3
+    },
+    "pts_per36": {
+      "value": 15.4884,
+      "percentile": 40.0
+    },
+    "reb_per36": {
+      "value": 5.2326,
+      "percentile": 41.7
+    },
+    "ast_per36": {
+      "value": 3.5581,
+      "percentile": 68.3
+    },
+    "blk_per36": {
+      "value": 0.7326,
+      "percentile": 61.7
+    },
+    "stl_per36": {
+      "value": 0.6279,
+      "percentile": 11.7
+    },
+    "ts_pct": {
+      "value": 0.6455,
+      "percentile": 90.0
+    },
+    "efg_pct": {
+      "value": 0.6188,
+      "percentile": 90.0
+    },
+    "fg3a_rate": {
+      "value": 0.5446,
+      "percentile": 91.7
+    },
+    "fta_rate": {
+      "value": 0.3069,
+      "percentile": 45.0
+    },
+    "pick": 19,
+    "similar_nba_players": [
+      {
+        "player_id": 203925,
+        "player_name": "Joe Harris",
+        "similarity_score": 58.2,
+        "career_span": "2014-15 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2594,
+        "player_name": "Kyle Korver",
+        "similarity_score": 56.4,
+        "career_span": "2003-04 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629130,
+        "player_name": "Duncan Robinson",
+        "similarity_score": 53.3,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629622,
+        "player_name": "Max Strus",
+        "similarity_score": 52.5,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 32,
+      "mpg": 34.4,
+      "ppg": 14.8,
+      "fgm": 5.1,
+      "fga": 10.1,
+      "fg_pct": 0.503,
+      "fg3m": 2.3,
+      "fg3a": 5.5,
+      "fg3_pct": 0.417,
+      "ftm": 2.3,
+      "fta": 3.1,
+      "ft_pct": 0.758,
+      "rpg": 5.0,
+      "apg": 3.4,
+      "spg": 0.6,
+      "bpg": 0.7,
+      "pfv": 0.2351,
+      "apfv": 0.3671
+    }
+  },
+  {
+    "prospect_id": "josh-okogie",
+    "player_name": "Josh Okogie",
+    "team": "Georgia Tech",
+    "height": "6-4",
+    "weight": "213",
+    "role": "Rim Attacker",
+    "gp": 24,
+    "mpg": {
+      "value": 36.4,
+      "percentile": 96.7
+    },
+    "pts_per36": {
+      "value": 18.0,
+      "percentile": 66.7
+    },
+    "reb_per36": {
+      "value": 6.1319,
+      "percentile": 56.7
+    },
+    "ast_per36": {
+      "value": 2.4725,
+      "percentile": 48.3
+    },
+    "blk_per36": {
+      "value": 0.989,
+      "percentile": 75.0
+    },
+    "stl_per36": {
+      "value": 1.7802,
+      "percentile": 85.0
+    },
+    "ts_pct": {
+      "value": 0.5586,
+      "percentile": 30.0
+    },
+    "efg_pct": {
+      "value": 0.4737,
+      "percentile": 15.0
+    },
+    "fg3a_rate": {
+      "value": 0.3158,
+      "percentile": 33.3
+    },
+    "fta_rate": {
+      "value": 0.5113,
+      "percentile": 90.0
+    },
+    "pick": 20,
+    "similar_nba_players": [
+      {
+        "player_id": 2572,
+        "player_name": "Josh Howard",
+        "similarity_score": 34.6,
+        "career_span": "2003-04 to 2012-13",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1626178,
+        "player_name": "Rondae Hollis-Jefferson",
+        "similarity_score": 28.2,
+        "career_span": "2015-16 to 2020-21",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1719,
+        "player_name": "Bonzi Wells",
+        "similarity_score": 23.5,
+        "career_span": "1998-99 to 2007-08",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 339,
+        "player_name": "Tom Gugliotta",
+        "similarity_score": 20.7,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 24,
+      "mpg": 36.4,
+      "ppg": 18.2,
+      "fgm": 5.5,
+      "fga": 13.3,
+      "fg_pct": 0.416,
+      "fg3m": 1.6,
+      "fg3a": 4.2,
+      "fg3_pct": 0.38,
+      "ftm": 5.5,
+      "fta": 6.8,
+      "ft_pct": 0.821,
+      "rpg": 6.2,
+      "apg": 2.5,
+      "spg": 1.8,
+      "bpg": 1.0,
+      "pfv": 0.3511,
+      "apfv": 0.7604
+    }
+  },
+  {
+    "prospect_id": "grayson-allen",
+    "player_name": "Grayson Allen",
+    "team": "Duke",
+    "height": "6-3",
+    "weight": "198",
+    "role": "Secondary Creator",
+    "gp": 37,
+    "mpg": {
+      "value": 35.6,
+      "percentile": 91.7
+    },
+    "pts_per36": {
+      "value": 15.6742,
+      "percentile": 41.7
+    },
+    "reb_per36": {
+      "value": 3.3371,
+      "percentile": 6.7
+    },
+    "ast_per36": {
+      "value": 4.6517,
+      "percentile": 83.3
+    },
+    "blk_per36": {
+      "value": 0.1011,
+      "percentile": 11.7
+    },
+    "stl_per36": {
+      "value": 1.7191,
+      "percentile": 80.0
+    },
+    "ts_pct": {
+      "value": 0.5873,
+      "percentile": 58.3
+    },
+    "efg_pct": {
+      "value": 0.5385,
+      "percentile": 53.3
+    },
+    "fg3a_rate": {
+      "value": 0.641,
+      "percentile": 100.0
+    },
+    "fta_rate": {
+      "value": 0.2906,
+      "percentile": 36.7
+    },
+    "pick": 21,
+    "similar_nba_players": [
+      {
+        "player_id": 204038,
+        "player_name": "Langston Galloway",
+        "similarity_score": 66.9,
+        "career_span": "2014-15 to 2021-22",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1630540,
+        "player_name": "Miles McBride",
+        "similarity_score": 66.6,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203477,
+        "player_name": "Isaiah Canaan",
+        "similarity_score": 65.8,
+        "career_span": "2013-14 to 2018-19",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200789,
+        "player_name": "Daniel Gibson",
+        "similarity_score": 63.9,
+        "career_span": "2006-07 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 35.6,
+      "ppg": 15.5,
+      "fgm": 4.9,
+      "fga": 11.7,
+      "fg_pct": 0.418,
+      "fg3m": 2.8,
+      "fg3a": 7.5,
+      "fg3_pct": 0.37,
+      "ftm": 2.9,
+      "fta": 3.4,
+      "ft_pct": 0.85,
+      "rpg": 3.3,
+      "apg": 4.6,
+      "spg": 1.7,
+      "bpg": 0.1,
+      "pfv": 0.1641,
+      "apfv": 0.2171
+    }
+  },
+  {
+    "prospect_id": "chandler-hutchison",
+    "player_name": "Chandler Hutchison",
+    "team": "Boise State",
+    "height": "6-6",
+    "weight": "210",
+    "role": "Secondary Creator",
+    "gp": 31,
+    "mpg": {
+      "value": 31.0,
+      "percentile": 50.0
+    },
+    "pts_per36": {
+      "value": 23.2258,
+      "percentile": 98.3
+    },
+    "reb_per36": {
+      "value": 8.9419,
+      "percentile": 71.7
+    },
+    "ast_per36": {
+      "value": 4.0645,
+      "percentile": 75.0
+    },
+    "blk_per36": {
+      "value": 0.3484,
+      "percentile": 38.3
+    },
+    "stl_per36": {
+      "value": 1.7419,
+      "percentile": 83.3
+    },
+    "ts_pct": {
+      "value": 0.5859,
+      "percentile": 55.0
+    },
+    "efg_pct": {
+      "value": 0.5288,
+      "percentile": 45.0
+    },
+    "fg3a_rate": {
+      "value": 0.295,
+      "percentile": 30.0
+    },
+    "fta_rate": {
+      "value": 0.518,
+      "percentile": 91.7
+    },
+    "pick": 22,
+    "similar_nba_players": [
+      {
+        "player_id": 893,
+        "player_name": "Michael Jordan",
+        "similarity_score": 64.5,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 255,
+        "player_name": "Grant Hill",
+        "similarity_score": 49.0,
+        "career_span": "1996-97 to 2012-13",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 977,
+        "player_name": "Kobe Bryant",
+        "similarity_score": 41.8,
+        "career_span": "1996-97 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 201566,
+        "player_name": "Russell Westbrook",
+        "similarity_score": 36.0,
+        "career_span": "2008-09 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 31,
+      "mpg": 31.0,
+      "ppg": 20.0,
+      "fgm": 6.6,
+      "fga": 13.9,
+      "fg_pct": 0.475,
+      "fg3m": 1.5,
+      "fg3a": 4.1,
+      "fg3_pct": 0.359,
+      "ftm": 5.3,
+      "fta": 7.2,
+      "ft_pct": 0.728,
+      "rpg": 7.7,
+      "apg": 3.5,
+      "spg": 1.5,
+      "bpg": 0.3,
+      "pfv": 0.4746,
+      "apfv": 0.8958
+    }
+  },
+  {
+    "prospect_id": "aaron-holiday",
+    "player_name": "Aaron Holiday",
+    "team": "UCLA",
+    "height": "6-0",
+    "weight": "185",
+    "role": "Playmaker",
+    "gp": 33,
+    "mpg": {
+      "value": 37.7,
+      "percentile": 98.3
+    },
+    "pts_per36": {
+      "value": 19.3846,
+      "percentile": 76.7
+    },
+    "reb_per36": {
+      "value": 3.5332,
+      "percentile": 11.7
+    },
+    "ast_per36": {
+      "value": 5.5385,
+      "percentile": 90.0
+    },
+    "blk_per36": {
+      "value": 0.191,
+      "percentile": 18.3
+    },
+    "stl_per36": {
+      "value": 1.2414,
+      "percentile": 55.0
+    },
+    "ts_pct": {
+      "value": 0.6169,
+      "percentile": 76.7
+    },
+    "efg_pct": {
+      "value": 0.5576,
+      "percentile": 66.7
+    },
+    "fg3a_rate": {
+      "value": 0.446,
+      "percentile": 68.3
+    },
+    "fta_rate": {
+      "value": 0.4173,
+      "percentile": 73.3
+    },
+    "pick": 23,
+    "similar_nba_players": [
+      {
+        "player_id": 202738,
+        "player_name": "Isaiah Thomas",
+        "similarity_score": 86.5,
+        "career_span": "2011-12 to 2023-24",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 201588,
+        "player_name": "George Hill",
+        "similarity_score": 57.3,
+        "career_span": "2008-09 to 2022-23",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 896,
+        "player_name": "Tim Hardaway",
+        "similarity_score": 50.7,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 1710,
+        "player_name": "Mike Bibby",
+        "similarity_score": 50.1,
+        "career_span": "1998-99 to 2011-12",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 37.7,
+      "ppg": 20.3,
+      "fgm": 6.4,
+      "fga": 13.9,
+      "fg_pct": 0.461,
+      "fg3m": 2.7,
+      "fg3a": 6.2,
+      "fg3_pct": 0.429,
+      "ftm": 4.8,
+      "fta": 5.8,
+      "ft_pct": 0.828,
+      "rpg": 3.7,
+      "apg": 5.8,
+      "spg": 1.3,
+      "bpg": 0.2,
+      "pfv": 0.2451,
+      "apfv": 0.614
+    }
+  },
+  {
+    "prospect_id": "anfernee-simons",
+    "player_name": "Anfernee Simons",
+    "team": "IMG Academy (Florida)",
+    "height": "6-3",
+    "weight": "200",
+    "role": "Defensive Specialist",
+    "gp": 0,
+    "mpg": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pts_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "reb_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ast_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "blk_per36": {
+      "value": 0.0,
+      "percentile": 6.7
+    },
+    "stl_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ts_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "efg_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fg3a_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fta_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pick": 24,
+    "similar_nba_players": [
+      {
+        "player_id": 384,
+        "player_name": "Calbert Cheaney",
+        "similarity_score": 61.7,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1956,
+        "player_name": "Ira Newble",
+        "similarity_score": 57.4,
+        "career_span": "2000-01 to 2007-08",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1934,
+        "player_name": "Rodney Buford",
+        "similarity_score": 46.0,
+        "career_span": "1999-00 to 2004-05",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 417,
+        "player_name": "Sam Mitchell",
+        "similarity_score": 38.0,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 0,
+      "mpg": 0.0,
+      "ppg": 0.0,
+      "fgm": 0.0,
+      "fga": 0.0,
+      "fg_pct": 0.0,
+      "fg3m": 0.0,
+      "fg3a": 0.0,
+      "fg3_pct": 0.0,
+      "ftm": 0.0,
+      "fta": 0.0,
+      "ft_pct": 0.0,
+      "rpg": 0.0,
+      "apg": 0.0,
+      "spg": 0.0,
+      "bpg": 0.0,
+      "pfv": 0.0028,
+      "apfv": 0.0768
+    }
+  },
+  {
+    "prospect_id": "moe-wagner",
+    "player_name": "Moe Wagner",
+    "team": "Michigan",
+    "height": "6-11",
+    "weight": "245",
+    "role": "Rim Attacker",
+    "gp": 39,
+    "mpg": {
+      "value": 27.6,
+      "percentile": 31.7
+    },
+    "pts_per36": {
+      "value": 19.0435,
+      "percentile": 73.3
+    },
+    "reb_per36": {
+      "value": 9.2609,
+      "percentile": 73.3
+    },
+    "ast_per36": {
+      "value": 1.0435,
+      "percentile": 13.3
+    },
+    "blk_per36": {
+      "value": 0.6522,
+      "percentile": 55.0
+    },
+    "stl_per36": {
+      "value": 1.3043,
+      "percentile": 60.0
+    },
+    "ts_pct": {
+      "value": 0.6222,
+      "percentile": 78.3
+    },
+    "efg_pct": {
+      "value": 0.6,
+      "percentile": 85.0
+    },
+    "fg3a_rate": {
+      "value": 0.3905,
+      "percentile": 53.3
+    },
+    "fta_rate": {
+      "value": 0.2667,
+      "percentile": 25.0
+    },
+    "pick": 25,
+    "similar_nba_players": [
+      {
+        "player_id": 101141,
+        "player_name": "Ersan Ilyasova",
+        "similarity_score": 34.4,
+        "career_span": "2006-07 to 2020-21",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629060,
+        "player_name": "Rui Hachimura",
+        "similarity_score": 17.8,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 101107,
+        "player_name": "Marvin Williams",
+        "similarity_score": 11.6,
+        "career_span": "2005-06 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203210,
+        "player_name": "JaMychal Green",
+        "similarity_score": 11.4,
+        "career_span": "2014-15 to 2022-23",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 39,
+      "mpg": 27.6,
+      "ppg": 14.6,
+      "fgm": 5.5,
+      "fga": 10.5,
+      "fg_pct": 0.528,
+      "fg3m": 1.6,
+      "fg3a": 4.1,
+      "fg3_pct": 0.394,
+      "ftm": 1.9,
+      "fta": 2.8,
+      "ft_pct": 0.694,
+      "rpg": 7.1,
+      "apg": 0.8,
+      "spg": 1.0,
+      "bpg": 0.5,
+      "pfv": 0.3469,
+      "apfv": 0.5389
+    }
+  },
+  {
+    "prospect_id": "landry-shamet",
+    "player_name": "Landry Shamet",
+    "team": "Wichita State",
+    "height": "6-5",
+    "weight": "190",
+    "role": "Playmaker",
+    "gp": 32,
+    "mpg": {
+      "value": 31.7,
+      "percentile": 60.0
+    },
+    "pts_per36": {
+      "value": 16.9211,
+      "percentile": 53.3
+    },
+    "reb_per36": {
+      "value": 3.6341,
+      "percentile": 15.0
+    },
+    "ast_per36": {
+      "value": 5.9054,
+      "percentile": 91.7
+    },
+    "blk_per36": {
+      "value": 0.2271,
+      "percentile": 23.3
+    },
+    "stl_per36": {
+      "value": 0.795,
+      "percentile": 20.0
+    },
+    "ts_pct": {
+      "value": 0.6647,
+      "percentile": 100.0
+    },
+    "efg_pct": {
+      "value": 0.6224,
+      "percentile": 93.3
+    },
+    "fg3a_rate": {
+      "value": 0.602,
+      "percentile": 98.3
+    },
+    "fta_rate": {
+      "value": 0.3265,
+      "percentile": 55.0
+    },
+    "pick": 26,
+    "similar_nba_players": [
+      {
+        "player_id": 1628379,
+        "player_name": "Luke Kennard",
+        "similarity_score": 68.6,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1631108,
+        "player_name": "Max Christie",
+        "similarity_score": 64.0,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203501,
+        "player_name": "Tim Hardaway Jr.",
+        "similarity_score": 62.3,
+        "career_span": "2013-14 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200789,
+        "player_name": "Daniel Gibson",
+        "similarity_score": 57.2,
+        "career_span": "2006-07 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 32,
+      "mpg": 31.7,
+      "ppg": 14.9,
+      "fgm": 4.8,
+      "fga": 9.8,
+      "fg_pct": 0.489,
+      "fg3m": 2.6,
+      "fg3a": 5.9,
+      "fg3_pct": 0.442,
+      "ftm": 2.7,
+      "fta": 3.2,
+      "ft_pct": 0.825,
+      "rpg": 3.2,
+      "apg": 5.2,
+      "spg": 0.7,
+      "bpg": 0.2,
+      "pfv": 0.2018,
+      "apfv": 0.2688
+    }
+  },
+  {
+    "prospect_id": "robert-williams",
+    "player_name": "Robert Williams",
+    "team": "Texas A&M",
+    "height": "6-9",
+    "weight": "249",
+    "role": "Defensive Specialist",
+    "gp": 30,
+    "mpg": {
+      "value": 25.6,
+      "percentile": 23.3
+    },
+    "pts_per36": {
+      "value": 14.625,
+      "percentile": 28.3
+    },
+    "reb_per36": {
+      "value": 12.9375,
+      "percentile": 95.0
+    },
+    "ast_per36": {
+      "value": 1.9687,
+      "percentile": 35.0
+    },
+    "blk_per36": {
+      "value": 3.5156,
+      "percentile": 96.7
+    },
+    "stl_per36": {
+      "value": 1.125,
+      "percentile": 46.7
+    },
+    "ts_pct": {
+      "value": 0.6256,
+      "percentile": 81.7
+    },
+    "efg_pct": {
+      "value": 0.6301,
+      "percentile": 98.3
+    },
+    "fg3a_rate": {
+      "value": 0.0548,
+      "percentile": 10.0
+    },
+    "fta_rate": {
+      "value": 0.3151,
+      "percentile": 51.7
+    },
+    "pick": 27,
+    "similar_nba_players": [
+      {
+        "player_id": 2740,
+        "player_name": "Andris Biedrins",
+        "similarity_score": 83.0,
+        "career_span": "2004-05 to 2013-14",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 201959,
+        "player_name": "Taj Gibson",
+        "similarity_score": 68.1,
+        "career_span": "2009-10 to 2025-26",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 202344,
+        "player_name": "Trevor Booker",
+        "similarity_score": 68.0,
+        "career_span": "2010-11 to 2017-18",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 703,
+        "player_name": "Kurt Thomas",
+        "similarity_score": 57.2,
+        "career_span": "1996-97 to 2012-13",
+        "position_group": "W",
+        "role": "Interior Presence"
+      }
+    ],
+    "raw_stats": {
+      "gp": 30,
+      "mpg": 25.6,
+      "ppg": 10.4,
+      "fgm": 4.6,
+      "fga": 7.3,
+      "fg_pct": 0.632,
+      "fg3m": 0.0,
+      "fg3a": 0.4,
+      "fg3_pct": 0.0,
+      "ftm": 1.1,
+      "fta": 2.3,
+      "ft_pct": 0.471,
+      "rpg": 9.2,
+      "apg": 1.4,
+      "spg": 0.8,
+      "bpg": 2.5,
+      "pfv": 0.334,
+      "apfv": 0.4099
+    }
+  },
+  {
+    "prospect_id": "jacob-evans",
+    "player_name": "Jacob Evans",
+    "team": "Cincinnati",
+    "height": "6-6",
+    "weight": "210",
+    "role": "Secondary Creator",
+    "gp": 36,
+    "mpg": {
+      "value": 30.8,
+      "percentile": 46.7
+    },
+    "pts_per36": {
+      "value": 15.1948,
+      "percentile": 31.7
+    },
+    "reb_per36": {
+      "value": 5.4935,
+      "percentile": 46.7
+    },
+    "ast_per36": {
+      "value": 3.6234,
+      "percentile": 70.0
+    },
+    "blk_per36": {
+      "value": 1.1688,
+      "percentile": 76.7
+    },
+    "stl_per36": {
+      "value": 1.5195,
+      "percentile": 70.0
+    },
+    "ts_pct": {
+      "value": 0.5459,
+      "percentile": 25.0
+    },
+    "efg_pct": {
+      "value": 0.5095,
+      "percentile": 35.0
+    },
+    "fg3a_rate": {
+      "value": 0.4286,
+      "percentile": 63.3
+    },
+    "fta_rate": {
+      "value": 0.3048,
+      "percentile": 43.3
+    },
+    "pick": 28,
+    "similar_nba_players": [
+      {
+        "player_id": 203145,
+        "player_name": "Kent Bazemore",
+        "similarity_score": 21.7,
+        "career_span": "2012-13 to 2021-22",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 109,
+        "player_name": "Robert Horry",
+        "similarity_score": 21.3,
+        "career_span": "1996-97 to 2007-08",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1630692,
+        "player_name": "Jordan Goodwin",
+        "similarity_score": 18.0,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 98,
+        "player_name": "Nick Anderson",
+        "similarity_score": 17.1,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 36,
+      "mpg": 30.8,
+      "ppg": 13.0,
+      "fgm": 4.5,
+      "fga": 10.5,
+      "fg_pct": 0.427,
+      "fg3m": 1.7,
+      "fg3a": 4.5,
+      "fg3_pct": 0.37,
+      "ftm": 2.4,
+      "fta": 3.2,
+      "ft_pct": 0.754,
+      "rpg": 4.7,
+      "apg": 3.1,
+      "spg": 1.3,
+      "bpg": 1.0,
+      "pfv": 0.3005,
+      "apfv": 0.552
+    }
+  },
+  {
+    "prospect_id": "dzanan-musa",
+    "player_name": "Dzanan Musa",
+    "team": "Cedevita",
+    "height": "6-9",
+    "weight": "217",
+    "role": "Rim Attacker",
+    "gp": 71,
+    "mpg": {
+      "value": 23.1,
+      "percentile": 18.3
+    },
+    "pts_per36": {
+      "value": 19.3247,
+      "percentile": 75.0
+    },
+    "reb_per36": {
+      "value": 5.4545,
+      "percentile": 45.0
+    },
+    "ast_per36": {
+      "value": 2.961,
+      "percentile": 55.0
+    },
+    "blk_per36": {
+      "value": 0.3117,
+      "percentile": 33.3
+    },
+    "stl_per36": {
+      "value": 1.5584,
+      "percentile": 73.3
+    },
+    "ts_pct": {
+      "value": 0.6036,
+      "percentile": 70.0
+    },
+    "efg_pct": {
+      "value": 0.5349,
+      "percentile": 50.0
+    },
+    "fg3a_rate": {
+      "value": 0.4651,
+      "percentile": 73.3
+    },
+    "fta_rate": {
+      "value": 0.4419,
+      "percentile": 76.7
+    },
+    "pick": 29,
+    "similar_nba_players": [
+      {
+        "player_id": 1899,
+        "player_name": "James Posey",
+        "similarity_score": 50.5,
+        "career_span": "1999-00 to 2010-11",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201960,
+        "player_name": "DeMarre Carroll",
+        "similarity_score": 44.3,
+        "career_span": "2009-10 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 935,
+        "player_name": "Bryon Russell",
+        "similarity_score": 43.3,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202692,
+        "player_name": "Alec Burks",
+        "similarity_score": 39.7,
+        "career_span": "2011-12 to 2024-25",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 71,
+      "mpg": 23.1,
+      "ppg": 12.4,
+      "fgm": 4.0,
+      "fga": 8.6,
+      "fg_pct": 0.47,
+      "fg3m": 1.2,
+      "fg3a": 4.0,
+      "fg3_pct": 0.313,
+      "ftm": 3.1,
+      "fta": 3.8,
+      "ft_pct": 0.804,
+      "rpg": 3.5,
+      "apg": 1.9,
+      "spg": 1.0,
+      "bpg": 0.2,
+      "pfv": 0.3417,
+      "apfv": 0.473
+    }
+  },
+  {
+    "prospect_id": "omari-spellman",
+    "player_name": "Omari Spellman",
+    "team": "Villanova",
+    "height": "6-8",
+    "weight": "245",
+    "role": "Defensive Specialist",
+    "gp": 40,
+    "mpg": {
+      "value": 28.1,
+      "percentile": 35.0
+    },
+    "pts_per36": {
+      "value": 13.8363,
+      "percentile": 23.3
+    },
+    "reb_per36": {
+      "value": 10.2491,
+      "percentile": 83.3
+    },
+    "ast_per36": {
+      "value": 1.0249,
+      "percentile": 11.7
+    },
+    "blk_per36": {
+      "value": 1.9217,
+      "percentile": 86.7
+    },
+    "stl_per36": {
+      "value": 0.8968,
+      "percentile": 28.3
+    },
+    "ts_pct": {
+      "value": 0.5875,
+      "percentile": 60.0
+    },
+    "efg_pct": {
+      "value": 0.5714,
+      "percentile": 71.7
+    },
+    "fg3a_rate": {
+      "value": 0.4524,
+      "percentile": 70.0
+    },
+    "fta_rate": {
+      "value": 0.2143,
+      "percentile": 13.3
+    },
+    "pick": 30,
+    "similar_nba_players": [
+      {
+        "player_id": 201575,
+        "player_name": "Brandon Rush",
+        "similarity_score": 47.4,
+        "career_span": "2008-09 to 2016-17",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200761,
+        "player_name": "Shawne Williams",
+        "similarity_score": 38.8,
+        "career_span": "2006-07 to 2014-15",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202335,
+        "player_name": "Patrick Patterson",
+        "similarity_score": 38.4,
+        "career_span": "2010-11 to 2020-21",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2446,
+        "player_name": "Rasual Butler",
+        "similarity_score": 29.9,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 40,
+      "mpg": 28.1,
+      "ppg": 10.8,
+      "fgm": 4.0,
+      "fga": 8.4,
+      "fg_pct": 0.476,
+      "fg3m": 1.6,
+      "fg3a": 3.8,
+      "fg3_pct": 0.433,
+      "ftm": 1.2,
+      "fta": 1.8,
+      "ft_pct": 0.7,
+      "rpg": 8.0,
+      "apg": 0.8,
+      "spg": 0.7,
+      "bpg": 1.5,
+      "pfv": 0.158,
+      "apfv": 0.0641
+    }
+  },
+  {
+    "prospect_id": "elie-okobo",
+    "player_name": "Elie Okobo",
+    "team": "Pau-Orthez",
+    "height": "6-3",
+    "weight": "190",
+    "role": "Playmaker",
+    "gp": 36,
+    "mpg": {
+      "value": 26.5,
+      "percentile": 25.0
+    },
+    "pts_per36": {
+      "value": 18.7472,
+      "percentile": 71.7
+    },
+    "reb_per36": {
+      "value": 3.6679,
+      "percentile": 16.7
+    },
+    "ast_per36": {
+      "value": 6.3849,
+      "percentile": 93.3
+    },
+    "blk_per36": {
+      "value": 0.2717,
+      "percentile": 30.0
+    },
+    "stl_per36": {
+      "value": 1.2226,
+      "percentile": 53.3
+    },
+    "ts_pct": {
+      "value": 0.6223,
+      "percentile": 80.0
+    },
+    "efg_pct": {
+      "value": 0.5909,
+      "percentile": 80.0
+    },
+    "fg3a_rate": {
+      "value": 0.4949,
+      "percentile": 81.7
+    },
+    "fta_rate": {
+      "value": 0.2727,
+      "percentile": 30.0
+    },
+    "pick": 31,
+    "similar_nba_players": [
+      {
+        "player_id": 203095,
+        "player_name": "Evan Fournier",
+        "similarity_score": 71.2,
+        "career_span": "2012-13 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203552,
+        "player_name": "Seth Curry",
+        "similarity_score": 68.9,
+        "career_span": "2013-14 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629014,
+        "player_name": "Anfernee Simons",
+        "similarity_score": 64.3,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 345,
+        "player_name": "Terry Porter",
+        "similarity_score": 61.8,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 36,
+      "mpg": 26.5,
+      "ppg": 13.8,
+      "fgm": 4.8,
+      "fga": 9.9,
+      "fg_pct": 0.489,
+      "fg3m": 2.1,
+      "fg3a": 4.9,
+      "fg3_pct": 0.418,
+      "ftm": 2.2,
+      "fta": 2.7,
+      "ft_pct": 0.835,
+      "rpg": 2.7,
+      "apg": 4.7,
+      "spg": 0.9,
+      "bpg": 0.2,
+      "pfv": 0.2859,
+      "apfv": 0.5026
+    }
+  },
+  {
+    "prospect_id": "jevon-carter",
+    "player_name": "Jevon Carter",
+    "team": "West Virginia",
+    "height": "6-0",
+    "weight": "190",
+    "role": "Playmaker",
+    "gp": 37,
+    "mpg": {
+      "value": 34.7,
+      "percentile": 86.7
+    },
+    "pts_per36": {
+      "value": 17.9481,
+      "percentile": 63.3
+    },
+    "reb_per36": {
+      "value": 4.7723,
+      "percentile": 35.0
+    },
+    "ast_per36": {
+      "value": 6.8473,
+      "percentile": 96.7
+    },
+    "blk_per36": {
+      "value": 0.415,
+      "percentile": 40.0
+    },
+    "stl_per36": {
+      "value": 3.1124,
+      "percentile": 100.0
+    },
+    "ts_pct": {
+      "value": 0.5528,
+      "percentile": 28.3
+    },
+    "efg_pct": {
+      "value": 0.4964,
+      "percentile": 28.3
+    },
+    "fg3a_rate": {
+      "value": 0.3841,
+      "percentile": 50.0
+    },
+    "fta_rate": {
+      "value": 0.3043,
+      "percentile": 41.7
+    },
+    "pick": 32,
+    "similar_nba_players": [
+      {
+        "player_id": 201937,
+        "player_name": "Ricky Rubio",
+        "similarity_score": 45.8,
+        "career_span": "2011-12 to 2022-23",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 1628372,
+        "player_name": "Dennis Smith Jr.",
+        "similarity_score": 45.5,
+        "career_span": "2017-18 to 2023-24",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 56,
+        "player_name": "Gary Payton",
+        "similarity_score": 39.1,
+        "career_span": "1996-97 to 2006-07",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 302,
+        "player_name": "Mookie Blaylock",
+        "similarity_score": 32.9,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 34.7,
+      "ppg": 17.3,
+      "fgm": 5.8,
+      "fga": 13.8,
+      "fg_pct": 0.422,
+      "fg3m": 2.1,
+      "fg3a": 5.3,
+      "fg3_pct": 0.393,
+      "ftm": 3.6,
+      "fta": 4.2,
+      "ft_pct": 0.858,
+      "rpg": 4.6,
+      "apg": 6.6,
+      "spg": 3.0,
+      "bpg": 0.4,
+      "pfv": 0.3015,
+      "apfv": 0.7327
+    }
+  },
+  {
+    "prospect_id": "jalen-brunson",
+    "player_name": "Jalen Brunson",
+    "team": "Villanova",
+    "height": "6-2",
+    "weight": "190",
+    "role": "Playmaker",
+    "gp": 40,
+    "mpg": {
+      "value": 31.8,
+      "percentile": 61.7
+    },
+    "pts_per36": {
+      "value": 21.3962,
+      "percentile": 88.3
+    },
+    "reb_per36": {
+      "value": 3.3962,
+      "percentile": 10.0
+    },
+    "ast_per36": {
+      "value": 5.2075,
+      "percentile": 86.7
+    },
+    "blk_per36": {
+      "value": 0.0,
+      "percentile": 6.7
+    },
+    "stl_per36": {
+      "value": 1.0189,
+      "percentile": 43.3
+    },
+    "ts_pct": {
+      "value": 0.6446,
+      "percentile": 88.3
+    },
+    "efg_pct": {
+      "value": 0.6085,
+      "percentile": 86.7
+    },
+    "fg3a_rate": {
+      "value": 0.4109,
+      "percentile": 58.3
+    },
+    "fta_rate": {
+      "value": 0.3101,
+      "percentile": 48.3
+    },
+    "pick": 33,
+    "similar_nba_players": [
+      {
+        "player_id": 101181,
+        "player_name": "Jose Calderon",
+        "similarity_score": 52.6,
+        "career_span": "2005-06 to 2018-19",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 1629614,
+        "player_name": "Andrew Nembhard",
+        "similarity_score": 46.9,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2732,
+        "player_name": "Ben Gordon",
+        "similarity_score": 41.1,
+        "career_span": "2004-05 to 2014-15",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2749,
+        "player_name": "Jameer Nelson",
+        "similarity_score": 38.9,
+        "career_span": "2004-05 to 2017-18",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 40,
+      "mpg": 31.8,
+      "ppg": 18.9,
+      "fgm": 6.8,
+      "fga": 12.9,
+      "fg_pct": 0.521,
+      "fg3m": 2.1,
+      "fg3a": 5.3,
+      "fg3_pct": 0.408,
+      "ftm": 3.2,
+      "fta": 4.0,
+      "ft_pct": 0.802,
+      "rpg": 3.0,
+      "apg": 4.6,
+      "spg": 0.9,
+      "bpg": 0.0,
+      "pfv": 0.2374,
+      "apfv": 0.3988
+    }
+  },
+  {
+    "prospect_id": "devonte-graham",
+    "player_name": "Devonte' Graham",
+    "team": "Kansas",
+    "height": "6-1",
+    "weight": "195",
+    "role": "Playmaker",
+    "gp": 39,
+    "mpg": {
+      "value": 37.8,
+      "percentile": 100.0
+    },
+    "pts_per36": {
+      "value": 16.4762,
+      "percentile": 48.3
+    },
+    "reb_per36": {
+      "value": 3.8095,
+      "percentile": 18.3
+    },
+    "ast_per36": {
+      "value": 6.8571,
+      "percentile": 98.3
+    },
+    "blk_per36": {
+      "value": 0.0952,
+      "percentile": 8.3
+    },
+    "stl_per36": {
+      "value": 1.5238,
+      "percentile": 71.7
+    },
+    "ts_pct": {
+      "value": 0.5733,
+      "percentile": 38.3
+    },
+    "efg_pct": {
+      "value": 0.5078,
+      "percentile": 31.7
+    },
+    "fg3a_rate": {
+      "value": 0.5391,
+      "percentile": 88.3
+    },
+    "fta_rate": {
+      "value": 0.4062,
+      "percentile": 71.7
+    },
+    "pick": 34,
+    "similar_nba_players": [
+      {
+        "player_id": 2768,
+        "player_name": "Chris Duhon",
+        "similarity_score": 69.1,
+        "career_span": "2004-05 to 2012-13",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 43,
+        "player_name": "Chris Whitney",
+        "similarity_score": 62.5,
+        "career_span": "1996-97 to 2003-04",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 203477,
+        "player_name": "Isaiah Canaan",
+        "similarity_score": 55.7,
+        "career_span": "2013-14 to 2018-19",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 21,
+        "player_name": "Greg Anthony",
+        "similarity_score": 54.0,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 39,
+      "mpg": 37.8,
+      "ppg": 17.3,
+      "fgm": 5.1,
+      "fga": 12.8,
+      "fg_pct": 0.4,
+      "fg3m": 2.8,
+      "fg3a": 6.9,
+      "fg3_pct": 0.406,
+      "ftm": 4.3,
+      "fta": 5.2,
+      "ft_pct": 0.827,
+      "rpg": 4.0,
+      "apg": 7.2,
+      "spg": 1.6,
+      "bpg": 0.1,
+      "pfv": 0.1448,
+      "apfv": 0.141
+    }
+  },
+  {
+    "prospect_id": "melvin-frazier-jr",
+    "player_name": "Melvin Frazier, Jr.",
+    "team": "Tulane",
+    "height": "6-5",
+    "weight": "215",
+    "role": "Secondary Creator",
+    "gp": 30,
+    "mpg": {
+      "value": 34.4,
+      "percentile": 83.3
+    },
+    "pts_per36": {
+      "value": 16.6395,
+      "percentile": 51.7
+    },
+    "reb_per36": {
+      "value": 5.8605,
+      "percentile": 50.0
+    },
+    "ast_per36": {
+      "value": 3.0349,
+      "percentile": 56.7
+    },
+    "blk_per36": {
+      "value": 0.7326,
+      "percentile": 61.7
+    },
+    "stl_per36": {
+      "value": 2.1977,
+      "percentile": 95.0
+    },
+    "ts_pct": {
+      "value": 0.6403,
+      "percentile": 86.7
+    },
+    "efg_pct": {
+      "value": 0.6168,
+      "percentile": 88.3
+    },
+    "fg3a_rate": {
+      "value": 0.2804,
+      "percentile": 26.7
+    },
+    "fta_rate": {
+      "value": 0.3645,
+      "percentile": 61.7
+    },
+    "pick": 35,
+    "similar_nba_players": [
+      {
+        "player_id": 1641708,
+        "player_name": "Amen Thompson",
+        "similarity_score": 31.7,
+        "career_span": "2023-24 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1627732,
+        "player_name": "Ben Simmons",
+        "similarity_score": 31.2,
+        "career_span": "2017-18 to 2024-25",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2222,
+        "player_name": "Gerald Wallace",
+        "similarity_score": 25.1,
+        "career_span": "2001-02 to 2014-15",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 2403,
+        "player_name": "Nene",
+        "similarity_score": 23.8,
+        "career_span": "2002-03 to 2018-19",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 30,
+      "mpg": 34.4,
+      "ppg": 15.9,
+      "fgm": 6.0,
+      "fga": 10.7,
+      "fg_pct": 0.556,
+      "fg3m": 1.2,
+      "fg3a": 3.0,
+      "fg3_pct": 0.385,
+      "ftm": 2.8,
+      "fta": 3.9,
+      "ft_pct": 0.712,
+      "rpg": 5.6,
+      "apg": 2.9,
+      "spg": 2.1,
+      "bpg": 0.7,
+      "pfv": 0.4583,
+      "apfv": 0.9425
+    }
+  },
+  {
+    "prospect_id": "mitchell-robinson",
+    "player_name": "Mitchell Robinson",
+    "team": "",
+    "height": "7-0",
+    "weight": "240",
+    "role": "Defensive Specialist",
+    "gp": 0,
+    "mpg": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pts_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "reb_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ast_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "blk_per36": {
+      "value": 0.0,
+      "percentile": 6.7
+    },
+    "stl_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ts_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "efg_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fg3a_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fta_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pick": 36,
+    "similar_nba_players": [
+      {
+        "player_id": 1956,
+        "player_name": "Ira Newble",
+        "similarity_score": 62.6,
+        "career_span": "2000-01 to 2007-08",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 359,
+        "player_name": "Chucky Brown",
+        "similarity_score": 43.2,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2124,
+        "player_name": "Malik Allen",
+        "similarity_score": 42.4,
+        "career_span": "2001-02 to 2010-11",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 384,
+        "player_name": "Calbert Cheaney",
+        "similarity_score": 39.5,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 0,
+      "mpg": 0.0,
+      "ppg": 0.0,
+      "fgm": 0.0,
+      "fga": 0.0,
+      "fg_pct": 0.0,
+      "fg3m": 0.0,
+      "fg3a": 0.0,
+      "fg3_pct": 0.0,
+      "ftm": 0.0,
+      "fta": 0.0,
+      "ft_pct": 0.0,
+      "rpg": 0.0,
+      "apg": 0.0,
+      "spg": 0.0,
+      "bpg": 0.0,
+      "pfv": 0.0028,
+      "apfv": 0.013
+    }
+  },
+  {
+    "prospect_id": "gary-trent-jr",
+    "player_name": "Gary Trent, Jr.",
+    "team": "Duke",
+    "height": "6-5",
+    "weight": "204",
+    "role": "Perimeter Specialist",
+    "gp": 37,
+    "mpg": {
+      "value": 33.9,
+      "percentile": 80.0
+    },
+    "pts_per36": {
+      "value": 15.3982,
+      "percentile": 38.3
+    },
+    "reb_per36": {
+      "value": 4.4602,
+      "percentile": 28.3
+    },
+    "ast_per36": {
+      "value": 1.4867,
+      "percentile": 18.3
+    },
+    "blk_per36": {
+      "value": 0.1062,
+      "percentile": 13.3
+    },
+    "stl_per36": {
+      "value": 1.2743,
+      "percentile": 58.3
+    },
+    "ts_pct": {
+      "value": 0.5734,
+      "percentile": 40.0
+    },
+    "efg_pct": {
+      "value": 0.5304,
+      "percentile": 46.7
+    },
+    "fg3a_rate": {
+      "value": 0.5652,
+      "percentile": 95.0
+    },
+    "fta_rate": {
+      "value": 0.2261,
+      "percentile": 15.0
+    },
+    "pick": 37,
+    "similar_nba_players": [
+      {
+        "player_id": 2586,
+        "player_name": "Keith Bogans",
+        "similarity_score": 73.5,
+        "career_span": "2003-04 to 2013-14",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 101187,
+        "player_name": "Alan Anderson",
+        "similarity_score": 69.0,
+        "career_span": "2005-06 to 2016-17",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1114,
+        "player_name": "Jaren Jackson",
+        "similarity_score": 67.1,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1628390,
+        "player_name": "Terrance Ferguson",
+        "similarity_score": 63.5,
+        "career_span": "2017-18 to 2020-21",
+        "position_group": "G",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 33.9,
+      "ppg": 14.5,
+      "fgm": 4.8,
+      "fga": 11.5,
+      "fg_pct": 0.415,
+      "fg3m": 2.6,
+      "fg3a": 6.5,
+      "fg3_pct": 0.402,
+      "ftm": 2.3,
+      "fta": 2.6,
+      "ft_pct": 0.876,
+      "rpg": 4.2,
+      "apg": 1.4,
+      "spg": 1.2,
+      "bpg": 0.1,
+      "pfv": 0.1081,
+      "apfv": 0.0298
+    }
+  },
+  {
+    "prospect_id": "khyri-thomas",
+    "player_name": "Khyri Thomas",
+    "team": "Creighton",
+    "height": "6-3",
+    "weight": "210",
+    "role": "Perimeter Specialist",
+    "gp": 33,
+    "mpg": {
+      "value": 31.7,
+      "percentile": 60.0
+    },
+    "pts_per36": {
+      "value": 17.1483,
+      "percentile": 56.7
+    },
+    "reb_per36": {
+      "value": 4.9968,
+      "percentile": 36.7
+    },
+    "ast_per36": {
+      "value": 3.1798,
+      "percentile": 60.0
+    },
+    "blk_per36": {
+      "value": 0.2271,
+      "percentile": 23.3
+    },
+    "stl_per36": {
+      "value": 1.9306,
+      "percentile": 88.3
+    },
+    "ts_pct": {
+      "value": 0.654,
+      "percentile": 93.3
+    },
+    "efg_pct": {
+      "value": 0.6298,
+      "percentile": 96.7
+    },
+    "fg3a_rate": {
+      "value": 0.4423,
+      "percentile": 66.7
+    },
+    "fta_rate": {
+      "value": 0.25,
+      "percentile": 20.0
+    },
+    "pick": 38,
+    "similar_nba_players": [
+      {
+        "player_id": 201939,
+        "player_name": "Stephen Curry",
+        "similarity_score": 34.5,
+        "career_span": "2009-10 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1628378,
+        "player_name": "Donovan Mitchell",
+        "similarity_score": 29.0,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1630169,
+        "player_name": "Tyrese Haliburton",
+        "similarity_score": 20.3,
+        "career_span": "2020-21 to 2024-25",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 1627832,
+        "player_name": "Fred VanVleet",
+        "similarity_score": 13.1,
+        "career_span": "2016-17 to 2024-25",
+        "position_group": "W",
+        "role": "Playmaker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 31.7,
+      "ppg": 15.1,
+      "fgm": 5.6,
+      "fga": 10.4,
+      "fg_pct": 0.538,
+      "fg3m": 1.9,
+      "fg3a": 4.6,
+      "fg3_pct": 0.411,
+      "ftm": 2.0,
+      "fta": 2.6,
+      "ft_pct": 0.788,
+      "rpg": 4.4,
+      "apg": 2.8,
+      "spg": 1.7,
+      "bpg": 0.2,
+      "pfv": 0.3544,
+      "apfv": 0.99
+    }
+  },
+  {
+    "prospect_id": "isaac-bonga",
+    "player_name": "Isaac Bonga",
+    "team": "Fraport Skyliners",
+    "height": "6-8",
+    "weight": "180",
+    "role": "Secondary Creator",
+    "gp": 41,
+    "mpg": {
+      "value": 22.1,
+      "percentile": 16.7
+    },
+    "pts_per36": {
+      "value": 12.0543,
+      "percentile": 10.0
+    },
+    "reb_per36": {
+      "value": 5.5385,
+      "percentile": 48.3
+    },
+    "ast_per36": {
+      "value": 3.9095,
+      "percentile": 73.3
+    },
+    "blk_per36": {
+      "value": 0.8145,
+      "percentile": 63.3
+    },
+    "stl_per36": {
+      "value": 2.1176,
+      "percentile": 93.3
+    },
+    "ts_pct": {
+      "value": 0.5703,
+      "percentile": 36.7
+    },
+    "efg_pct": {
+      "value": 0.4811,
+      "percentile": 18.3
+    },
+    "fg3a_rate": {
+      "value": 0.283,
+      "percentile": 28.3
+    },
+    "fta_rate": {
+      "value": 0.5094,
+      "percentile": 88.3
+    },
+    "pick": 39,
+    "similar_nba_players": [
+      {
+        "player_id": 907,
+        "player_name": "Malik Sealy",
+        "similarity_score": 44.9,
+        "career_span": "1996-97 to 1999-00",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 182,
+        "player_name": "Billy Owens",
+        "similarity_score": 32.3,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 2754,
+        "player_name": "Tony Allen",
+        "similarity_score": 17.6,
+        "career_span": "2004-05 to 2017-18",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 200758,
+        "player_name": "Ronnie Brewer",
+        "similarity_score": 16.5,
+        "career_span": "2006-07 to 2013-14",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 41,
+      "mpg": 22.1,
+      "ppg": 7.4,
+      "fgm": 2.3,
+      "fga": 5.3,
+      "fg_pct": 0.431,
+      "fg3m": 0.5,
+      "fg3a": 1.5,
+      "fg3_pct": 0.302,
+      "ftm": 2.4,
+      "fta": 2.7,
+      "ft_pct": 0.9,
+      "rpg": 3.4,
+      "apg": 2.4,
+      "spg": 1.3,
+      "bpg": 0.5,
+      "pfv": 0.306,
+      "apfv": 0.438
+    }
+  },
+  {
+    "prospect_id": "rodions-kurucs",
+    "player_name": "Rodions Kurucs",
+    "team": "FC Barcelona II",
+    "height": "6-9",
+    "weight": "230",
+    "role": "Perimeter Specialist",
+    "gp": 26,
+    "mpg": {
+      "value": 15.1,
+      "percentile": 10.0
+    },
+    "pts_per36": {
+      "value": 16.9272,
+      "percentile": 55.0
+    },
+    "reb_per36": {
+      "value": 4.2914,
+      "percentile": 25.0
+    },
+    "ast_per36": {
+      "value": 2.3841,
+      "percentile": 43.3
+    },
+    "blk_per36": {
+      "value": 1.1921,
+      "percentile": 78.3
+    },
+    "stl_per36": {
+      "value": 2.8609,
+      "percentile": 98.3
+    },
+    "ts_pct": {
+      "value": 0.5495,
+      "percentile": 26.7
+    },
+    "efg_pct": {
+      "value": 0.5172,
+      "percentile": 38.3
+    },
+    "fg3a_rate": {
+      "value": 0.431,
+      "percentile": 65.0
+    },
+    "fta_rate": {
+      "value": 0.2586,
+      "percentile": 23.3
+    },
+    "pick": 40,
+    "similar_nba_players": [
+      {
+        "player_id": 202325,
+        "player_name": "Wesley Johnson",
+        "similarity_score": 31.1,
+        "career_span": "2010-11 to 2018-19",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629629,
+        "player_name": "Cam Reddish",
+        "similarity_score": 27.7,
+        "career_span": "2019-20 to 2024-25",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 197,
+        "player_name": "Scott Burrell",
+        "similarity_score": 25.1,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202697,
+        "player_name": "Iman Shumpert",
+        "similarity_score": 21.1,
+        "career_span": "2011-12 to 2020-21",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 26,
+      "mpg": 15.1,
+      "ppg": 7.1,
+      "fgm": 2.6,
+      "fga": 5.8,
+      "fg_pct": 0.441,
+      "fg3m": 0.8,
+      "fg3a": 2.5,
+      "fg3_pct": 0.328,
+      "ftm": 1.2,
+      "fta": 1.5,
+      "ft_pct": 0.769,
+      "rpg": 1.8,
+      "apg": 1.0,
+      "spg": 1.2,
+      "bpg": 0.5,
+      "pfv": 0.294,
+      "apfv": 0.2401
+    }
+  },
+  {
+    "prospect_id": "jarred-vanderbilt",
+    "player_name": "Jarred Vanderbilt",
+    "team": "Kentucky",
+    "height": "6-8",
+    "weight": "214",
+    "role": "Defensive Specialist",
+    "gp": 14,
+    "mpg": {
+      "value": 17.0,
+      "percentile": 11.7
+    },
+    "pts_per36": {
+      "value": 12.4941,
+      "percentile": 16.7
+    },
+    "reb_per36": {
+      "value": 16.7294,
+      "percentile": 100.0
+    },
+    "ast_per36": {
+      "value": 2.1176,
+      "percentile": 36.7
+    },
+    "blk_per36": {
+      "value": 1.6941,
+      "percentile": 83.3
+    },
+    "stl_per36": {
+      "value": 0.8471,
+      "percentile": 23.3
+    },
+    "ts_pct": {
+      "value": 0.4846,
+      "percentile": 10.0
+    },
+    "efg_pct": {
+      "value": 0.4286,
+      "percentile": 10.0
+    },
+    "fg3a_rate": {
+      "value": 0.0204,
+      "percentile": 6.7
+    },
+    "fta_rate": {
+      "value": 0.551,
+      "percentile": 95.0
+    },
+    "pick": 41,
+    "similar_nba_players": [
+      {
+        "player_id": 54,
+        "player_name": "Dickey Simpkins",
+        "similarity_score": 66.3,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2051,
+        "player_name": "Donnell Harvey",
+        "similarity_score": 57.5,
+        "career_span": "2000-01 to 2004-05",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 1051,
+        "player_name": "Dean Garrett",
+        "similarity_score": 55.2,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 201187,
+        "player_name": "Dominic McGuire",
+        "similarity_score": 54.8,
+        "career_span": "2007-08 to 2012-13",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 14,
+      "mpg": 17.0,
+      "ppg": 5.9,
+      "fgm": 2.1,
+      "fga": 4.9,
+      "fg_pct": 0.426,
+      "fg3m": 0.0,
+      "fg3a": 0.1,
+      "fg3_pct": 0.0,
+      "ftm": 1.7,
+      "fta": 2.7,
+      "ft_pct": 0.632,
+      "rpg": 7.9,
+      "apg": 1.0,
+      "spg": 0.4,
+      "bpg": 0.8,
+      "pfv": 0.179,
+      "apfv": 0.1298
+    }
+  },
+  {
+    "prospect_id": "bruce-brown-jr",
+    "player_name": "Bruce Brown, Jr.",
+    "team": "Miami (FL)",
+    "height": "6-4",
+    "weight": "202",
+    "role": "Secondary Creator",
+    "gp": 19,
+    "mpg": {
+      "value": 33.7,
+      "percentile": 76.7
+    },
+    "pts_per36": {
+      "value": 12.178,
+      "percentile": 13.3
+    },
+    "reb_per36": {
+      "value": 7.5846,
+      "percentile": 63.3
+    },
+    "ast_per36": {
+      "value": 4.273,
+      "percentile": 76.7
+    },
+    "blk_per36": {
+      "value": 0.8546,
+      "percentile": 65.0
+    },
+    "stl_per36": {
+      "value": 1.3887,
+      "percentile": 66.7
+    },
+    "ts_pct": {
+      "value": 0.4944,
+      "percentile": 11.7
+    },
+    "efg_pct": {
+      "value": 0.4545,
+      "percentile": 11.7
+    },
+    "fg3a_rate": {
+      "value": 0.3232,
+      "percentile": 35.0
+    },
+    "fta_rate": {
+      "value": 0.3737,
+      "percentile": 65.0
+    },
+    "pick": 42,
+    "similar_nba_players": [
+      {
+        "player_id": 1626159,
+        "player_name": "Justise Winslow",
+        "similarity_score": 43.6,
+        "career_span": "2015-16 to 2022-23",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 182,
+        "player_name": "Billy Owens",
+        "similarity_score": 43.5,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 166,
+        "player_name": "Ron Harper",
+        "similarity_score": 26.7,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 202323,
+        "player_name": "Evan Turner",
+        "similarity_score": 19.1,
+        "career_span": "2010-11 to 2019-20",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 19,
+      "mpg": 33.7,
+      "ppg": 11.4,
+      "fgm": 4.1,
+      "fga": 9.9,
+      "fg_pct": 0.415,
+      "fg3m": 0.8,
+      "fg3a": 3.2,
+      "fg3_pct": 0.267,
+      "ftm": 2.3,
+      "fta": 3.7,
+      "ft_pct": 0.629,
+      "rpg": 7.1,
+      "apg": 4.0,
+      "spg": 1.3,
+      "bpg": 0.8,
+      "pfv": 0.2659,
+      "apfv": 0.475
+    }
+  },
+  {
+    "prospect_id": "justin-jackson",
+    "player_name": "Justin Jackson",
+    "team": "Maryland",
+    "height": "6-7",
+    "weight": "225",
+    "role": "Defensive Specialist",
+    "gp": 11,
+    "mpg": {
+      "value": 29.4,
+      "percentile": 41.7
+    },
+    "pts_per36": {
+      "value": 12.0,
+      "percentile": 8.3
+    },
+    "reb_per36": {
+      "value": 9.9184,
+      "percentile": 81.7
+    },
+    "ast_per36": {
+      "value": 2.3265,
+      "percentile": 41.7
+    },
+    "blk_per36": {
+      "value": 0.9796,
+      "percentile": 73.3
+    },
+    "stl_per36": {
+      "value": 0.9796,
+      "percentile": 38.3
+    },
+    "ts_pct": {
+      "value": 0.4737,
+      "percentile": 8.3
+    },
+    "efg_pct": {
+      "value": 0.4185,
+      "percentile": 8.3
+    },
+    "fg3a_rate": {
+      "value": 0.3913,
+      "percentile": 55.0
+    },
+    "fta_rate": {
+      "value": 0.2826,
+      "percentile": 33.3
+    },
+    "pick": 43,
+    "similar_nba_players": [
+      {
+        "player_id": 2204,
+        "player_name": "Eddie Griffin",
+        "similarity_score": 26.6,
+        "career_span": "2001-02 to 2006-07",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1904,
+        "player_name": "Devean George",
+        "similarity_score": 7.0,
+        "career_span": "1999-00 to 2009-10",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201590,
+        "player_name": "Donte Greene",
+        "similarity_score": 3.3,
+        "career_span": "2008-09 to 2011-12",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 101120,
+        "player_name": "Antoine Wright",
+        "similarity_score": 3.1,
+        "career_span": "2005-06 to 2010-11",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 11,
+      "mpg": 29.4,
+      "ppg": 9.8,
+      "fgm": 3.4,
+      "fga": 9.2,
+      "fg_pct": 0.366,
+      "fg3m": 0.9,
+      "fg3a": 3.6,
+      "fg3_pct": 0.25,
+      "ftm": 2.2,
+      "fta": 2.6,
+      "ft_pct": 0.828,
+      "rpg": 8.1,
+      "apg": 1.9,
+      "spg": 0.8,
+      "bpg": 0.8,
+      "pfv": 0.1723,
+      "apfv": 0.1814
+    }
+  },
+  {
+    "prospect_id": "yusuf-sanon",
+    "player_name": "Yusuf Sanon",
+    "team": "Union Olimpija",
+    "height": "6-4",
+    "weight": "185",
+    "role": "Defensive Specialist",
+    "gp": 45,
+    "mpg": {
+      "value": 15.1,
+      "percentile": 10.0
+    },
+    "pts_per36": {
+      "value": 10.2517,
+      "percentile": 6.7
+    },
+    "reb_per36": {
+      "value": 4.2914,
+      "percentile": 25.0
+    },
+    "ast_per36": {
+      "value": 2.6225,
+      "percentile": 50.0
+    },
+    "blk_per36": {
+      "value": 0.4768,
+      "percentile": 43.3
+    },
+    "stl_per36": {
+      "value": 2.3841,
+      "percentile": 96.7
+    },
+    "ts_pct": {
+      "value": 0.4991,
+      "percentile": 13.3
+    },
+    "efg_pct": {
+      "value": 0.4875,
+      "percentile": 21.7
+    },
+    "fg3a_rate": {
+      "value": 0.475,
+      "percentile": 76.7
+    },
+    "fta_rate": {
+      "value": 0.175,
+      "percentile": 8.3
+    },
+    "pick": 44,
+    "similar_nba_players": [
+      {
+        "player_id": 1023,
+        "player_name": "Emanual Davis",
+        "similarity_score": 55.6,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1628373,
+        "player_name": "Frank Ntilikina",
+        "similarity_score": 52.0,
+        "career_span": "2017-18 to 2023-24",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 2137,
+        "player_name": "Ime Udoka",
+        "similarity_score": 48.4,
+        "career_span": "2003-04 to 2010-11",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 101179,
+        "player_name": "Ronnie Price",
+        "similarity_score": 39.0,
+        "career_span": "2005-06 to 2016-17",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 45,
+      "mpg": 15.1,
+      "ppg": 4.3,
+      "fgm": 1.7,
+      "fga": 4.0,
+      "fg_pct": 0.431,
+      "fg3m": 0.5,
+      "fg3a": 1.9,
+      "fg3_pct": 0.253,
+      "ftm": 0.3,
+      "fta": 0.7,
+      "ft_pct": 0.467,
+      "rpg": 1.8,
+      "apg": 1.1,
+      "spg": 1.0,
+      "bpg": 0.2,
+      "pfv": 0.1524,
+      "apfv": 0.0459
+    }
+  },
+  {
+    "prospect_id": "hamidou-diallo",
+    "player_name": "Hamidou Diallo",
+    "team": "Kentucky",
+    "height": "6-5",
+    "weight": "202",
+    "role": "Defensive Specialist",
+    "gp": 37,
+    "mpg": {
+      "value": 24.8,
+      "percentile": 20.0
+    },
+    "pts_per36": {
+      "value": 14.5161,
+      "percentile": 26.7
+    },
+    "reb_per36": {
+      "value": 5.2258,
+      "percentile": 40.0
+    },
+    "ast_per36": {
+      "value": 1.7419,
+      "percentile": 30.0
+    },
+    "blk_per36": {
+      "value": 0.5806,
+      "percentile": 48.3
+    },
+    "stl_per36": {
+      "value": 1.1613,
+      "percentile": 48.3
+    },
+    "ts_pct": {
+      "value": 0.5002,
+      "percentile": 15.0
+    },
+    "efg_pct": {
+      "value": 0.4647,
+      "percentile": 13.3
+    },
+    "fg3a_rate": {
+      "value": 0.2471,
+      "percentile": 25.0
+    },
+    "fta_rate": {
+      "value": 0.4,
+      "percentile": 68.3
+    },
+    "pick": 45,
+    "similar_nba_players": [
+      {
+        "player_id": 2624,
+        "player_name": "Quinton Ross",
+        "similarity_score": 63.0,
+        "career_span": "2004-05 to 2010-11",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1956,
+        "player_name": "Ira Newble",
+        "similarity_score": 47.1,
+        "career_span": "2000-01 to 2007-08",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 994,
+        "player_name": "Jamie Feick",
+        "similarity_score": 43.9,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 2563,
+        "player_name": "Dahntay Jones",
+        "similarity_score": 39.8,
+        "career_span": "2003-04 to 2016-17",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 24.8,
+      "ppg": 10.0,
+      "fgm": 3.6,
+      "fga": 8.5,
+      "fg_pct": 0.428,
+      "fg3m": 0.7,
+      "fg3a": 2.1,
+      "fg3_pct": 0.338,
+      "ftm": 2.1,
+      "fta": 3.4,
+      "ft_pct": 0.616,
+      "rpg": 3.6,
+      "apg": 1.2,
+      "spg": 0.8,
+      "bpg": 0.4,
+      "pfv": 0.1196,
+      "apfv": 0.0057
+    }
+  },
+  {
+    "prospect_id": "de-anthony-melton",
+    "player_name": "De'Anthony Melton",
+    "team": "USC",
+    "height": "6-2",
+    "weight": "200",
+    "role": "Defensive Specialist",
+    "gp": 0,
+    "mpg": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pts_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "reb_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ast_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "blk_per36": {
+      "value": 0.0,
+      "percentile": 6.7
+    },
+    "stl_per36": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "ts_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "efg_pct": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fg3a_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "fta_rate": {
+      "value": 0.0,
+      "percentile": 5.0
+    },
+    "pick": 46,
+    "similar_nba_players": [
+      {
+        "player_id": 384,
+        "player_name": "Calbert Cheaney",
+        "similarity_score": 60.3,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1956,
+        "player_name": "Ira Newble",
+        "similarity_score": 56.0,
+        "career_span": "2000-01 to 2007-08",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1934,
+        "player_name": "Rodney Buford",
+        "similarity_score": 46.0,
+        "career_span": "1999-00 to 2004-05",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 417,
+        "player_name": "Sam Mitchell",
+        "similarity_score": 37.1,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 0,
+      "mpg": 0.0,
+      "ppg": 0.0,
+      "fgm": 0.0,
+      "fga": 0.0,
+      "fg_pct": 0.0,
+      "fg3m": 0.0,
+      "fg3a": 0.0,
+      "fg3_pct": 0.0,
+      "ftm": 0.0,
+      "fta": 0.0,
+      "ft_pct": 0.0,
+      "rpg": 0.0,
+      "apg": 0.0,
+      "spg": 0.0,
+      "bpg": 0.0,
+      "pfv": 0.0028,
+      "apfv": 0.0768
+    }
+  },
+  {
+    "prospect_id": "svi-mykhailiuk",
+    "player_name": "Svi Mykhailiuk",
+    "team": "Kansas",
+    "height": "6-7",
+    "weight": "205",
+    "role": "Perimeter Specialist",
+    "gp": 39,
+    "mpg": {
+      "value": 34.5,
+      "percentile": 85.0
+    },
+    "pts_per36": {
+      "value": 15.2348,
+      "percentile": 33.3
+    },
+    "reb_per36": {
+      "value": 4.0696,
+      "percentile": 21.7
+    },
+    "ast_per36": {
+      "value": 2.8174,
+      "percentile": 53.3
+    },
+    "blk_per36": {
+      "value": 0.313,
+      "percentile": 35.0
+    },
+    "stl_per36": {
+      "value": 1.2522,
+      "percentile": 56.7
+    },
+    "ts_pct": {
+      "value": 0.5741,
+      "percentile": 41.7
+    },
+    "efg_pct": {
+      "value": 0.5579,
+      "percentile": 68.3
+    },
+    "fg3a_rate": {
+      "value": 0.5455,
+      "percentile": 93.3
+    },
+    "fta_rate": {
+      "value": 0.1157,
+      "percentile": 6.7
+    },
+    "pick": 47,
+    "similar_nba_players": [
+      {
+        "player_id": 203918,
+        "player_name": "Rodney Hood",
+        "similarity_score": 66.5,
+        "career_span": "2014-15 to 2021-22",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200789,
+        "player_name": "Daniel Gibson",
+        "similarity_score": 62.7,
+        "career_span": "2006-07 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 204038,
+        "player_name": "Langston Galloway",
+        "similarity_score": 60.2,
+        "career_span": "2014-15 to 2021-22",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202697,
+        "player_name": "Iman Shumpert",
+        "similarity_score": 55.6,
+        "career_span": "2011-12 to 2020-21",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 39,
+      "mpg": 34.5,
+      "ppg": 14.6,
+      "fgm": 5.3,
+      "fga": 12.1,
+      "fg_pct": 0.434,
+      "fg3m": 2.9,
+      "fg3a": 6.6,
+      "fg3_pct": 0.444,
+      "ftm": 1.2,
+      "fta": 1.4,
+      "ft_pct": 0.804,
+      "rpg": 3.9,
+      "apg": 2.7,
+      "spg": 1.2,
+      "bpg": 0.3,
+      "pfv": 0.158,
+      "apfv": 0.2093
+    }
+  },
+  {
+    "prospect_id": "keita-bates-diop",
+    "player_name": "Keita Bates-Diop",
+    "team": "Ohio State",
+    "height": "6-8",
+    "weight": "229",
+    "role": "Designated Scorer",
+    "gp": 34,
+    "mpg": {
+      "value": 33.1,
+      "percentile": 70.0
+    },
+    "pts_per36": {
+      "value": 21.5347,
+      "percentile": 90.0
+    },
+    "reb_per36": {
+      "value": 9.4622,
+      "percentile": 75.0
+    },
+    "ast_per36": {
+      "value": 1.7402,
+      "percentile": 28.3
+    },
+    "blk_per36": {
+      "value": 1.7402,
+      "percentile": 85.0
+    },
+    "stl_per36": {
+      "value": 0.9789,
+      "percentile": 36.7
+    },
+    "ts_pct": {
+      "value": 0.5857,
+      "percentile": 53.3
+    },
+    "efg_pct": {
+      "value": 0.5464,
+      "percentile": 58.3
+    },
+    "fg3a_rate": {
+      "value": 0.3576,
+      "percentile": 45.0
+    },
+    "fta_rate": {
+      "value": 0.2715,
+      "percentile": 28.3
+    },
+    "pick": 48,
+    "similar_nba_players": [
+      {
+        "player_id": 923,
+        "player_name": "Donyell Marshall",
+        "similarity_score": 27.7,
+        "career_span": "1996-97 to 2008-09",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 739,
+        "player_name": "Rasheed Wallace",
+        "similarity_score": 23.1,
+        "career_span": "1996-97 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201572,
+        "player_name": "Brook Lopez",
+        "similarity_score": 9.1,
+        "career_span": "2008-09 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 2744,
+        "player_name": "Al Jefferson",
+        "similarity_score": 8.0,
+        "career_span": "2004-05 to 2017-18",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      }
+    ],
+    "raw_stats": {
+      "gp": 34,
+      "mpg": 33.1,
+      "ppg": 19.8,
+      "fgm": 7.3,
+      "fga": 15.1,
+      "fg_pct": 0.48,
+      "fg3m": 1.9,
+      "fg3a": 5.4,
+      "fg3_pct": 0.359,
+      "ftm": 3.3,
+      "fta": 4.1,
+      "ft_pct": 0.794,
+      "rpg": 8.7,
+      "apg": 1.6,
+      "spg": 0.9,
+      "bpg": 1.6,
+      "pfv": 0.3525,
+      "apfv": 0.717
+    }
+  },
+  {
+    "prospect_id": "chimezie-metu",
+    "player_name": "Chimezie Metu",
+    "team": "USC",
+    "height": "6-10",
+    "weight": "225",
+    "role": "Interior Presence",
+    "gp": 34,
+    "mpg": {
+      "value": 31.0,
+      "percentile": 50.0
+    },
+    "pts_per36": {
+      "value": 18.2323,
+      "percentile": 70.0
+    },
+    "reb_per36": {
+      "value": 8.5935,
+      "percentile": 70.0
+    },
+    "ast_per36": {
+      "value": 1.8581,
+      "percentile": 33.3
+    },
+    "blk_per36": {
+      "value": 1.9742,
+      "percentile": 88.3
+    },
+    "stl_per36": {
+      "value": 0.929,
+      "percentile": 31.7
+    },
+    "ts_pct": {
+      "value": 0.5823,
+      "percentile": 51.7
+    },
+    "efg_pct": {
+      "value": 0.5391,
+      "percentile": 55.0
+    },
+    "fg3a_rate": {
+      "value": 0.1043,
+      "percentile": 13.3
+    },
+    "fta_rate": {
+      "value": 0.3913,
+      "percentile": 66.7
+    },
+    "pick": 49,
+    "similar_nba_players": [
+      {
+        "player_id": 1721,
+        "player_name": "Keon Clark",
+        "similarity_score": 82.4,
+        "career_span": "1998-99 to 2003-04",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 201574,
+        "player_name": "Jason Thompson",
+        "similarity_score": 74.6,
+        "career_span": "2008-09 to 2015-16",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 213,
+        "player_name": "Antonio Davis",
+        "similarity_score": 71.0,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 203077,
+        "player_name": "Michael Kidd-Gilchrist",
+        "similarity_score": 70.6,
+        "career_span": "2012-13 to 2019-20",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 34,
+      "mpg": 31.0,
+      "ppg": 15.7,
+      "fgm": 6.0,
+      "fga": 11.5,
+      "fg_pct": 0.523,
+      "fg3m": 0.4,
+      "fg3a": 1.2,
+      "fg3_pct": 0.3,
+      "ftm": 3.3,
+      "fta": 4.5,
+      "ft_pct": 0.73,
+      "rpg": 7.4,
+      "apg": 1.6,
+      "spg": 0.8,
+      "bpg": 1.7,
+      "pfv": 0.3038,
+      "apfv": 0.35
+    }
+  },
+  {
+    "prospect_id": "alize-johnson",
+    "player_name": "Alize Johnson",
+    "team": "Missouri State",
+    "height": "6-9",
+    "weight": "212",
+    "role": "Secondary Creator",
+    "gp": 33,
+    "mpg": {
+      "value": 31.2,
+      "percentile": 53.3
+    },
+    "pts_per36": {
+      "value": 17.3077,
+      "percentile": 58.3
+    },
+    "reb_per36": {
+      "value": 13.3846,
+      "percentile": 96.7
+    },
+    "ast_per36": {
+      "value": 3.2308,
+      "percentile": 61.7
+    },
+    "blk_per36": {
+      "value": 0.4615,
+      "percentile": 41.7
+    },
+    "stl_per36": {
+      "value": 0.5769,
+      "percentile": 10.0
+    },
+    "ts_pct": {
+      "value": 0.5343,
+      "percentile": 20.0
+    },
+    "efg_pct": {
+      "value": 0.4793,
+      "percentile": 16.7
+    },
+    "fg3a_rate": {
+      "value": 0.3636,
+      "percentile": 46.7
+    },
+    "fta_rate": {
+      "value": 0.3636,
+      "percentile": 60.0
+    },
+    "pick": 50,
+    "similar_nba_players": [
+      {
+        "player_id": 168,
+        "player_name": "Chris Mills",
+        "similarity_score": 16.9,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 375,
+        "player_name": "Isaiah Rider",
+        "similarity_score": 4.1,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2419,
+        "player_name": "Tayshaun Prince",
+        "similarity_score": 3.2,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2033,
+        "player_name": "Marcus Fizer",
+        "similarity_score": 2.7,
+        "career_span": "2000-01 to 2005-06",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 31.2,
+      "ppg": 15.0,
+      "fgm": 5.2,
+      "fga": 12.1,
+      "fg_pct": 0.43,
+      "fg3m": 1.2,
+      "fg3a": 4.4,
+      "fg3_pct": 0.281,
+      "ftm": 3.3,
+      "fta": 4.4,
+      "ft_pct": 0.759,
+      "rpg": 11.6,
+      "apg": 2.8,
+      "spg": 0.5,
+      "bpg": 0.4,
+      "pfv": 0.266,
+      "apfv": 0.2933
+    }
+  },
+  {
+    "prospect_id": "tony-carr",
+    "player_name": "Tony Carr",
+    "team": "Penn State",
+    "height": "6-5",
+    "weight": "200",
+    "role": "Playmaker",
+    "gp": 37,
+    "mpg": {
+      "value": 35.3,
+      "percentile": 88.3
+    },
+    "pts_per36": {
+      "value": 19.9887,
+      "percentile": 81.7
+    },
+    "reb_per36": {
+      "value": 4.9972,
+      "percentile": 38.3
+    },
+    "ast_per36": {
+      "value": 5.0992,
+      "percentile": 85.0
+    },
+    "blk_per36": {
+      "value": 0.3059,
+      "percentile": 31.7
+    },
+    "stl_per36": {
+      "value": 0.8159,
+      "percentile": 21.7
+    },
+    "ts_pct": {
+      "value": 0.5326,
+      "percentile": 16.7
+    },
+    "efg_pct": {
+      "value": 0.4815,
+      "percentile": 20.0
+    },
+    "fg3a_rate": {
+      "value": 0.3395,
+      "percentile": 41.7
+    },
+    "fta_rate": {
+      "value": 0.3086,
+      "percentile": 46.7
+    },
+    "pick": 51,
+    "similar_nba_players": [
+      {
+        "player_id": 375,
+        "player_name": "Isaiah Rider",
+        "similarity_score": 38.4,
+        "career_span": "1996-97 to 2001-02",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 754,
+        "player_name": "Jim Jackson",
+        "similarity_score": 25.6,
+        "career_span": "1996-97 to 2005-06",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1888,
+        "player_name": "Richard Hamilton",
+        "similarity_score": 24.6,
+        "career_span": "1999-00 to 2012-13",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 201155,
+        "player_name": "Rodney Stuckey",
+        "similarity_score": 21.1,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 37,
+      "mpg": 35.3,
+      "ppg": 19.6,
+      "fgm": 6.6,
+      "fga": 16.2,
+      "fg_pct": 0.408,
+      "fg3m": 2.4,
+      "fg3a": 5.5,
+      "fg3_pct": 0.433,
+      "ftm": 4.0,
+      "fta": 5.0,
+      "ft_pct": 0.799,
+      "rpg": 4.9,
+      "apg": 5.0,
+      "spg": 0.8,
+      "bpg": 0.3,
+      "pfv": 0.1916,
+      "apfv": 0.3005
+    }
+  },
+  {
+    "prospect_id": "vince-edwards",
+    "player_name": "Vince Edwards",
+    "team": "Purdue",
+    "height": "6-8",
+    "weight": "225",
+    "role": "Secondary Creator",
+    "gp": 35,
+    "mpg": {
+      "value": 31.6,
+      "percentile": 56.7
+    },
+    "pts_per36": {
+      "value": 16.6329,
+      "percentile": 50.0
+    },
+    "reb_per36": {
+      "value": 8.4304,
+      "percentile": 68.3
+    },
+    "ast_per36": {
+      "value": 3.3038,
+      "percentile": 65.0
+    },
+    "blk_per36": {
+      "value": 0.6835,
+      "percentile": 58.3
+    },
+    "stl_per36": {
+      "value": 0.5696,
+      "percentile": 8.3
+    },
+    "ts_pct": {
+      "value": 0.5937,
+      "percentile": 63.3
+    },
+    "efg_pct": {
+      "value": 0.5417,
+      "percentile": 56.7
+    },
+    "fg3a_rate": {
+      "value": 0.3426,
+      "percentile": 43.3
+    },
+    "fta_rate": {
+      "value": 0.3148,
+      "percentile": 50.0
+    },
+    "pick": 52,
+    "similar_nba_players": [
+      {
+        "player_id": 2419,
+        "player_name": "Tayshaun Prince",
+        "similarity_score": 28.1,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 913,
+        "player_name": "Larry Johnson",
+        "similarity_score": 22.1,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 201150,
+        "player_name": "Spencer Hawes",
+        "similarity_score": 10.8,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 2564,
+        "player_name": "Boris Diaw",
+        "similarity_score": 10.6,
+        "career_span": "2003-04 to 2016-17",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 35,
+      "mpg": 31.6,
+      "ppg": 14.6,
+      "fgm": 5.1,
+      "fga": 10.8,
+      "fg_pct": 0.476,
+      "fg3m": 1.5,
+      "fg3a": 3.7,
+      "fg3_pct": 0.398,
+      "ftm": 2.9,
+      "fta": 3.4,
+      "ft_pct": 0.833,
+      "rpg": 7.4,
+      "apg": 2.9,
+      "spg": 0.5,
+      "bpg": 0.6,
+      "pfv": 0.2636,
+      "apfv": 0.402
+    }
+  },
+  {
+    "prospect_id": "devon-hall",
+    "player_name": "Devon Hall",
+    "team": "Virginia",
+    "height": "6-5",
+    "weight": "215",
+    "role": "Perimeter Specialist",
+    "gp": 34,
+    "mpg": {
+      "value": 32.1,
+      "percentile": 65.0
+    },
+    "pts_per36": {
+      "value": 13.1215,
+      "percentile": 20.0
+    },
+    "reb_per36": {
+      "value": 4.7103,
+      "percentile": 33.3
+    },
+    "ast_per36": {
+      "value": 3.4766,
+      "percentile": 66.7
+    },
+    "blk_per36": {
+      "value": 0.1121,
+      "percentile": 15.0
+    },
+    "stl_per36": {
+      "value": 1.0093,
+      "percentile": 41.7
+    },
+    "ts_pct": {
+      "value": 0.6031,
+      "percentile": 68.3
+    },
+    "efg_pct": {
+      "value": 0.5523,
+      "percentile": 63.3
+    },
+    "fg3a_rate": {
+      "value": 0.4535,
+      "percentile": 71.7
+    },
+    "fta_rate": {
+      "value": 0.2907,
+      "percentile": 38.3
+    },
+    "pick": 53,
+    "similar_nba_players": [
+      {
+        "player_id": 1074,
+        "player_name": "Matt Maloney",
+        "similarity_score": 68.0,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 2768,
+        "player_name": "Chris Duhon",
+        "similarity_score": 62.8,
+        "career_span": "2004-05 to 2012-13",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2581,
+        "player_name": "Steve Blake",
+        "similarity_score": 57.2,
+        "career_span": "2003-04 to 2015-16",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 203085,
+        "player_name": "Austin Rivers",
+        "similarity_score": 51.6,
+        "career_span": "2012-13 to 2022-23",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 34,
+      "mpg": 32.1,
+      "ppg": 11.7,
+      "fgm": 3.9,
+      "fga": 8.6,
+      "fg_pct": 0.454,
+      "fg3m": 1.7,
+      "fg3a": 3.9,
+      "fg3_pct": 0.432,
+      "ftm": 2.2,
+      "fta": 2.5,
+      "ft_pct": 0.894,
+      "rpg": 4.2,
+      "apg": 3.1,
+      "spg": 0.9,
+      "bpg": 0.1,
+      "pfv": 0.1455,
+      "apfv": 0.1062
+    }
+  },
+  {
+    "prospect_id": "shake-milton",
+    "player_name": "Shake Milton",
+    "team": "Southern Methodist",
+    "height": "6-5",
+    "weight": "205",
+    "role": "Secondary Creator",
+    "gp": 22,
+    "mpg": {
+      "value": 36.4,
+      "percentile": 96.7
+    },
+    "pts_per36": {
+      "value": 17.8022,
+      "percentile": 61.7
+    },
+    "reb_per36": {
+      "value": 4.6484,
+      "percentile": 31.7
+    },
+    "ast_per36": {
+      "value": 4.3516,
+      "percentile": 81.7
+    },
+    "blk_per36": {
+      "value": 0.5934,
+      "percentile": 50.0
+    },
+    "stl_per36": {
+      "value": 1.3846,
+      "percentile": 65.0
+    },
+    "ts_pct": {
+      "value": 0.6122,
+      "percentile": 73.3
+    },
+    "efg_pct": {
+      "value": 0.548,
+      "percentile": 61.7
+    },
+    "fg3a_rate": {
+      "value": 0.472,
+      "percentile": 75.0
+    },
+    "fta_rate": {
+      "value": 0.4,
+      "percentile": 70.0
+    },
+    "pick": 54,
+    "similar_nba_players": [
+      {
+        "player_id": 203935,
+        "player_name": "Marcus Smart",
+        "similarity_score": 59.9,
+        "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 1630193,
+        "player_name": "Immanuel Quickley",
+        "similarity_score": 58.3,
+        "career_span": "2020-21 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 201976,
+        "player_name": "Patrick Beverley",
+        "similarity_score": 52.5,
+        "career_span": "2012-13 to 2023-24",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1630559,
+        "player_name": "Austin Reaves",
+        "similarity_score": 51.7,
+        "career_span": "2021-22 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      }
+    ],
+    "raw_stats": {
+      "gp": 22,
+      "mpg": 36.4,
+      "ppg": 18.0,
+      "fgm": 5.6,
+      "fga": 12.5,
+      "fg_pct": 0.449,
+      "fg3m": 2.5,
+      "fg3a": 5.9,
+      "fg3_pct": 0.434,
+      "ftm": 4.3,
+      "fta": 5.0,
+      "ft_pct": 0.847,
+      "rpg": 4.7,
+      "apg": 4.4,
+      "spg": 1.4,
+      "bpg": 0.6,
+      "pfv": 0.3528,
+      "apfv": 0.8047
+    }
+  },
+  {
+    "prospect_id": "arnoldas-kulboka",
+    "player_name": "Arnoldas Kulboka",
+    "team": "Orlandina Basket",
+    "height": "6-10",
+    "weight": "225",
+    "role": "Perimeter Specialist",
+    "gp": 45,
+    "mpg": {
+      "value": 26.7,
+      "percentile": 26.7
+    },
+    "pts_per36": {
+      "value": 12.1348,
+      "percentile": 11.7
+    },
+    "reb_per36": {
+      "value": 5.3933,
+      "percentile": 43.3
+    },
+    "ast_per36": {
+      "value": 1.0787,
+      "percentile": 15.0
+    },
+    "blk_per36": {
+      "value": 0.2697,
+      "percentile": 28.3
+    },
+    "stl_per36": {
+      "value": 1.2135,
+      "percentile": 51.7
+    },
+    "ts_pct": {
+      "value": 0.5427,
+      "percentile": 23.3
+    },
+    "efg_pct": {
+      "value": 0.4933,
+      "percentile": 25.0
+    },
+    "fg3a_rate": {
+      "value": 0.5867,
+      "percentile": 96.7
+    },
+    "fta_rate": {
+      "value": 0.24,
+      "percentile": 18.3
+    },
+    "pick": 55,
+    "similar_nba_players": [
+      {
+        "player_id": 202713,
+        "player_name": "Kyle Singler",
+        "similarity_score": 57.9,
+        "career_span": "2012-13 to 2017-18",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1477,
+        "player_name": "Bruce Bowen",
+        "similarity_score": 57.9,
+        "career_span": "1996-97 to 2008-09",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2586,
+        "player_name": "Keith Bogans",
+        "similarity_score": 56.5,
+        "career_span": "2003-04 to 2013-14",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203524,
+        "player_name": "Solomon Hill",
+        "similarity_score": 56.3,
+        "career_span": "2013-14 to 2021-22",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 45,
+      "mpg": 26.7,
+      "ppg": 9.0,
+      "fgm": 2.9,
+      "fga": 7.5,
+      "fg_pct": 0.39,
+      "fg3m": 1.6,
+      "fg3a": 4.4,
+      "fg3_pct": 0.374,
+      "ftm": 1.6,
+      "fta": 1.8,
+      "ft_pct": 0.864,
+      "rpg": 4.0,
+      "apg": 0.8,
+      "spg": 0.9,
+      "bpg": 0.2,
+      "pfv": 0.0753,
+      "apfv": 0.0674
+    }
+  },
+  {
+    "prospect_id": "raymond-spalding",
+    "player_name": "Raymond Spalding",
+    "team": "Louisville",
+    "height": "6-9",
+    "weight": "225",
+    "role": "Interior Presence",
+    "gp": 36,
+    "mpg": {
+      "value": 27.6,
+      "percentile": 31.7
+    },
+    "pts_per36": {
+      "value": 16.0435,
+      "percentile": 43.3
+    },
+    "reb_per36": {
+      "value": 11.3478,
+      "percentile": 85.0
+    },
+    "ast_per36": {
+      "value": 1.6957,
+      "percentile": 25.0
+    },
+    "blk_per36": {
+      "value": 2.2174,
+      "percentile": 91.7
+    },
+    "stl_per36": {
+      "value": 1.9565,
+      "percentile": 90.0
+    },
+    "ts_pct": {
+      "value": 0.569,
+      "percentile": 35.0
+    },
+    "efg_pct": {
+      "value": 0.5479,
+      "percentile": 60.0
+    },
+    "fg3a_rate": {
+      "value": 0.0532,
+      "percentile": 8.3
+    },
+    "fta_rate": {
+      "value": 0.3404,
+      "percentile": 58.3
+    },
+    "pick": 56,
+    "similar_nba_players": [
+      {
+        "player_id": 2032,
+        "player_name": "Darius Miles",
+        "similarity_score": 54.3,
+        "career_span": "2000-01 to 2008-09",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 330,
+        "player_name": "Danny Manning",
+        "similarity_score": 52.4,
+        "career_span": "1996-97 to 2002-03",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 686,
+        "player_name": "Antonio McDyess",
+        "similarity_score": 50.5,
+        "career_span": "1996-97 to 2010-11",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 1629011,
+        "player_name": "Mitchell Robinson",
+        "similarity_score": 49.6,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 36,
+      "mpg": 27.6,
+      "ppg": 12.3,
+      "fgm": 5.1,
+      "fga": 9.4,
+      "fg_pct": 0.543,
+      "fg3m": 0.1,
+      "fg3a": 0.5,
+      "fg3_pct": 0.263,
+      "ftm": 2.0,
+      "fta": 3.2,
+      "ft_pct": 0.64,
+      "rpg": 8.7,
+      "apg": 1.3,
+      "spg": 1.5,
+      "bpg": 1.7,
+      "pfv": 0.3503,
+      "apfv": 0.6076
+    }
+  },
+  {
+    "prospect_id": "kevin-hervey",
+    "player_name": "Kevin Hervey",
+    "team": "Texas-Arlington",
+    "height": "6-9",
+    "weight": "230",
+    "role": "Designated Scorer",
+    "gp": 33,
+    "mpg": {
+      "value": 32.2,
+      "percentile": 66.7
+    },
+    "pts_per36": {
+      "value": 22.9193,
+      "percentile": 95.0
+    },
+    "reb_per36": {
+      "value": 9.5031,
+      "percentile": 76.7
+    },
+    "ast_per36": {
+      "value": 2.4596,
+      "percentile": 45.0
+    },
+    "blk_per36": {
+      "value": 0.6708,
+      "percentile": 56.7
+    },
+    "stl_per36": {
+      "value": 1.3416,
+      "percentile": 61.7
+    },
+    "ts_pct": {
+      "value": 0.5586,
+      "percentile": 31.7
+    },
+    "efg_pct": {
+      "value": 0.5182,
+      "percentile": 40.0
+    },
+    "fg3a_rate": {
+      "value": 0.4182,
+      "percentile": 60.0
+    },
+    "fta_rate": {
+      "value": 0.2545,
+      "percentile": 21.7
+    },
+    "pick": 57,
+    "similar_nba_players": [
+      {
+        "player_id": 952,
+        "player_name": "Antoine Walker",
+        "similarity_score": 12.2,
+        "career_span": "1996-97 to 2007-08",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2202,
+        "player_name": "Jason Richardson",
+        "similarity_score": 8.2,
+        "career_span": "2001-02 to 2014-15",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 923,
+        "player_name": "Donyell Marshall",
+        "similarity_score": 5.7,
+        "career_span": "1996-97 to 2008-09",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1631106,
+        "player_name": "Tari Eason",
+        "similarity_score": 5.6,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 32.2,
+      "ppg": 20.5,
+      "fgm": 7.4,
+      "fga": 16.5,
+      "fg_pct": 0.446,
+      "fg3m": 2.3,
+      "fg3a": 6.9,
+      "fg3_pct": 0.339,
+      "ftm": 3.4,
+      "fta": 4.2,
+      "ft_pct": 0.807,
+      "rpg": 8.5,
+      "apg": 2.2,
+      "spg": 1.2,
+      "bpg": 0.6,
+      "pfv": 0.3626,
+      "apfv": 0.7531
+    }
+  },
+  {
+    "prospect_id": "thomas-welsh",
+    "player_name": "Thomas Welsh",
+    "team": "UCLA",
+    "height": "7-0",
+    "weight": "255",
+    "role": "Defensive Specialist",
+    "gp": 33,
+    "mpg": {
+      "value": 33.2,
+      "percentile": 71.7
+    },
+    "pts_per36": {
+      "value": 13.6627,
+      "percentile": 21.7
+    },
+    "reb_per36": {
+      "value": 11.7108,
+      "percentile": 86.7
+    },
+    "ast_per36": {
+      "value": 1.5181,
+      "percentile": 20.0
+    },
+    "blk_per36": {
+      "value": 0.9759,
+      "percentile": 71.7
+    },
+    "stl_per36": {
+      "value": 0.759,
+      "percentile": 18.3
+    },
+    "ts_pct": {
+      "value": 0.5784,
+      "percentile": 48.3
+    },
+    "efg_pct": {
+      "value": 0.5545,
+      "percentile": 65.0
+    },
+    "fg3a_rate": {
+      "value": 0.3366,
+      "percentile": 38.3
+    },
+    "fta_rate": {
+      "value": 0.1782,
+      "percentile": 10.0
+    },
+    "pick": 58,
+    "similar_nba_players": [
+      {
+        "player_id": 201967,
+        "player_name": "Dante Cunningham",
+        "similarity_score": 27.8,
+        "career_span": "2009-10 to 2018-19",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1499,
+        "player_name": "Tony Battie",
+        "similarity_score": 22.7,
+        "career_span": "1997-98 to 2011-12",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1709,
+        "player_name": "Michael Olowokandi",
+        "similarity_score": 22.2,
+        "career_span": "1998-99 to 2006-07",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 203943,
+        "player_name": "Noah Vonleh",
+        "similarity_score": 21.7,
+        "career_span": "2014-15 to 2022-23",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 33,
+      "mpg": 33.2,
+      "ppg": 12.6,
+      "fgm": 4.9,
+      "fga": 10.1,
+      "fg_pct": 0.485,
+      "fg3m": 1.4,
+      "fg3a": 3.4,
+      "fg3_pct": 0.402,
+      "ftm": 1.5,
+      "fta": 1.8,
+      "ft_pct": 0.828,
+      "rpg": 10.8,
+      "apg": 1.4,
+      "spg": 0.7,
+      "bpg": 0.9,
+      "pfv": 0.1382,
+      "apfv": 0.1037
+    }
+  },
+  {
+    "prospect_id": "george-king",
+    "player_name": "George King",
+    "team": "Colorado",
+    "height": "6-6",
+    "weight": "220",
+    "role": "Perimeter Specialist",
+    "gp": 32,
+    "mpg": {
+      "value": 28.5,
+      "percentile": 38.3
+    },
+    "pts_per36": {
+      "value": 16.2947,
+      "percentile": 45.0
+    },
+    "reb_per36": {
+      "value": 9.8526,
+      "percentile": 80.0
+    },
+    "ast_per36": {
+      "value": 1.3895,
+      "percentile": 16.7
+    },
+    "blk_per36": {
+      "value": 0.8842,
+      "percentile": 66.7
+    },
+    "stl_per36": {
+      "value": 0.6316,
+      "percentile": 13.3
+    },
+    "ts_pct": {
+      "value": 0.5765,
+      "percentile": 43.3
+    },
+    "efg_pct": {
+      "value": 0.535,
+      "percentile": 51.7
+    },
+    "fg3a_rate": {
+      "value": 0.49,
+      "percentile": 80.0
+    },
+    "fta_rate": {
+      "value": 0.27,
+      "percentile": 26.7
+    },
+    "pick": 59,
+    "similar_nba_players": [
+      {
+        "player_id": 201575,
+        "player_name": "Brandon Rush",
+        "similarity_score": 65.7,
+        "career_span": "2008-09 to 2016-17",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1628995,
+        "player_name": "Kevin Knox II",
+        "similarity_score": 62.0,
+        "career_span": "2018-19 to 2024-25",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200761,
+        "player_name": "Shawne Williams",
+        "similarity_score": 59.5,
+        "career_span": "2006-07 to 2014-15",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2446,
+        "player_name": "Rasual Butler",
+        "similarity_score": 55.0,
+        "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 32,
+      "mpg": 28.5,
+      "ppg": 12.9,
+      "fgm": 4.4,
+      "fga": 10.0,
+      "fg_pct": 0.445,
+      "fg3m": 1.9,
+      "fg3a": 4.9,
+      "fg3_pct": 0.395,
+      "ftm": 2.1,
+      "fta": 2.7,
+      "ft_pct": 0.782,
+      "rpg": 7.8,
+      "apg": 1.1,
+      "spg": 0.5,
+      "bpg": 0.7,
+      "pfv": 0.1577,
+      "apfv": 0.0843
+    }
+  },
+  {
+    "prospect_id": "kostas-antetokounmpo",
+    "player_name": "Kostas Antetokounmpo",
+    "team": "Dayton",
+    "height": "6-10",
+    "weight": "200",
+    "role": "Defensive Specialist",
+    "gp": 29,
+    "mpg": {
+      "value": 15.1,
+      "percentile": 10.0
+    },
+    "pts_per36": {
+      "value": 12.3974,
+      "percentile": 15.0
+    },
+    "reb_per36": {
+      "value": 6.9139,
+      "percentile": 60.0
+    },
+    "ast_per36": {
+      "value": 0.9536,
+      "percentile": 10.0
+    },
+    "blk_per36": {
+      "value": 2.6225,
+      "percentile": 93.3
+    },
+    "stl_per36": {
+      "value": 0.4768,
+      "percentile": 6.7
+    },
+    "ts_pct": {
+      "value": 0.5819,
+      "percentile": 50.0
+    },
+    "efg_pct": {
+      "value": 0.5857,
+      "percentile": 75.0
+    },
+    "fg3a_rate": {
+      "value": 0.1429,
+      "percentile": 18.3
+    },
+    "fta_rate": {
+      "value": 0.6286,
+      "percentile": 100.0
+    },
+    "pick": 60,
+    "similar_nba_players": [
+      {
+        "player_id": 2038,
+        "player_name": "Joel Przybilla",
+        "similarity_score": 67.4,
+        "career_span": "2000-01 to 2012-13",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2212,
+        "player_name": "Steven Hunter",
+        "similarity_score": 65.7,
+        "career_span": "2001-02 to 2009-10",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 781,
+        "player_name": "Will Perdue",
+        "similarity_score": 61.1,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 201202,
+        "player_name": "Joel Anthony",
+        "similarity_score": 59.7,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      }
+    ],
+    "raw_stats": {
+      "gp": 29,
+      "mpg": 15.1,
+      "ppg": 5.2,
+      "fgm": 2.0,
+      "fga": 3.5,
+      "fg_pct": 0.574,
+      "fg3m": 0.1,
+      "fg3a": 0.5,
+      "fg3_pct": 0.133,
+      "ftm": 1.1,
+      "fta": 2.2,
+      "ft_pct": 0.516,
+      "rpg": 2.9,
+      "apg": 0.4,
+      "spg": 0.2,
+      "bpg": 1.1,
+      "pfv": 0.0691,
+      "apfv": 0.0367
+    }
+  }
+]

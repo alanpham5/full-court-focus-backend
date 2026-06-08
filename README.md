@@ -49,51 +49,33 @@ Supported arguments:
 
 ---
 
-### Standalone Wrapper Scripts (`app/scripts/`)
+### Standalone Utility Scripts (`app/scripts/`)
 
-Each stage can still be run independently using the existing command-line scripts. These scripts serve as thin CLI wrappers that parse arguments and delegate to their respective pipeline modules in `app/pipelines/`.
+For specific tasks, you can run the following standalone utility scripts:
 
-#### 1. `scrape_all_seasons.py`
-- **What it does**: Scrapes team statistics and orchestrates all downstream updates (badge leaders, similarity indices, lineups, team profiles, and player profiles).
-- **How to run**:
-  - Full build: `python app/scripts/scrape_all_seasons.py`
-  - Current season only: `python app/scripts/scrape_all_seasons.py --current`
-
-#### 2. `build_player_profiles.py`
-- **What it does**: Builds player career features, similarity index, embeddings, and profiles.
-- **How to run**:
-  ```bash
-  python app/scripts/build_player_profiles.py --storage-uri app/data/player_profiles --copy-to-static
-  ```
-
-#### 3. `build_team_profiles.py`
-- **What it does**: Recompiles the team-season stat profiles and historical similarity indices from `teams_historical.parquet`.
-- **How to run**:
-  ```bash
-  python app/scripts/build_team_profiles.py
-  ```
-
-#### 4. `check_and_scrape.py`
-- **What it does**: Checks if local cached files are stale compared to the scheduled season calendar, and executes an incremental scrape only when new games have been played.
+#### 1. `check_and_scrape.py`
+- **What it does**: Checks if local cached files are stale compared to the scheduled season calendar, and executes an incremental scrape (updating `team`, `badge`, `similar`, `lineup`, `profile`, and `player` stages for the current season) only when new games have been played.
 - **How to run**:
   ```bash
   python app/scripts/check_and_scrape.py
   ```
+  Use `--force` to trigger the incremental scrape regardless of cached state.
 
-#### 5. `scrape_lineups.py`
-- **What it does**: Refreshes or scrapes starting lineups for selected team-seasons.
+#### 2. `build_historical_prospects.py`
+- **What it does**: Scrapes historical RealGM NBA draft classes since 2007, standardizes statistics to per-36 features, compares prospects against NBA counterparts, and writes separate JSON and Parquet datasets for each draft class year into the `app/data/static/draft/` directory. If `PLAYER_PROFILES_STORAGE_URI` is configured as a GCS URL (starts with `gs://`), it automatically uploads both JSON and Parquet outputs to GCS.
 - **How to run**:
-  ```bash
-  python app/scripts/scrape_lineups.py --current
-  ```
-
-#### 6. `build_prospects_dataset.py`
-- **What it does**: Scrapes RealGM draft prospect averages, converts stats to per-36 features, compares them against NBA counterparts, and writes `prospects.json`.
-- **How to run**:
-  ```bash
-  python app/scripts/build_prospects_dataset.py
-  ```
-
+  - Run all years since 2007:
+    ```bash
+    python app/scripts/build_historical_prospects.py --all
+    ```
+  - Run a specific year:
+    ```bash
+    python app/scripts/build_historical_prospects.py --year 2023
+    ```
+  - Force overwrite cache:
+    ```bash
+    python app/scripts/build_historical_prospects.py --year 2023 --force
+    ```
 
 ---
 
@@ -557,11 +539,19 @@ uvicorn main:app --reload
 
 ### Draft Endpoints
 
-Requires `app/data/static/prospects.json` to be generated first via `build_prospects_dataset.py`.
+The draft endpoints support both the current year's draft prospects and historical draft classes dating back to 2007.
 
-#### `GET /draft/prospects`
+- **Datasets**: Current-year prospects are loaded from `app/data/static/prospects.json`. Historical prospects datasets are stored by year under the `app/data/static/draft/` directory (e.g., `prospects_2023.json`).
+- **Startup Indexing**: On application startup, the server scans the `app/data/static/draft/` directory and builds an in-memory lookup map linking each historical `prospect_id` to its corresponding draft year file.
+- **Cohort-Relative Calculations**: Percentile ranks and Adjusted Polygonal Feature Value (APFV) scores are automatically computed **relative to the prospect's specific draft class cohort** (not the current class).
 
-- **Description**: Lists every prospect in the current draft class with their `prospect_id`, display name, college/team, physical metadata (`height`, `weight`), playstyle role (`role`), and flat raw counting stats.
+---
+
+Requires `app/data/static/prospects.json` to be generated first via `run_pipeline.py --stages prospect`, or historical draft year datasets to be generated under `app/data/static/draft/` via `build_historical_prospects.py`.
+
+#### `GET /draft/prospects` (Current Prospects List)
+
+- **Description**: Lists every prospect in the current draft class (undrafted) with their `prospect_id`, display name, college/team, physical metadata (`height`, `weight`), playstyle role (`role`), and flat raw counting stats.
 - **Sample Response**:
   ```json
   [
@@ -572,6 +562,7 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
       "height": "6-9",
       "weight": "210",
       "role": "Designated Scorer",
+      "pick": null,
       "raw_stats": {
         "gp": 35,
         "mpg": 34.8,
@@ -596,10 +587,52 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
   ]
   ```
 
+#### `GET /draft/prospects?year={year}` (Historical Prospects List)
+
+- **Description**: Lists every prospect for a specific historical draft class since 2007, resolving their draft pick numbers, raw stats, and biographical data.
+- **Query Parameters**:
+  - `year` (integer, required): The draft year to fetch (e.g., `2023`). Returns a `404` error if the specified year has not been ingested.
+- **Differences in Response Shape**:
+  - Each item in the list contains a `"pick"` attribute (integer) representing the player's draft pick selection number.
+- **Sample Response**:
+  ```json
+  [
+    {
+      "prospect_id": "victor-wembanyama",
+      "player_name": "Victor Wembanyama",
+      "team": "All Teams",
+      "height": "7-4",
+      "weight": "235",
+      "role": "Designated Scorer",
+      "pick": 1,
+      "raw_stats": {
+        "gp": 44,
+        "mpg": 32.2,
+        "ppg": 20.9,
+        "fgm": 7.3,
+        "fga": 15.6,
+        "fg_pct": 0.468,
+        "fg3m": 1.3,
+        "fg3a": 4.7,
+        "fg3_pct": 0.272,
+        "ftm": 5.0,
+        "fta": 6.1,
+        "ft_pct": 0.818,
+        "rpg": 10.3,
+        "apg": 2.4,
+        "spg": 0.8,
+        "bpg": 3.0,
+        "pfv": 0.4893,
+        "apfv": 0.8581
+      }
+    }
+  ]
+  ```
+
 #### `GET /draft/{prospect_id}`
 
-- **Description**: Returns the complete dataset for a single prospect, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's MPG-adjusted percentile rank within the current draft class (0–100). RealGM profile URLs are not included in API responses.
-- **Path Parameters**: `prospect_id` (string) — slugified name, e.g. `a-j-dybantsa`
+- **Description**: Returns the complete dataset for a single prospect from the current draft class, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's MPG-adjusted percentile rank within their draft class (0–100). RealGM profile URLs are not included in API responses. Returns a `404` error if the prospect is not found in the current or historical draft classes.
+- **Path Parameters**: `prospect_id` (string) — slugified name, e.g., `a-j-dybantsa`
 - **Sample Response**:
   ```json
   {
@@ -638,6 +671,122 @@ Requires `app/data/static/prospects.json` to be generated first via `build_prosp
         "role": "Designated Scorer"
       }
     ]
+  }
+  ```
+
+#### `GET /draft/{historical_prospect_id}` (Historical Detail Lookup Fallback)
+
+- **Description**: If a requested `prospect_id` is not found in the current draft class, the server automatically queries the historical prospects index. If a matching player is found in a historical draft class since 2007, it resolves their draft year, calculates class-relative percentiles and rankings, and returns their full profile.
+- **Differences in Response Shape**:
+  - Includes a `"pick"` attribute (integer) representing the selection number in their draft class.
+  - The `"percentile"` ranks for playstyle metrics are computed against their specific draft class cohort (not the current class).
+  - The `"similar_nba_players"` matches are computed using the historical database and will reflect raw coordinates matching their pre-draft profile.
+- **Example Path**: `GET /draft/victor-wembanyama`
+- **Example Response**:
+  ```json
+  {
+    "prospect_id": "victor-wembanyama",
+    "player_name": "Victor Wembanyama",
+    "team": "All Teams",
+    "height": "7-4",
+    "weight": "235",
+    "role": "Designated Scorer",
+    "gp": 44,
+    "mpg": {
+      "value": 32.2,
+      "percentile": 69.0
+    },
+    "pts_per36": {
+      "value": 23.3665,
+      "percentile": 98.3
+    },
+    "reb_per36": {
+      "value": 11.5155,
+      "percentile": 96.6
+    },
+    "ast_per36": {
+      "value": 2.6832,
+      "percentile": 60.3
+    },
+    "blk_per36": {
+      "value": 3.354,
+      "percentile": 98.3
+    },
+    "stl_per36": {
+      "value": 0.8944,
+      "percentile": 25.9
+    },
+    "ts_pct": {
+      "value": 0.5715,
+      "percentile": 44.8
+    },
+    "efg_pct": {
+      "value": 0.5096,
+      "percentile": 34.5
+    },
+    "fg3a_rate": {
+      "value": 0.3013,
+      "percentile": 37.9
+    },
+    "fta_rate": {
+      "value": 0.391,
+      "percentile": 81.0
+    },
+    "pick": 1,
+    "similar_nba_players": [
+      {
+        "player_id": 1885,
+        "player_name": "Lamar Odom",
+        "similarity_score": 35.5,
+        "career_span": "1999-00 to 2012-13",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1717,
+        "player_name": "Dirk Nowitzki",
+        "similarity_score": 26.1,
+        "career_span": "1998-99 to 2018-19",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2200,
+        "player_name": "Pau Gasol",
+        "similarity_score": 24.5,
+        "career_span": "2001-02 to 2018-19",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 934,
+        "player_name": "Derrick Coleman",
+        "similarity_score": 20.6,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      }
+    ],
+    "raw_stats": {
+      "gp": 44,
+      "mpg": 32.2,
+      "ppg": 20.9,
+      "fgm": 7.3,
+      "fga": 15.6,
+      "fg_pct": 0.468,
+      "fg3m": 1.3,
+      "fg3a": 4.7,
+      "fg3_pct": 0.272,
+      "ftm": 5.0,
+      "fta": 6.1,
+      "ft_pct": 0.818,
+      "rpg": 10.3,
+      "apg": 2.4,
+      "spg": 0.8,
+      "bpg": 3.0,
+      "pfv": 0.4893,
+      "apfv": 0.8581
+    }
   }
   ```
 

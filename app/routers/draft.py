@@ -28,6 +28,7 @@ class ProspectListItem(BaseModel):
     height: str = ""
     weight: str = ""
     role: str = ""
+    pick: int | None = None
     raw_stats: dict
 
 
@@ -94,9 +95,21 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_prospects: list[dict], all
 
 
 @router.get("/prospects", response_model=list[ProspectListItem])
-def list_prospects(request: Request):
+def list_prospects(request: Request, year: int | None = None):
     """Return every prospect's id, name, team, and raw counting-stat totals."""
-    all_prospects = _prospects(request)
+    if year is not None:
+        from config import DATA_STATIC_DIR
+        path = DATA_STATIC_DIR / "draft" / f"prospects_{year}.json"
+        if not path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Prospects dataset for draft year {year} not found.",
+            )
+        with path.open(encoding="utf-8") as f:
+            all_prospects = json.load(f)
+    else:
+        all_prospects = _prospects(request)
+
     all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
     all_heights = [p.get("height", "") for p in all_prospects]
     all_height_buckets = [height_bucket(h) for h in all_heights]
@@ -123,6 +136,7 @@ def list_prospects(request: Request):
                 height=p.get("height", ""),
                 weight=p.get("weight", ""),
                 role=p.get("role", ""),
+                pick=p.get("pick"),
                 raw_stats=raw,
             )
         )
@@ -134,16 +148,30 @@ def get_prospect(prospect_id: str, request: Request):
     """Return the full dataset for a single prospect."""
     index = _prospects_by_id(request)
     prospect = index.get(prospect_id)
+    
+    all_prospects = None
+    path = None
+    if prospect is None:
+        hist_map = getattr(request.app.state, "historical_prospects_map", {})
+        path = hist_map.get(prospect_id)
+        if path is not None:
+            try:
+                with path.open(encoding="utf-8") as f:
+                    all_prospects = json.load(f)
+                prospect = next((p for p in all_prospects if p["prospect_id"] == prospect_id), None)
+            except Exception:
+                pass
+
     if prospect is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Prospect '{prospect_id}' not found. "
-            f"Run run_pipeline.py --stages prospect and ensure {PROSPECTS_JSON_PATH.name} exists.",
+            detail=f"Prospect '{prospect_id}' not found in current or historical draft classes.",
         )
     prospect = dict(prospect)
 
     # Collect all adjusted PFVs in the class for APFV ranking
-    all_prospects = _prospects(request)
+    if all_prospects is None:
+        all_prospects = _prospects(request)
     all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
 
     raw = _ensure_pfv_apfv_in_raw_stats(prospect, all_prospects, all_adjusted_pfvs)

@@ -135,6 +135,23 @@ async def lifespan(app: FastAPI):
         app.state.prospects_by_id = {}
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
+    # Load historical prospects map
+    app.state.historical_prospects_map = {}
+    from config import DATA_STATIC_DIR
+    static_draft_dir = DATA_STATIC_DIR / "draft"
+    if static_draft_dir.exists():
+        for path in static_draft_dir.glob("prospects_*.json"):
+            try:
+                with path.open(encoding="utf-8") as f:
+                    data = json.load(f)
+                    for item in data:
+                        app.state.historical_prospects_map[item["prospect_id"]] = path
+            except Exception as e:
+                print(f"  [WARN] Failed to load historical prospects from {path.name}: {e}")
+        print(f"  ✓ Historical prospects index built ({len(app.state.historical_prospects_map)} players)")
+    else:
+        print("  [INFO] Historical drafts folder (static/draft/) does not exist yet")
+
     import os
     from analytics.player_profiles.storage import ProfileStorage, StorageConfig
 

@@ -32,8 +32,9 @@ __pycache__/
 .coverage
 htmlcov/
 
-app/data/player_profiles/
-app/app/
+app/data/*/
+!app/data/static/
+
 
 .DS_Store
 .idea/
