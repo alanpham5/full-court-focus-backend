@@ -138,7 +138,7 @@ def get_prospect(prospect_id: str, request: Request):
         raise HTTPException(
             status_code=404,
             detail=f"Prospect '{prospect_id}' not found. "
-            f"Run build_prospects_dataset.py and ensure {PROSPECTS_JSON_PATH.name} exists.",
+            f"Run run_pipeline.py --stages prospect and ensure {PROSPECTS_JSON_PATH.name} exists.",
         )
     prospect = dict(prospect)
 

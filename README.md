@@ -4,87 +4,96 @@ FastAPI-powered basketball analytics service that provides career-level historic
 
 ---
 
-## Scripts Directory
+## Analytical Pipelines & Scripts Architecture
 
-The analytical pipelines and data scraping workflows are organized as Python scripts in `app/scripts/`.
+The data ingestion, scraping, and analytics workflow is built around a **modular pipeline architecture** located in `app/pipelines/`. Command-line entry points are located in `app/scripts/`.
 
-### 1. `scrape_all_seasons.py`
+### Modular Pipeline Stages (`app/pipelines/`)
 
-- **What it does**: Scrapes historical team statistics, normalizes statistics by season, generates similarity indices, indexes starting lineups, builds team playstyle badges, and runs the career-level player profiles pipeline.
-- **How to run**:
-  - **Full historical build (1996-Present)**:
-    ```bash
-    python app/scripts/scrape_all_seasons.py
-    ```
-  - **Current season only (incremental update)**:
-    ```bash
-    python app/scripts/scrape_all_seasons.py --current
-    ```
+Each stage in the analytics process is encapsulated in a dedicated pipeline module:
 
-### 2. `build_player_profiles.py`
+1. **`TeamStatsPipeline`** (`app/pipelines/team_stats_pipeline.py`): Scrapes historical team statistics (Advanced, Shooting, Misc) from the NBA API, builds the historical teams dataset (`teams_historical.parquet`), and updates `team_metadata.json` and `season_index.json`.
+2. **`BadgeLeadersPipeline`** (`app/pipelines/badge_leaders_pipeline.py`): Reads the team stats dataset and metadata, calculates the top teams for each playstyle badge, and writes `badge_leaders.json`.
+3. **`SimilarTeamsPipeline`** (`app/pipelines/similar_teams_pipeline.py`): Computes a similarity index between historical team-seasons and writes `similar_teams.json`.
+4. **`LineupsPipeline`** (`app/pipelines/lineups_pipeline.py`): Scrapes and indexes team starting lineups, updating `starting_lineups.json`.
+5. **`TeamProfilesPipeline`** (`app/pipelines/team_profiles_pipeline.py`): Rebuilds team profiles (stat leaders, similarity display, etc.) and updates `team_profiles.json`. Supports incremental updates for specific team-season keys.
+6. **`PlayerProfilesPipeline`** (`app/pipelines/player_profiles_pipeline.py`): Gathers player biographical data, calculates playstyle metrics/percentiles, generates similarity coordinates, builds `player_profiles.json`, and copies assets to the static directory.
+7. **`ProspectsPipeline`** (`app/pipelines/prospects_pipeline.py`): Scrapes NBA draft prospects from RealGM, standardizes metrics to per-36 features, computes playstyle roles, finds similar NBA counterparts, and writes the prospects datasets.
 
-- **What it does**: Gathers biographical details (height, weight, draft numbers) for players, standardizes metrics, computes career-level playstyle metric percentiles against all careers from 1996 through the configured end season, applies MPG context to displayed playstyle percentiles, computes PCA-based similarity coordinates, and compiles career profiles.
-- **How to run**:
+---
+
+### Central Pipeline Orchestrator (`app/scripts/run_pipeline.py`)
+
+A master runner script coordinates the execution of all stages in their correct dependency order. 
+
+- **Run the full historical pipeline (all stages, full scrape)**:
   ```bash
-  python app/scripts/build_player_profiles.py \
-    --start-season 1996 \
-    --end-season 2025 \
-    --storage-uri app/data/player_profiles \
-    --copy-to-static \
-    --refresh-raw
+  python app/scripts/run_pipeline.py
+  ```
+- **Incremental run for the current season only (updates team/lineup/player data for active season)**:
+  ```bash
+  python app/scripts/run_pipeline.py --current
+  ```
+- **Run specific stages only (e.g., rebuild similar teams and team profiles)**:
+  ```bash
+  python app/scripts/run_pipeline.py --stages similar,profile
   ```
 
-### 3. `build_team_profiles.py`
+Supported arguments:
+- `--current`: Only refresh the current season.
+- `--stages`: Comma-separated list of stages to run (`team`, `badge`, `similar`, `lineup`, `profile`, `player`, `prospect` or `all`).
+- `--storage-uri`: Storage root path for player profiles (defaults to local `app/data/player_profiles`).
+- `--gcs-project`: Google Cloud project for gs:// player profiles storage.
+- `--refresh-raw`: Force re-download of raw NBA API player statistics.
+- `--rate-limit`: Seconds to sleep between team stats/lineup NBA API requests (default: 1.5).
 
-- **What it does**: Recompiles the team-season stat profiles and historical similarity indices from the offline cache (`teams_historical.parquet`).
+---
+
+### Standalone Wrapper Scripts (`app/scripts/`)
+
+Each stage can still be run independently using the existing command-line scripts. These scripts serve as thin CLI wrappers that parse arguments and delegate to their respective pipeline modules in `app/pipelines/`.
+
+#### 1. `scrape_all_seasons.py`
+- **What it does**: Scrapes team statistics and orchestrates all downstream updates (badge leaders, similarity indices, lineups, team profiles, and player profiles).
+- **How to run**:
+  - Full build: `python app/scripts/scrape_all_seasons.py`
+  - Current season only: `python app/scripts/scrape_all_seasons.py --current`
+
+#### 2. `build_player_profiles.py`
+- **What it does**: Builds player career features, similarity index, embeddings, and profiles.
+- **How to run**:
+  ```bash
+  python app/scripts/build_player_profiles.py --storage-uri app/data/player_profiles --copy-to-static
+  ```
+
+#### 3. `build_team_profiles.py`
+- **What it does**: Recompiles the team-season stat profiles and historical similarity indices from `teams_historical.parquet`.
 - **How to run**:
   ```bash
   python app/scripts/build_team_profiles.py
   ```
 
-### 4. `check_and_scrape.py`
-
+#### 4. `check_and_scrape.py`
 - **What it does**: Checks if local cached files are stale compared to the scheduled season calendar, and executes an incremental scrape only when new games have been played.
 - **How to run**:
   ```bash
   python app/scripts/check_and_scrape.py
   ```
-  _(To force a scrape execution regardless of status, append `--force`)_
 
-### 5. `scrape_lineups.py`
-
-- **What it does**: Refreshes or scrapes starting lineups and playmaker/scorer roles for selected teams and seasons.
+#### 5. `scrape_lineups.py`
+- **What it does**: Refreshes or scrapes starting lineups for selected team-seasons.
 - **How to run**:
-
   ```bash
-  # Scrape all teams for the current season
   python app/scripts/scrape_lineups.py --current
-
-  # Scrape a specific team-season
-  python app/scripts/scrape_lineups.py --team-id 1610612743 --season 2023-24
   ```
 
-### 6. `build_prospects_dataset.py`
-
-- **What it does**: Scrapes RealGM NBA draft prospect averages, converts available counting stats to per-36 features, computes PFV/APFV directly from the current draft-class percentiles, compares those features against NBA career counterparts, and stores four similar NBA players for each prospect. Outputs `prospects.json` and `prospects.parquet` to `app/data/static/`. RealGM player profile URLs are not collected or stored.
-- **Output shape**: Each prospect record contains:
-  - `height` — player height (e.g., `"6-9"`)
-  - `weight` — player weight (e.g., `"210"`)
-  - `role` — assigned playstyle role (e.g., `"Designated Scorer"`)
-  - `gp` — games played (raw integer)
-  - `raw_stats` — flat object with raw counting and shooting averages (`gp`, `mpg`, `ppg`, `fgm`, `fga`, `fg_pct`, `fg3m`, `fg3a`, `fg3_pct`, `ftm`, `fta`, `ft_pct`, `rpg`, `apg`, `spg`, `bpg`) plus `pfv` and `apfv`
-  - All **non-raw stats** are stored as `{ "value": <float>, "percentile": <0–100 float> }` objects ranked within the current draft class. The playstyle percentiles other than `mpg` are adjusted by MPG percentile; raw values are not adjusted:
-    - `mpg`, `pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`
-    - `ts_pct`, `efg_pct`, `fg3a_rate`, `fta_rate`
-  - `similar_nba_players` — list of up to 4 NBA career matches with similarity scores
+#### 6. `build_prospects_dataset.py`
+- **What it does**: Scrapes RealGM draft prospect averages, converts stats to per-36 features, compares them against NBA counterparts, and writes `prospects.json`.
 - **How to run**:
   ```bash
   python app/scripts/build_prospects_dataset.py
   ```
-  If RealGM blocks direct script requests, save the page HTML from a browser and pass it in:
-  ```bash
-  python app/scripts/build_prospects_dataset.py --html-input /path/to/realgm_prospects.html
-  ```
+
 
 ---
 

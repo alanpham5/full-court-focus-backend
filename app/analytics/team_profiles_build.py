@@ -20,6 +20,7 @@ def _leaders_payload(sk: str, block: dict[str, Any], leaders: dict[str, Any]) ->
     return {
         "team_id": tid,
         "team_name": block["team_name"],
+        "abbreviation": block.get("abbreviation", ""),
         "season": season,
         "record": block["record"],
         "win_pct": block["win_pct"],
@@ -47,20 +48,16 @@ def _pass_sequential(
 ) -> tuple[dict[str, dict[str, Any]], list[ProfileItem]]:
     ok: dict[str, dict[str, Any]] = {}
     failed: list[ProfileItem] = []
-    for i, (sk, block) in enumerate(items, start=1):
+    from tqdm import tqdm
+    for i, (sk, block) in enumerate(tqdm(items, desc=f"Building team profiles ({pass_label})", unit="team"), start=1):
         payload = _try_leaders_payload(sk, block)
         if payload is not None:
             ok[sk] = payload
         else:
-            print(
-                f"  [WARN] leaders fetch empty for {sk} "
-                f"({pass_label} {i}/{len(items)})"
-            )
             failed.append((sk, block))
-        if progress_every and i % progress_every == 0:
-            print(f"    team_profiles {pass_label} {i}/{len(items)}...")
         time.sleep(rate_limit_sleep)
     return ok, failed
+
 
 
 def build_team_profiles_json(

@@ -15,9 +15,20 @@ for p in (_APP_ROOT, _SCRIPTS_DIR):
         sys.path.insert(0, str(p))
 
 from analytics.scrape_schedule import is_stale, latest_scheduled_run
-from scrape_all_seasons import incremental_scrape
+from run_pipeline import run_pipeline_orchestrator
 
 STATE_PATH = _APP_ROOT / "data" / "static" / "scrape_state.json"
+
+
+def incremental_scrape() -> bool:
+    """Refresh the current season. Returns True if successful."""
+    # Run all standard stages incrementally
+    res = run_pipeline_orchestrator(
+        stages_to_run=["team", "badge", "similar", "lineup", "profile", "player"],
+        current_season_only=True,
+    )
+    return res == 0
+
 
 
 def _now_utc() -> datetime:

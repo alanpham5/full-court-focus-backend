@@ -68,7 +68,8 @@ class PlayerProfilePipeline:
         logger.info("Starting player profile build for %s seasons", len(self.config.seasons))
         season_tables = []
         checkpoint = self._load_checkpoint()
-        for season in self.config.seasons:
+        from tqdm import tqdm
+        for season in tqdm(self.config.seasons, desc="Building player seasons data", unit="season"):
             logger.info("Building season player table: %s", season)
             table_key = f"processed/season_player_tables/season={season}/players.parquet"
             if self.storage.exists(table_key) and not self.config.refresh_raw:
@@ -120,11 +121,12 @@ class PlayerProfilePipeline:
 
             queue = deque(missing_pids)
             attempts = {pid: 0 for pid in missing_pids}
-            max_attempts = getattr(self.client, "retries", 3)
+            max_attempts = 2
             base_sleep = getattr(self.client, "base_sleep", 1.5)
             jitter = getattr(self.client, "jitter", 0.35)
-            timeout_val = getattr(self.client, "timeout", 15)
+            timeout_val = 5
 
+            pbar = tqdm(total=len(missing_pids), desc="Scraping player bio data", unit="player")
             while queue:
                 pid = queue.popleft()
                 attempts[pid] += 1
@@ -140,7 +142,27 @@ class PlayerProfilePipeline:
                         player_id=int(pid),
                         timeout=timeout_val,
                         headers=NBA_HEADERS,
+                        get_request=False,
                     )
+                    from nba_api.stats.library.http import NBAStatsHTTP
+                    nba_response = NBAStatsHTTP().send_api_request(
+                        endpoint=endpoint.endpoint,
+                        parameters=endpoint.parameters,
+                        headers=endpoint.headers,
+                        timeout=endpoint.timeout,
+                    )
+                    status_code = getattr(nba_response, "_status_code", None)
+                    if status_code and 400 <= status_code < 500:
+                        logger.warning(
+                            "Player %s received a 4xx response code (%s). Failing immediately.",
+                            pid,
+                            status_code,
+                        )
+                        pbar.update(1)
+                        continue
+
+                    endpoint.nba_response = nba_response
+                    endpoint.load_response()
                     df_bio = endpoint.common_player_info.get_data_frame()
                     if not df_bio.empty:
                         row = df_bio.iloc[0].to_dict()
@@ -187,9 +209,27 @@ class PlayerProfilePipeline:
                     # Sleep with extra cushion to avoid timeouts and rate limits
                     sleep_time = base_sleep + 1.0 + random.random() * (jitter + 0.5)
                     logger.info("Successfully fetched player %s bio. Sleeping for %.2fs", pid, sleep_time)
+                    pbar.update(1)
                     time.sleep(sleep_time)
 
                 except Exception as e:
+                    # Check if the exception contains a 4xx response status code
+                    status_code = None
+                    if hasattr(e, "response") and e.response is not None:
+                        status_code = getattr(e.response, "status_code", None)
+                    elif hasattr(e, "code"):
+                        status_code = getattr(e, "code", None)
+
+                    if status_code and 400 <= status_code < 500:
+                        logger.warning(
+                            "Failed to fetch bio for player %s due to permanent 4xx error (%s): %s",
+                            pid,
+                            status_code,
+                            e,
+                        )
+                        pbar.update(1)
+                        continue
+
                     logger.warning(
                         "Failed to fetch bio for player %s during build (attempt %s/%s): %s",
                         pid,
@@ -200,8 +240,8 @@ class PlayerProfilePipeline:
                     if attempts[pid] < max_attempts:
                         logger.info("Adding player %s to the queue to retry", pid)
                         queue.append(pid)
-                        # Sleep longer after a failure to allow rate limits to cool down
-                        sleep_time = (base_sleep * 2.0) + (random.random() * 2.0)
+                        # Sleep for 3 seconds before retrying
+                        sleep_time = 3.0
                         logger.info("Sleeping for %.2fs before retrying next player", sleep_time)
                         time.sleep(sleep_time)
                     else:
@@ -210,6 +250,9 @@ class PlayerProfilePipeline:
                             max_attempts,
                             pid,
                         )
+                        pbar.update(1)
+            pbar.close()
+
 
         def force_clean_draft_val(x):
             if pd.isna(x) or x is None:

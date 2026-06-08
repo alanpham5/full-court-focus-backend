@@ -66,7 +66,8 @@ def build_badge_leaders_index(
         seasons.setdefault(season, []).append((tid, hist_row, norm_row))
 
     out: dict[str, dict[str, dict[str, Any]]] = {}
-    for season_key, pairs in seasons.items():
+    from tqdm import tqdm
+    for season_key, pairs in tqdm(seasons.items(), desc="Processing badge leaders", unit="season"):
         out[season_key] = {}
         earned_by_team = [
             ({b.id for b in assign_badges(norm_row)}, tid, hist_row, norm_row)
@@ -102,3 +103,4 @@ def build_badge_leaders_index(
                 entry["runner_up"] = None
             out[season_key][badge.id] = entry
     return out
+

@@ -494,7 +494,8 @@ def calculate_lineup_synergy(
         rating = 0.30 * pts_p + 0.15 * ast_p + 0.15 * reb_p + 0.10 * stl_p + 0.10 * blk_p + 0.20 * ts_p
         player_ratings.append(rating)
         
-    baseline_talent = np.mean(player_ratings)
+    # Baseline talent is a blend of average and minimum player rating to penalize weak links
+    baseline_talent = 0.85 * np.mean(player_ratings) + 0.15 * np.min(player_ratings)
     
     # Identify roles counts
     playmakers_count = sum(1 for pid in player_ids if "Playmaker" in player_roles.get(pid, []))
@@ -519,26 +520,26 @@ def calculate_lineup_synergy(
         if is_def_spec or stl_pctile > 80.0 or blk_pctile > 80.0:
             defenders_count += 1
             
-    # Playmaking adjustment
+    # Playmaking adjustment (scaled down for more realistic synergy impact)
     playmaker_score = playmakers_count + 0.5 * creators_count
     if playmaker_score == 0:
         playmaking_adj = -15.0
     elif playmaker_score <= 1.0:
         playmaking_adj = 0.0
     elif playmaker_score <= 2.5:
-        playmaking_adj = 10.0
+        playmaking_adj = 5.0
     else:
         playmaking_adj = -10.0
         
-    # Spacing adjustment
+    # Spacing adjustment (scaled down for more realistic synergy impact)
     if shooters_count == 0:
         spacing_adj = -20.0
     elif shooters_count == 1:
         spacing_adj = -10.0
     elif shooters_count == 2:
-        spacing_adj = 5.0
+        spacing_adj = 2.5
     else:
-        spacing_adj = 12.0
+        spacing_adj = 6.0
         
     # Size/Interior adjustment using rebounds and blocks ratios relative to league starting lineups
     reb_ratio = custom_stats["reb"] / mean_starting_reb if mean_starting_reb > 0 else 1.0
@@ -549,24 +550,24 @@ def calculate_lineup_synergy(
     elif reb_ratio > 1.25 and blk_ratio > 1.60:
         interior_adj = -10.0 # penalty for excessive bigs/interior congestion
     elif reb_ratio >= 1.05 and blk_ratio >= 1.15:
-        interior_adj = 10.0
-    else:
         interior_adj = 5.0
+    else:
+        interior_adj = 2.0
         
-    # Defense adjustment
+    # Defense adjustment (scaled down for more realistic synergy impact)
     if defenders_count == 0:
         defense_adj = -10.0
     elif defenders_count == 1:
         defense_adj = 0.0
     else:
-        defense_adj = 8.0
+        defense_adj = 4.0
 
     # Reconcile role-based playmaking with measured assist output
     if playmaking_pct >= 60.0:
         if playmaking_adj < 0:
-            playmaking_adj = 5.0 if playmaker_score > 2.5 else max(playmaking_adj, -3.0)
+            playmaking_adj = 2.5 if playmaker_score > 2.5 else max(playmaking_adj, -3.0)
         else:
-            playmaking_adj = max(5.0, playmaking_adj)
+            playmaking_adj = max(3.0, playmaking_adj)
     elif playmaking_pct >= 45.0:
         if playmaking_adj < 0 and playmaker_score > 2.5:
             playmaking_adj = 0.0
@@ -584,7 +585,7 @@ def calculate_lineup_synergy(
     if defense_pct < 45.0:
         defense_adj = min(-5.0, defense_adj)
     elif defense_pct >= 60.0 and defense_adj >= 0.0:
-        defense_adj = max(5.0, defense_adj)
+        defense_adj = max(3.0, defense_adj)
         
     # Role overlap penalty
     primary_roles = [player_roles.get(pid)[0] for pid in player_ids if player_roles.get(pid)]
@@ -856,8 +857,8 @@ def calculate_lineup_synergy(
             
         top_similar.append({
             "team_id": item["team_id"],
-            "team_name": meta.get("name", t_profile.get("team_name", "Unknown Team")),
-            "abbreviation": meta.get("abbreviation", ""),
+            "team_name": t_profile.get("team_name", meta.get("name", "Unknown Team")),
+            "abbreviation": t_profile.get("abbreviation", meta.get("abbreviation", "")),
             "season": item["season"],
             "similarity_pct": item["similarity_pct"],
             "record": t_profile.get("record", "0-0"),

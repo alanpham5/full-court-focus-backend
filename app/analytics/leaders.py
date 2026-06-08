@@ -15,37 +15,42 @@ _BACKOFF_SEC = 1.25
 _REQUEST_TIMEOUT_SEC = 22
 
 
-@lru_cache(maxsize=2048)
-def _fetch_players_season_totals_cached(team_id: int, season: str) -> pd.DataFrame:
+@lru_cache(maxsize=128)
+def _fetch_league_players_season_totals_cached(season: str, timeout: int = 22, retries: int = 3) -> pd.DataFrame:
     headers = dict(STATS_HEADERS)
     last_err: BaseException | None = None
+    from nba_api.stats.endpoints import LeagueDashPlayerStats
 
-    for attempt in range(_MAX_ATTEMPTS):
+    for attempt in range(retries):
         try:
-            dashboard = TeamPlayerDashboard(
-                team_id=team_id,
+            dashboard = LeagueDashPlayerStats(
                 season=season,
                 per_mode_detailed="PerGame",
                 headers=headers,
-                timeout=_REQUEST_TIMEOUT_SEC,
+                timeout=timeout,
             )
-            return dashboard.players_season_totals.get_data_frame()
-        except (json.JSONDecodeError, ValueError) as e:
-            last_err = e
+            return dashboard.get_data_frames()[0]
         except Exception as e:
             last_err = e
 
-        if attempt < _MAX_ATTEMPTS - 1:
+        if attempt < retries - 1:
             time.sleep(_BACKOFF_SEC * (attempt + 1))
 
     if last_err is None:
-        raise RuntimeError("TeamPlayerDashboard failed with no error captured")
+        raise RuntimeError("LeagueDashPlayerStats failed with no error captured")
     raise last_err
 
 
-def _fetch_players_season_totals(team_id: int, season: str) -> pd.DataFrame:
+@lru_cache(maxsize=2048)
+def _fetch_players_season_totals_cached(team_id: int, season: str, timeout: int = 22, retries: int = 3) -> pd.DataFrame:
+    league_df = _fetch_league_players_season_totals_cached(season, timeout, retries)
+    team_df = league_df[league_df["TEAM_ID"] == team_id].copy()
+    return team_df
+
+
+def _fetch_players_season_totals(team_id: int, season: str, timeout: int = 22, retries: int = 3) -> pd.DataFrame:
     """Fetch per-game player stats for a team-season, cached within one scrape run."""
-    return _fetch_players_season_totals_cached(team_id, season).copy()
+    return _fetch_players_season_totals_cached(team_id, season, timeout, retries).copy()
 
 
 def get_stat_leaders(team_id: int, season: str) -> dict:

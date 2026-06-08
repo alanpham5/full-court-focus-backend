@@ -45,48 +45,58 @@ def _match_short_name(short: str, roster: pd.DataFrame) -> pd.Series | None:
     return None
 
 
-def _fetch_lineup_from_api(team_id: int, season: str) -> tuple[list[str], float] | None:
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def _fetch_league_lineups_cached(season: str, timeout: int = 15, retries: int = 2) -> pd.DataFrame:
     headers = dict(STATS_HEADERS)
     last_err: BaseException | None = None
-    for attempt in range(_MAX_ATTEMPTS):
+    for attempt in range(retries):
         try:
             df = LeagueDashLineups(
                 season=season,
-                team_id_nullable=team_id,
                 group_quantity=5,
                 per_mode_detailed="Totals",
                 headers=headers,
-                timeout=_REQUEST_TIMEOUT,
+                timeout=timeout,
             ).get_data_frames()[0]
-            if df.empty or "GROUP_NAME" not in df.columns:
-                return None
-            team_df = df[df["TEAM_ID"] == team_id] if "TEAM_ID" in df.columns else df
-            if team_df.empty:
-                return None
-            if "GP" in team_df.columns:
-                gp = pd.to_numeric(team_df["GP"], errors="coerce").fillna(0)
-                qualified = team_df.loc[gp >= _MIN_LINEUP_GP]
-                if not qualified.empty:
-                    team_df = qualified
-            team_df = team_df.assign(_MIN=pd.to_numeric(team_df["MIN"], errors="coerce"))
-            team_df = team_df.dropna(subset=["_MIN"]).sort_values("_MIN", ascending=False)
-            if team_df.empty:
-                return None
-            top = team_df.iloc[0]
-            names = _parse_lineup_label(top["GROUP_NAME"])
-            if len(names) < 5:
-                return None
-            gp = _num(top.get("GP", 0))
-            total_min = _num(top.get("_MIN", 0))
-            mpg = total_min / gp if gp > 0 else 0.0
-            return names[:5], mpg
+            return df
         except Exception as e:
             last_err = e
-            if attempt < _MAX_ATTEMPTS - 1:
+            if attempt < retries - 1:
                 time.sleep(_BACKOFF * (attempt + 1))
-    if last_err:
+    if last_err is None:
+        raise RuntimeError("LeagueDashLineups failed")
+    raise last_err
+
+
+def _fetch_lineup_from_api(team_id: int, season: str, timeout: int = 15, retries: int = 2) -> tuple[list[str], float] | None:
+    try:
+        df = _fetch_league_lineups_cached(season, timeout=timeout, retries=retries)
+        if df.empty or "GROUP_NAME" not in df.columns:
+            return None
+        team_df = df[df["TEAM_ID"] == team_id] if "TEAM_ID" in df.columns else df
+        if team_df.empty:
+            return None
+        if "GP" in team_df.columns:
+            gp = pd.to_numeric(team_df["GP"], errors="coerce").fillna(0)
+            qualified = team_df.loc[gp >= _MIN_LINEUP_GP]
+            if not qualified.empty:
+                team_df = qualified
+        team_df = team_df.assign(_MIN=pd.to_numeric(team_df["MIN"], errors="coerce"))
+        team_df = team_df.dropna(subset=["_MIN"]).sort_values("_MIN", ascending=False)
+        if team_df.empty:
+            return None
+        top = team_df.iloc[0]
+        names = _parse_lineup_label(top["GROUP_NAME"])
+        if len(names) < 5:
+            return None
+        gp = _num(top.get("GP", 0))
+        total_min = _num(top.get("_MIN", 0))
+        mpg = total_min / gp if gp > 0 else 0.0
+        return names[:5], mpg
+    except Exception:
         return None
-    return None
 
 
 def _row_player_id(row: pd.Series) -> int | None:
@@ -135,18 +145,24 @@ def _lineup_has_rotation_minutes(rows: list[pd.Series]) -> bool:
     return bool((mpg >= _MIN_LINEUP_PLAYER_MPG).all())
 
 
-def build_starting_lineup(team_id: int, season: str) -> dict | None:
+def build_starting_lineup(team_id: int, season: str, timeout: int = 15, retries: int = 2) -> dict | None:
     """
     Return lineup payload or None if roster fetch fails.
     Uses NBA 5-man lineup minutes when available; otherwise top-minute players.
     """
-    roster = _fetch_players_season_totals(team_id, season)
+    try:
+        roster = _fetch_players_season_totals(team_id, season, timeout=timeout, retries=retries)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning("Roster fetch failed for team %s in %s: %s", team_id, season, e)
+        return None
+
     if roster.empty:
         return None
 
     lineup_labels: list[str] | None = None
     lineup_mpg: float | None = None
-    api_lineup = _fetch_lineup_from_api(team_id, season)
+    api_lineup = _fetch_lineup_from_api(team_id, season, timeout=timeout, retries=retries)
     if api_lineup is not None:
         lineup_labels, lineup_mpg = api_lineup
 
@@ -194,3 +210,4 @@ def build_starting_lineup(team_id: int, season: str) -> dict | None:
     if lineup_mpg is not None:
         out["lineup_mpg"] = round(lineup_mpg, 1)
     return out
+

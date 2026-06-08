@@ -46,9 +46,11 @@ def _similar_candidate_mask(
 
 def _row_dict_from_pool(pool: pd.DataFrame, row_idx: int, dist: float) -> dict:
     row = pool.iloc[int(row_idx)]
+    abbr = str(row.get("TEAM_ABBREVIATION", "")) if "TEAM_ABBREVIATION" in row else ""
     return {
         "team_id": int(row["TEAM_ID"]),
         "team_name": row["TEAM_NAME"],
+        "abbreviation": abbr,
         "season": row["SEASON"],
         "similarity_pct": round(100 / (1 + float(dist)), 1),
         "record": f"{int(row['W'])}-{int(row['L'])}",
@@ -111,7 +113,8 @@ def build_similar_teams_index(
 
     dists_all = cdist(X, X, metric="euclidean")
 
-    for i in range(n_samples):
+    from tqdm import tqdm
+    for i in tqdm(range(n_samples), desc="Building similar-teams index", unit="team"):
         tid_i = int(team_ids[i])
         season_i = str(seasons[i])
         key = f"{tid_i}:{season_i}"
@@ -131,3 +134,4 @@ def build_similar_teams_index(
         index[key] = out
 
     return index
+

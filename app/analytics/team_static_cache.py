@@ -16,7 +16,7 @@ def merge_similar_teams_with_abbreviations(
         merged: list[dict] = []
         for item in lst:
             tid = str(item["team_id"])
-            abbr = str(meta.get(tid, {}).get("abbreviation", ""))
+            abbr = item.get("abbreviation") or str(meta.get(tid, {}).get("abbreviation", ""))
             merged.append({**item, "abbreviation": abbr})
         out[key] = merged
     return out
@@ -51,6 +51,7 @@ def build_team_profile_static_cache(
         badges = assign_badges(norm_row)
         cache[sk] = {
             "team_name": str(row["TEAM_NAME"]),
+            "abbreviation": str(row.get("TEAM_ABBREVIATION", "")),
             "record": f"{int(row['W'])}-{int(row['L'])}",
             "win_pct": round(float(row["W_PCT"]), 3),
             "style_vector": style_by_key.get(sk, {}),
