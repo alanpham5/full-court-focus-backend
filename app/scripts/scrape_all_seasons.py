@@ -431,7 +431,7 @@ def save(df: pd.DataFrame, *, lineup_keys: list[str] | None = None):
         storage=ProfileStorage(
             StorageConfig.from_uri(storage_uri)
         ),
-        client=NbaStatsClient(timeout=60, retries=4, base_sleep=1.5),
+        client=NbaStatsClient(timeout=60, retries=4, base_sleep=2.0),
         config=player_config,
     )
     player_pipeline.run()

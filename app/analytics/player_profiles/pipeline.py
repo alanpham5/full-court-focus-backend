@@ -30,7 +30,7 @@ from analytics.player_profiles.features import (
 from analytics.player_profiles.nba_client import EndpointResult, NbaStatsClient
 from analytics.player_profiles.seasons import current_season_start, seasons_since_1996
 from analytics.player_profiles.similarity import build_similarity_embeddings, build_similarity_index
-from analytics.player_profiles.storage import ProfileStorage
+from analytics.player_profiles.storage import ProfileStorage, StorageConfig
 
 logger = logging.getLogger(__name__)
 
@@ -111,11 +111,36 @@ class PlayerProfilePipeline:
                 if col in career.columns:
                     career[col] = career[col].astype(object)
             logger.info("Scraping missing bio info for %s players...", len(missing_pids))
+            
+            from collections import deque
+            import time
+            import random
             from nba_api.stats.endpoints import commonplayerinfo
-            for pid in missing_pids:
+            from analytics.player_profiles.nba_client import NBA_HEADERS
+
+            queue = deque(missing_pids)
+            attempts = {pid: 0 for pid in missing_pids}
+            max_attempts = getattr(self.client, "retries", 3)
+            base_sleep = getattr(self.client, "base_sleep", 1.5)
+            jitter = getattr(self.client, "jitter", 0.35)
+            timeout_val = getattr(self.client, "timeout", 15)
+
+            while queue:
+                pid = queue.popleft()
+                attempts[pid] += 1
                 try:
-                    logger.info("Fetching on-demand bio for missing player %s", pid)
-                    endpoint = commonplayerinfo.CommonPlayerInfo(player_id=int(pid), timeout=5)
+                    logger.info(
+                        "Fetching on-demand bio for missing player %s (attempt %s/%s)",
+                        pid,
+                        attempts[pid],
+                        max_attempts,
+                    )
+                    # Pass headers for reliability and use client timeout configuration
+                    endpoint = commonplayerinfo.CommonPlayerInfo(
+                        player_id=int(pid),
+                        timeout=timeout_val,
+                        headers=NBA_HEADERS,
+                    )
                     df_bio = endpoint.common_player_info.get_data_frame()
                     if not df_bio.empty:
                         row = df_bio.iloc[0].to_dict()
@@ -158,8 +183,33 @@ class PlayerProfilePipeline:
                             career.loc[idx, "draft_position"] = clean_val(dn)
                             if pos:
                                 career.loc[idx, "primary_position"] = pg
+
+                    # Sleep with extra cushion to avoid timeouts and rate limits
+                    sleep_time = base_sleep + 1.0 + random.random() * (jitter + 0.5)
+                    logger.info("Successfully fetched player %s bio. Sleeping for %.2fs", pid, sleep_time)
+                    time.sleep(sleep_time)
+
                 except Exception as e:
-                    logger.warning("Failed to fetch bio for player %s during build: %s", pid, e)
+                    logger.warning(
+                        "Failed to fetch bio for player %s during build (attempt %s/%s): %s",
+                        pid,
+                        attempts[pid],
+                        max_attempts,
+                        e,
+                    )
+                    if attempts[pid] < max_attempts:
+                        logger.info("Adding player %s to the queue to retry", pid)
+                        queue.append(pid)
+                        # Sleep longer after a failure to allow rate limits to cool down
+                        sleep_time = (base_sleep * 2.0) + (random.random() * 2.0)
+                        logger.info("Sleeping for %.2fs before retrying next player", sleep_time)
+                        time.sleep(sleep_time)
+                    else:
+                        logger.error(
+                            "Exceeded maximum attempts (%s) to fetch bio for player %s. Moving on.",
+                            max_attempts,
+                            pid,
+                        )
 
         def force_clean_draft_val(x):
             if pd.isna(x) or x is None:
@@ -302,21 +352,32 @@ class PlayerProfilePipeline:
         self.storage.write_json(self.config.checkpoint_key, checkpoint)
 
 
-def copy_processed_outputs_to_static(storage_root: str, static_dir: Path) -> None:
-    src = Path(storage_root)
+def copy_processed_outputs_to_static(storage_root: str, static_dir: Path, gcs_project: str | None = None) -> None:
+    storage = ProfileStorage(StorageConfig.from_uri(storage_root, gcs_project=gcs_project))
     static_dir.mkdir(parents=True, exist_ok=True)
+    
     for name in ("player_profiles.json", "player_metadata.json"):
-        data = json.loads((src / "processed" / name).read_text())
-        (static_dir / name).write_text(json.dumps(data))
+        key = f"processed/{name}"
+        if storage.is_gcs:
+            blob = storage._bucket.blob(storage._blob_name(key))
+            (static_dir / name).write_text(blob.download_as_text())
+        else:
+            src = Path(storage_root)
+            (static_dir / name).write_text((src / key).read_text())
+            
     for rel in (
         "features/player_career_features.parquet",
         "features/player_season_features.parquet",
         "features/player_similarity_features.parquet",
         "embeddings/player_similarity_embeddings.parquet",
     ):
-        source = src / rel
-        target = static_dir / source.name
-        target.write_bytes(source.read_bytes())
+        target = static_dir / Path(rel).name
+        if storage.is_gcs:
+            blob = storage._bucket.blob(storage._blob_name(rel))
+            blob.download_to_filename(str(target))
+        else:
+            source = Path(storage_root) / rel
+            target.write_bytes(source.read_bytes())
 
 
 def _first_frame(result: EndpointResult) -> pd.DataFrame:

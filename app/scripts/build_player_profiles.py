@@ -57,9 +57,9 @@ def main() -> None:
     parser.add_argument("--end-season", type=int, default=None)
     parser.add_argument("--refresh-raw", action="store_true")
     parser.add_argument("--copy-to-static", action="store_true")
-    parser.add_argument("--timeout", type=int, default=60)
-    parser.add_argument("--retries", type=int, default=4)
-    parser.add_argument("--sleep", type=float, default=1.2)
+    parser.add_argument("--timeout", type=int, default=3)
+    parser.add_argument("--retries", type=int, default=2)
+    parser.add_argument("--sleep", type=float, default=2.0)
     parser.add_argument("--log-level", default="INFO")
     args = parser.parse_args()
 
@@ -85,9 +85,11 @@ def main() -> None:
     print(summary)
 
     if args.copy_to_static:
-        if args.storage_uri.startswith("gs://"):
-            raise SystemExit("--copy-to-static is only supported for local storage builds")
-        copy_processed_outputs_to_static(args.storage_uri, _APP_ROOT / "data" / "static")
+        copy_processed_outputs_to_static(
+            args.storage_uri,
+            _APP_ROOT / "data" / "static",
+            gcs_project=args.gcs_project,
+        )
         print(f"Copied API artifacts to {_APP_ROOT / 'data' / 'static'}")
 
 
