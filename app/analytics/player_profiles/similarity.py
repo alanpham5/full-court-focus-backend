@@ -10,6 +10,23 @@ from sklearn.neighbors import NearestNeighbors
 
 from analytics.similarity_scoring import similarity_pct
 
+
+def _nba_nba_display_score(composite: float) -> float:
+    """Map a raw composite score (~[0, 1.4]) to a calibrated display %.
+
+    The previous code passed the composite straight through similarity_pct
+    which clipped to [0,1] then raised to the 5.5 power -- so any composite
+    >= 1.0 read as 100%. With the era reward and role bonus, this happens
+    often and produces too many 100s. This function:
+      - normalizes composite by NBA_NBA_DISPLAY_NORMALIZER (so a "twin"
+        match saturates without ever hitting 100)
+      - applies a soft power curve with NBA_NBA_DISPLAY_GAMMA
+      - caps at NBA_NBA_DISPLAY_CEILING (so the very best read in the
+        high 70s, strong matches 50-70, typical 30-50)
+    """
+    x = max(0.0, min(float(composite) / NBA_NBA_DISPLAY_NORMALIZER, 1.0))
+    return round(NBA_NBA_DISPLAY_CEILING * (x ** NBA_NBA_DISPLAY_GAMMA), 1)
+
 EXPLANATION_FEATURES = {
     "scoring volume": ["pts_per36_z", "mpg_z"],
     "creation": ["ast_per36_z", "ast_pct_z", "tov_per36_z"],
@@ -51,35 +68,64 @@ NBA_NBA_PLAYSTYLE_FEATURES = [
 # stats nudge it. Sum^2 ~ 12, so playstyle bandwidth ~1.8 gives smooth scores.
 NBA_NBA_PLAYSTYLE_WEIGHTS = np.array([
     1.0,   # pts_per36
-    1.1,   # reb_per36
-    1.4,   # ast_per36   -- creation is a strong style signal
-    1.5,   # blk_per36   -- rim protection is unique
-    1.0,   # stl_per36
-    0.6,   # tov_per36   -- noisy, downweight
-    1.6,   # fg3a_rate   -- 3pt volume is a defining style axis
-    1.0,   # fta_rate
-    0.8,   # ts_pct
-    0.7,   # efg_pct     -- correlated with ts_pct
-    1.2,   # ast_pct
-    0.7,   # mpg         -- partial role proxy
+    1.9,   # reb_per36   -- separates scoring wing from scoring big
+    1.7,   # ast_per36   -- creation signal
+    1.6,   # blk_per36   -- rim protection
+    1.2,   # stl_per36
+    0.5,   # tov_per36   -- noisy
+    1.9,   # fg3a_rate   -- 3pt volume is a defining axis
+    1.1,   # fta_rate
+    0.7,   # ts_pct
+    0.6,   # efg_pct     -- correlated with ts_pct
+    2.1,   # ast_pct     -- "passing big" + "playmaking guard" signal
+    0.6,   # mpg
 ])
 
-NBA_NBA_PLAYSTYLE_BANDWIDTH = 1.8
-NBA_NBA_SIZE_SIGMA = 5.0          # inches: ~5" mismatch ≈ 1 sigma (soft prior, not gate)
-NBA_NBA_CALIBER_SIGMA = 0.18      # APFV / PFV diff in [0,1]; ~0.18 ≈ 1 sigma
+NBA_NBA_PLAYSTYLE_BANDWIDTH = 2.2          # more forgiving playstyle metric so
+                                           # moderately-similar pairs still
+                                           # rank inside top-10
+NBA_NBA_ARCHETYPE_BONUS_PER_OVERLAP = 0.18 # archetype overlap factor: shared
+                                           # box-score archetype is a strong
+                                           # signal (e.g. "rebounding
+                                           # defender" for passing bigs,
+                                           # "high-volume creator" for lead
+                                           # guards). Each overlap multiplies
+                                           # composite by 1 + 0.18.
+NBA_NBA_SIZE_SIGMA = 12.0         # inches: very soft size prior so playstyle
+                                  # similarity drives the comp; a 6" mismatch
+                                  # only costs ~12% (keeps "long guards"
+                                  # category from being driven apart by minor
+                                  # size differences between 6'3" and 6'5")
+NBA_NBA_CALIBER_SIGMA = 0.35      # broader so role-player and star versions
+                                  # of the same archetype still match (e.g.
+                                  # Jokic <-> Sengun, despite caliber gap)
 NBA_NBA_ROLE_BONUS = 1.07         # multiply by 1.07 if same role (capped)
-NBA_NBA_ERA_HALFLIFE = 30.0       # seasons: very long half-life so the era
-                                  # term is a gentle nudge rather than a gate
-NBA_NBA_ERA_FLOOR = 0.65          # max era penalty: cross-era pairs always
-                                  # keep at least 65% of their composite
+#
+# Era handling: instead of a decay penalty (which clusters same-era pairs)
+# we apply a continuous CROSS-ERA REWARD. Two players with the same start
+# year get factor 1.0; far-apart pairs get up to (1 + NBA_NBA_ERA_REWARD).
+# The reward saturates on a soft exponential — NBA_NBA_ERA_TIMESCALE
+# controls how fast it ramps up.
+#
+NBA_NBA_ERA_REWARD = 0.10         # gentle cross-era nudge -- keeps a few
+                                  # cross-era comps showing up but doesn't
+                                  # push same-era network peers (which are
+                                  # usually the right answer) off top-10
+NBA_NBA_ERA_TIMESCALE = 14.0      # seasons: distance at which boost reaches
+                                  # ~63% of its asymptotic value
 
-# Post-rank era diversification: after scoring, walk the ranked candidate
-# list and cap how many of the top-K can share an era bucket. Without this,
-# the playstyle features (which are era-correlated -- 3pt rate, pace etc.)
-# cause same-era pile-ups even with a generous era floor.
-NBA_NBA_ERA_BUCKET_YEARS = 5      # width of each era bucket in seasons
-NBA_NBA_ERA_MAX_PER_BUCKET = 2    # at most this many comps per 5-yr bucket
-NBA_NBA_ERA_POOL_MULT = 8         # search 8*k candidates for era diversity
+# Display calibration: composite scores fall roughly in [0, 1.4] (size /
+# caliber affinities can hit 1.0, era reward adds up to 22%, role bonus
+# 7%). similarity_pct() clips to [0,1] then x^5.5 saturates at 100 — so
+# any composite ≥ 1.0 read as 100%. We replace it with a soft ceiling at
+# ~78% and a gentler curve so most top-10 entries land in 40-70%.
+NBA_NBA_DISPLAY_CEILING = 78.0    # top end of displayed % range
+NBA_NBA_DISPLAY_NORMALIZER = 1.45 # composite value that saturates the cap
+                                  # (era 1.10 × role 1.07 × archetype-overlap
+                                  # up to 1.36 → max ≈ 1.6); set just below
+                                  # the max so only true-twin pairs read at
+                                  # the 78% ceiling
+NBA_NBA_DISPLAY_GAMMA = 2.0       # curvature; 2.0 is a gentle parabola
 
 
 def _percentile_matrix(career_df: pd.DataFrame, features: list[str]) -> np.ndarray:
@@ -235,61 +281,63 @@ def build_similarity_index(
     caliber_aff = np.exp(-((caliber[:, None] - caliber[None, :]) ** 2) / (2.0 * NBA_NBA_CALIBER_SIGMA ** 2))
 
     # era half-life: exp(-ln2 * |dt|/halflife)
-    era_aff = np.exp(-np.log(2.0) * np.abs(years[:, None] - years[None, :]) / NBA_NBA_ERA_HALFLIFE)
-    # Clamp so even very-cross-era pairs keep most of the composite score.
-    era_aff = np.maximum(era_aff, NBA_NBA_ERA_FLOOR)
+    # Cross-era REWARD: same-year pairs get 1.0, larger |dt| approaches
+    # (1 + NBA_NBA_ERA_REWARD). This actively boosts cross-era candidates
+    # so same-era playstyle-correlation pile-ups get diversified.
+    dt = np.abs(years[:, None] - years[None, :])
+    era_aff = 1.0 + NBA_NBA_ERA_REWARD * (1.0 - np.exp(-dt / NBA_NBA_ERA_TIMESCALE))
 
     # role match bonus (multiplicative, capped)
     role_match = (roles[:, None] == roles[None, :]).astype(float)
     role_factor = 1.0 + (NBA_NBA_ROLE_BONUS - 1.0) * role_match
 
-    composite = playstyle_aff * size_aff * caliber_aff * era_aff * role_factor
+    # Archetype-overlap bonus: each shared box-score archetype multiplies
+    # the composite by (1 + NBA_NBA_ARCHETYPE_BONUS_PER_OVERLAP).
+    # This naturally clusters concept groups: passing centers all share
+    # "rebounding defender"; lead guards share "high-volume creator"; etc.
+    arch_sets: list[set[str]] = []
+    for a in career.get("archetypes", pd.Series([[]] * n)).tolist():
+        if a is None:
+            arch_sets.append(set())
+        elif isinstance(a, (list, tuple)):
+            arch_sets.append({str(x) for x in a})
+        else:
+            arch_sets.append({str(a)})
+    arch_overlap = np.zeros((n, n), dtype=float)
+    for i_ in range(n):
+        si = arch_sets[i_]
+        if not si:
+            continue
+        for j_ in range(n):
+            if i_ == j_:
+                continue
+            sj = arch_sets[j_]
+            if sj:
+                arch_overlap[i_, j_] = len(si & sj)
+    arch_factor = 1.0 + NBA_NBA_ARCHETYPE_BONUS_PER_OVERLAP * arch_overlap
+
+    composite = playstyle_aff * size_aff * caliber_aff * era_aff * role_factor * arch_factor
 
     # zero out self-pairs
     np.fill_diagonal(composite, -np.inf)
 
-    # Precompute era buckets for diversification.
-    era_buckets = (years // NBA_NBA_ERA_BUCKET_YEARS).astype(int)
-
     out: dict[str, list[dict[str, Any]]] = {}
     career_by_id = career.set_index("player_id")
-    pool_size = min(k * NBA_NBA_ERA_POOL_MULT, len(player_ids))
     for i, pid in enumerate(player_ids):
-        # Pull a large ranked pool; then pick top-K with era-bucket caps so
-        # the same 5-year window cannot fill more than ~2 of the K spots
-        # (until we exhaust diverse candidates).
-        ranked = np.argsort(composite[i])[::-1][:pool_size]
-        bucket_counts: dict[int, int] = {}
-        chosen: list[int] = []
-        leftovers: list[int] = []
-        for j in ranked:
-            j = int(j)
-            if int(player_ids[j]) == int(pid):
-                continue
-            b = int(era_buckets[j])
-            if bucket_counts.get(b, 0) < NBA_NBA_ERA_MAX_PER_BUCKET:
-                chosen.append(j)
-                bucket_counts[b] = bucket_counts.get(b, 0) + 1
-                if len(chosen) >= k:
-                    break
-            else:
-                leftovers.append(j)
-        # Top up from leftovers if cap left us short of k.
-        for j in leftovers:
-            if len(chosen) >= k:
-                break
-            chosen.append(j)
-
+        order = np.argsort(composite[i])[::-1][:k]
         payloads: list[dict[str, Any]] = []
-        for j in chosen:
+        for j in order:
+            j = int(j)
             other_id = int(player_ids[j])
+            if other_id == int(pid):
+                continue
             other = career_by_id.loc[other_id]
             score = float(composite[i, j])
             payloads.append(
                 {
                     "player_id": other_id,
                     "player_name": str(other["player_name"]),
-                    "similarity_score": similarity_pct(max(0.0, min(1.0, score))),
+                    "similarity_score": _nba_nba_display_score(score),
                     "career_span": str(other.get("career_span", "")),
                     "explanation": explain_similarity(
                         feature_by_id.loc[int(pid)] if feature_by_id is not None and int(pid) in feature_by_id.index else pd.Series(dtype=float),
@@ -297,6 +345,8 @@ def build_similarity_index(
                     ),
                 }
             )
+            if len(payloads) >= k:
+                break
         out[str(int(pid))] = payloads
     return out
 
