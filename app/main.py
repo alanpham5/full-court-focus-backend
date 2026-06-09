@@ -158,6 +158,32 @@ async def lifespan(app: FastAPI):
         print("  [INFO] Historical drafts folder (static/draft/) does not exist yet")
     app.state.prospect_population = app.state.prospects + app.state.historical_prospects
 
+    # Compute global prospect APFV pool and percentile arrays during startup
+    try:
+        from analytics.prospect_apfv import prospect_percentile_arrays, global_prospect_metrics
+        from analytics.player_profiles.archetypes import calculate_adjusted_pfv, height_bucket
+        
+        population = app.state.prospect_population
+        percentile_arrays = prospect_percentile_arrays(population)
+        app.state.global_prospect_percentile_arrays = percentile_arrays
+        
+        global_prospect_adjusted_pfvs = []
+        global_prospect_height_buckets = []
+        for prospect in population:
+            metrics = global_prospect_metrics(prospect, percentile_arrays)
+            global_prospect_adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
+            global_prospect_height_buckets.append(height_bucket(prospect.get("height", "")))
+            
+        app.state.global_prospect_adjusted_pfvs = global_prospect_adjusted_pfvs
+        app.state.global_prospect_height_buckets = global_prospect_height_buckets
+        print(f"  ✓ Precomputed global prospect APFV pool and percentiles ({len(population)} prospects)")
+    except Exception as e:
+        app.state.global_prospect_percentile_arrays = {}
+        app.state.global_prospect_adjusted_pfvs = []
+        app.state.global_prospect_height_buckets = []
+        print(f"  [WARN] Failed to precompute global prospect APFV pool: {e}")
+
+
     import os
     from analytics.player_profiles.storage import ProfileStorage, StorageConfig
 

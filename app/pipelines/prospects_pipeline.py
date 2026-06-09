@@ -761,15 +761,79 @@ class ProspectsPipeline:
         out["role"] = roles
         return out
 
+    def _collect_global_metric_values(self, prospects_df: pd.DataFrame) -> dict[str, np.ndarray]:
+        from config import DATA_STATIC_DIR
+        draft_dir = DATA_STATIC_DIR / "draft"
+        
+        global_vals = {
+            col: prospects_df[col].tolist()
+            for col in _PERCENTILE_COLS
+            if col in prospects_df.columns
+        }
+        
+        if draft_dir.exists():
+            for path in sorted(draft_dir.glob("prospects_*.json")):
+                try:
+                    with path.open(encoding="utf-8") as f:
+                        records = json.load(f)
+                    for record in records:
+                        for col in _PERCENTILE_COLS:
+                            val = None
+                            if col in record:
+                                metric = record[col]
+                                if isinstance(metric, dict):
+                                    val = metric.get("value")
+                                else:
+                                    val = metric
+                            if val is None:
+                                val = record.get("raw_stats", {}).get(RAW_STAT_JSON_KEYS.get(col, col))
+                            if val is not None:
+                                try:
+                                    global_vals.setdefault(col, []).append(float(val))
+                                except (TypeError, ValueError):
+                                    pass
+                except Exception as e:
+                    logger.warning("Failed to load historical prospects for global metrics from %s: %s", path.name, e)
+                    
+        return {col: np.array(vals, dtype=float) for col, vals in global_vals.items()}
+
+    def _collect_global_adjusted_pfvs(
+        self,
+        current_adjusted_pfvs: list[float],
+        current_height_buckets: list[str],
+    ) -> tuple[list[float], list[str], slice]:
+        from config import DATA_STATIC_DIR
+        draft_dir = DATA_STATIC_DIR / "draft"
+        
+        global_adjusted_pfvs = list(current_adjusted_pfvs)
+        global_height_buckets = list(current_height_buckets)
+        current_slice = slice(0, len(current_adjusted_pfvs))
+        
+        if draft_dir.exists():
+            for path in sorted(draft_dir.glob("prospects_*.json")):
+                try:
+                    with path.open(encoding="utf-8") as f:
+                        records = json.load(f)
+                    for record in records:
+                        pfv_metrics = {
+                            col: dict(record[col])
+                            for col in _PERCENTILE_COLS
+                            if col in record and isinstance(record[col], dict)
+                        }
+                        if pfv_metrics:
+                            adj_pfv = calculate_adjusted_pfv(pfv_metrics, is_prospect=True)
+                            global_adjusted_pfvs.append(adj_pfv)
+                            global_height_buckets.append(height_bucket(record.get("height", "")))
+                except Exception as e:
+                    logger.warning("Failed to load historical prospects for APFV from %s: %s", path.name, e)
+                    
+        return global_adjusted_pfvs, global_height_buckets, current_slice
+
     def write_outputs(self, prospects: pd.DataFrame) -> None:
         self.json_output_path.parent.mkdir(parents=True, exist_ok=True)
         self.parquet_output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        pct_arrays = {
-            col: prospects[col].to_numpy(dtype=float)
-            for col in _PERCENTILE_COLS
-            if col in prospects.columns
-        }
+        pct_arrays = self._collect_global_metric_values(prospects)
 
         json_cols = [
             "prospect_id",
@@ -812,6 +876,8 @@ class ProspectsPipeline:
             "BPG",
         ]
         pfvs = []
+        current_adjusted_pfvs = []
+        current_height_buckets = []
         for record, raw in zip(records, prospects[raw_cols].to_dict(orient="records")):
             record["raw_stats"] = {RAW_STAT_JSON_KEYS[key]: value for key, value in raw.items()}
             for col in _PERCENTILE_COLS:
@@ -830,11 +896,25 @@ class ProspectsPipeline:
             pfvs.append(pfv_val)
 
             record["pfv"] = pfv_val
+            current_adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
+            current_height_buckets.append(height_bucket(record.get("height", "")))
 
         prospects["pfv"] = pfvs
 
+        global_adjusted_pfvs, global_height_buckets, current_slice = self._collect_global_adjusted_pfvs(
+            current_adjusted_pfvs, current_height_buckets
+        )
+        global_apfvs = calculate_apfv_batch_by_height(global_adjusted_pfvs, global_height_buckets)
+        current_apfvs = global_apfvs[current_slice]
+
+        prospects["apfv"] = current_apfvs
+
+        for record, apfv_val in zip(records, current_apfvs):
+            record["apfv"] = apfv_val
+
         for record in records:
             record["raw_stats"]["pfv"] = record.pop("pfv", 0.0)
+            record["raw_stats"]["apfv"] = record.pop("apfv", 0.0)
 
         self.json_output_path.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
@@ -864,10 +944,12 @@ class ProspectsPipeline:
             *SIMILARITY_FEATURES,
             "similar_nba_player_names",
             "pfv",
+            "apfv",
             "pick",
         ]
         available_cols = [col for col in parquet_cols if col in prospects.columns]
         prospects[available_cols].to_parquet(self.parquet_output_path, index=False, engine="fastparquet")
+
 
     def run(self, *, html_input_path: Path | str | None = None) -> pd.DataFrame:
         logger.info("Starting prospects pipeline...")

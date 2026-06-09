@@ -8,8 +8,14 @@ from pydantic import BaseModel
 
 from config import DATA_STATIC_DIR, PROSPECTS_JSON_PATH
 from analytics.prospect_apfv import (
-    apply_global_prospect_pfv_apfv,
-    calculate_global_prospect_pfv_apfv,
+    PROSPECT_PERCENTILE_COLS,
+    percentile_of_score,
+)
+from analytics.player_profiles.archetypes import (
+    calculate_adjusted_pfv,
+    calculate_apfv,
+    calculate_pfv,
+    height_bucket,
 )
 
 router = APIRouter(prefix="/draft", tags=["draft"])
@@ -81,32 +87,73 @@ def _all_prospect_population(request: Request) -> list[dict]:
     return prospects
 
 
-def _global_prospect_pfv_apfv_lookup(request: Request) -> dict[str, dict[str, float]]:
-    cached = getattr(request.app.state, "prospect_global_pfv_apfv", None)
-    if cached is not None:
-        return cached
+def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
+    """Gather every prospect's MPG-adjusted PFV for population-level APFV ranking."""
+    adjusted_pfvs = []
+    for p in prospects:
+        pfv_metrics = {
+            col: dict(p[col])
+            for col in PROSPECT_PERCENTILE_COLS
+            if col in p and isinstance(p[col], dict)
+        }
+        adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
+    return adjusted_pfvs
 
-    population = _all_prospect_population(request)
-    lookup = calculate_global_prospect_pfv_apfv(population)
-    request.app.state.prospect_global_pfv_apfv = lookup
-    return lookup
 
-
-def _global_pfv_apfv_for_prospect(request: Request, prospect: dict) -> dict[str, float]:
-    lookup = _global_prospect_pfv_apfv_lookup(request)
-    prospect_id = str(prospect.get("prospect_id", ""))
-    if prospect_id in lookup:
-        return lookup[prospect_id]
-
-    population = [*_all_prospect_population(request), prospect]
-    return calculate_global_prospect_pfv_apfv(population).get(prospect_id, {"pfv": 0.0, "apfv": 0.0})
+def _ensure_global_percentiles(prospect: dict, request: Request) -> dict:
+    """Ensure individual metric percentiles are calculated globally."""
+    prospect_copy = dict(prospect)
+    percentile_arrays = getattr(request.app.state, "global_prospect_percentile_arrays", {})
+    for col in PROSPECT_PERCENTILE_COLS:
+        if col in prospect_copy:
+            metric = prospect_copy[col]
+            if isinstance(metric, dict):
+                metric_copy = dict(metric)
+                val = metric_copy.get("value")
+                if val is not None:
+                    metric_copy["percentile"] = percentile_of_score(percentile_arrays.get(col, []), float(val))
+                prospect_copy[col] = metric_copy
+    return prospect_copy
 
 
 def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
     """Ensure globally-ranked PFV/APFV live inside raw_stats."""
-    prospect_copy = dict(prospect)
-    apply_global_prospect_pfv_apfv([prospect_copy], {str(prospect.get("prospect_id", "")): _global_pfv_apfv_for_prospect(request, prospect)})
-    return prospect_copy.get("raw_stats", {})
+    raw = dict(prospect.get("raw_stats", {}))
+
+    percentile_arrays = getattr(request.app.state, "global_prospect_percentile_arrays", {})
+    pfv_metrics = {}
+    for col in PROSPECT_PERCENTILE_COLS:
+        if col in prospect:
+            metric = prospect[col]
+            if isinstance(metric, dict):
+                val = metric.get("value")
+                if val is not None:
+                    pct = percentile_of_score(percentile_arrays.get(col, []), float(val))
+                    pfv_metrics[col] = {"value": float(val), "percentile": pct}
+
+    pfv_val = calculate_pfv(pfv_metrics)
+    raw["pfv"] = float(pfv_val)
+
+    adjusted_pfv = calculate_adjusted_pfv(pfv_metrics, is_prospect=True)
+    bucket = height_bucket(prospect.get("height", ""))
+
+    global_adjusted_pfvs = getattr(request.app.state, "global_prospect_adjusted_pfvs", [])
+    global_height_buckets = getattr(request.app.state, "global_prospect_height_buckets", [])
+
+    bucket_adjusted_pfvs = [
+        adj_pfv
+        for adj_pfv, b in zip(global_adjusted_pfvs, global_height_buckets)
+        if b == bucket
+    ]
+
+    if adjusted_pfv not in bucket_adjusted_pfvs:
+        bucket_adjusted_pfvs.append(adjusted_pfv)
+
+    apfv_val = calculate_apfv(adjusted_pfv, bucket_adjusted_pfvs)
+    raw["apfv"] = float(apfv_val)
+    raw.pop("npfv", None)
+
+    return raw
 
 
 @router.get("/prospects", response_model=list[ProspectListItem])
@@ -161,6 +208,9 @@ def get_prospect(prospect_id: str, request: Request):
             detail=f"Prospect '{prospect_id}' not found in current or historical draft classes.",
         )
     prospect = dict(prospect)
+
+    # Recompute individual metric percentiles globally
+    prospect = _ensure_global_percentiles(prospect, request)
 
     raw = _ensure_pfv_apfv_in_raw_stats(prospect, request)
     prospect["raw_stats"] = raw
