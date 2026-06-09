@@ -203,37 +203,103 @@ def calculate_pfv(metrics: dict) -> float:
 
 
 def calculate_adjusted_pfv(metrics: dict, *, is_prospect: bool = False) -> float:
-    """Return PFV adjusted by MPG percentile while preserving the six-axis radar."""
+    """Return PFV adjusted for quality / translatability.
+
+    NBA players: PFV × (mpg_percentile/100)^1.5 — captures workload.
+
+    Prospects: PFV × mpg_floor × gp_floor × efficiency_floor.
+    The original "relax MPG to 80% floor" rule produced pathologies like Jay
+    Scrubb (2.2 MPG, 29 GP → 0.99 APFV) and Tyrese Martin (3 GP → 0.95
+    APFV). Replacing it with raw absolute floors keeps stat-stuffers and
+    tiny-sample / mid-major efficiency cases out of star territory while
+    still rewarding real high-minute, high-efficiency producers.
+    """
     pfv = calculate_pfv(metrics)
-    mpg_pct = _metric_percentile(metrics, "mpg")
+
     if is_prospect:
-        # Relax the class-relative MPG percentile for prospects since all prospects play higher minutes
-        mpg_pct = 80.0 + 0.2 * mpg_pct
+        mpg_val = float(_metric_value(metrics, "mpg"))
+        ts_val = float(_metric_value(metrics, "ts_pct"))
+        gp_val = float(_metric_value(metrics, "gp"))  # 0 if missing
+
+        # Raw-minutes damper: full credit at ~24+ MPG so freshmen on deep
+        # rotations (KAT 21 mpg, Embiid 23 mpg) aren't crushed. Power 1.4
+        # so very-low MPG still drops sharply (2 mpg → ~0.02, 10 mpg →
+        # ~0.31, 18 mpg → ~0.68).
+        mpg_factor = max(0.0, min(mpg_val / 24.0, 1.0)) ** 1.4
+
+        # Sample-size damper: 25 games for full credit. Below that, sqrt
+        # so 16 GP keeps ~80%, 9 GP ~60%, 3 GP ~35%.
+        if gp_val > 0:
+            gp_factor = max(0.0, min(gp_val / 25.0, 1.0)) ** 0.5
+        else:
+            gp_factor = 1.0
+
+        # Efficiency damper: prospects who put up gaudy class-relative box
+        # numbers but only mid TS% are usually less translatable. Anchor at
+        # 0.60 (a couple ticks above NBA league average) and use a linear
+        # ramp so dropping 5 TS points = ~8% dock.
+        if ts_val > 0:
+            eff_factor = max(0.0, min(ts_val / 0.60, 1.0)) ** 1.0
+        else:
+            eff_factor = 1.0
+
+        return round(pfv * mpg_factor * gp_factor * eff_factor, 4)
+
+    # NBA path: unchanged.
+    mpg_pct = _metric_percentile(metrics, "mpg")
     mpg_factor = mpg_pct / 100.0
     return round(pfv * (mpg_factor ** 1.5), 4)
 
 
+def _metric_value(metrics: dict, key: str) -> float:
+    item = metrics.get(key)
+    if isinstance(item, dict):
+        v = item.get("value", 0.0)
+    elif isinstance(item, (int, float)):
+        v = item
+    else:
+        v = 0.0
+    try:
+        return float(v) if v is not None else 0.0
+    except (TypeError, ValueError):
+        return 0.0
 
 
-def calculate_apfv(adjusted_pfv: float, all_adjusted_pfvs: list[float]) -> float:
+
+
+def calculate_apfv(
+    adjusted_pfv: float,
+    all_adjusted_pfvs: list[float],
+    *,
+    curve_exponent: float = 1.5,
+    raw_anchor: float | None = None,
+) -> float:
     """Normalize a single adjusted PFV against a population to [0, 0.99].
 
-    Uses percentile-rank within the population, then applies a power
-    curve (exponent 1.5) so that high APFV values are progressively
-    rarer — only the very top of the distribution can approach 0.99.
+    Combines rank-within-population with a raw magnitude anchor so a player
+    can't reach 0.99 purely by being best-of-a-weak-bucket. The two are
+    blended:
+        rank_score   = percentile_rank ^ curve_exponent
+        raw_score    = clip(adjusted_pfv / raw_anchor, 0, 1)
+        final        = sqrt(rank_score * raw_score) * 0.99
+    When raw_anchor is None, only the rank score is used (legacy behavior).
     """
     n = len(all_adjusted_pfvs)
     if n == 0:
         return 0.0
     rank = sum(1 for v in all_adjusted_pfvs if v <= adjusted_pfv)
-    pctile = rank / n  # 0.0 – 1.0
-    curved = pctile ** 1.5  # compress upper end
-    return round(min(curved * 0.99, 0.99), 4)
+    pctile = rank / n
+    rank_score = pctile ** float(curve_exponent)
+    if raw_anchor is None or raw_anchor <= 0.0:
+        return round(min(rank_score * 0.99, 0.99), 4)
+    raw_score = max(0.0, min(adjusted_pfv / float(raw_anchor), 1.0))
+    blended = (rank_score * raw_score) ** 0.5
+    return round(min(blended * 0.99, 0.99), 4)
 
 
-def calculate_apfv_batch(adjusted_pfvs: list[float]) -> list[float]:
+def calculate_apfv_batch(adjusted_pfvs: list[float], **kwargs) -> list[float]:
     """Compute APFV for every entry in *adjusted_pfvs* against the same population."""
-    return [calculate_apfv(v, adjusted_pfvs) for v in adjusted_pfvs]
+    return [calculate_apfv(v, adjusted_pfvs, **kwargs) for v in adjusted_pfvs]
 
 
 def height_bucket(height_val: Any) -> str:
@@ -258,6 +324,9 @@ def height_bucket(height_val: Any) -> str:
 def calculate_apfv_batch_by_height(
     adjusted_pfvs: list[float],
     height_buckets: list[str],
+    *,
+    curve_exponent: float = 1.5,
+    raw_anchor: float | None = None,
 ) -> list[float]:
     """Compute APFV normalised within height buckets.
 
@@ -276,7 +345,10 @@ def calculate_apfv_batch_by_height(
     for _bucket, indices in groups.items():
         group_vals = [adjusted_pfvs[i] for i in indices]
         for i in indices:
-            results[i] = calculate_apfv(adjusted_pfvs[i], group_vals)
+            results[i] = calculate_apfv(
+                adjusted_pfvs[i], group_vals,
+                curve_exponent=curve_exponent, raw_anchor=raw_anchor,
+            )
 
     return results
 

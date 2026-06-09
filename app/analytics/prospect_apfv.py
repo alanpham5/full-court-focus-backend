@@ -98,11 +98,19 @@ def calculate_global_prospect_pfv_apfv(population: list[dict]) -> dict[str, dict
 
     for prospect in population:
         metrics = global_prospect_metrics(prospect, percentile_arrays)
+        gp_val = prospect_metric_value(prospect, "gp")
+        if gp_val is None:
+            gp_val = float(prospect.get("raw_stats", {}).get("gp", 0) or 0)
+        metrics["gp"] = {"value": float(gp_val or 0), "percentile": 0.0}
+        metrics["team"] = str(prospect.get("team", "") or "")
         pfvs.append(calculate_pfv(metrics))
         adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
         height_buckets.append(height_bucket(prospect.get("height", "")))
 
-    apfvs = calculate_apfv_batch_by_height(adjusted_pfvs, height_buckets)
+    apfvs = calculate_apfv_batch_by_height(
+        adjusted_pfvs, height_buckets,
+        curve_exponent=2.2, raw_anchor=0.50,
+    )
     return {
         str(prospect.get("prospect_id")): {"pfv": pfv, "apfv": apfv}
         for prospect, pfv, apfv in zip(population, pfvs, apfvs)

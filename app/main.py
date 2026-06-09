@@ -171,6 +171,9 @@ async def lifespan(app: FastAPI):
         global_prospect_height_buckets = []
         for prospect in population:
             metrics = global_prospect_metrics(prospect, percentile_arrays)
+            gp_val = float(prospect.get("gp", prospect.get("raw_stats", {}).get("gp", 0)) or 0)
+            metrics["gp"] = {"value": gp_val, "percentile": 0.0}
+            metrics["team"] = str(prospect.get("team", "") or "")
             global_prospect_adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
             global_prospect_height_buckets.append(height_bucket(prospect.get("height", "")))
             

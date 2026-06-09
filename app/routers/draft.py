@@ -96,6 +96,9 @@ def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
             for col in PROSPECT_PERCENTILE_COLS
             if col in p and isinstance(p[col], dict)
         }
+        gp_val = float(p.get("gp", p.get("raw_stats", {}).get("gp", 0)) or 0)
+        pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
+        pfv_metrics["team"] = str(p.get("team", "") or "")
         adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
     return adjusted_pfvs
 
@@ -134,6 +137,9 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
     pfv_val = calculate_pfv(pfv_metrics)
     raw["pfv"] = float(pfv_val)
 
+    gp_val = float(prospect.get("gp", prospect.get("raw_stats", {}).get("gp", 0)) or 0)
+    pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
+    pfv_metrics["team"] = str(prospect.get("team", "") or "")
     adjusted_pfv = calculate_adjusted_pfv(pfv_metrics, is_prospect=True)
     bucket = height_bucket(prospect.get("height", ""))
 
