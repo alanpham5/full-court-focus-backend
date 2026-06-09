@@ -476,16 +476,7 @@ def clean_weight_to_float(weight_val: Any, default: float = 220.0) -> float:
 
 
 def build_embedding_features(career_df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
-    # We restrict the similarity engine to the 8 stable features (6 playstyle + height/weight)
-    stable_features = [
-        "reb_per36_z",
-        "ast_per36_z",
-        "blk_per36_z",
-        "stl_per36_z",
-        "fg3a_rate_z",
-        "fta_rate_z",
-    ]
-    feature_cols = [c for c in stable_features if c in career_df.columns]
+    feature_cols = [c for c in STYLE_FEATURES if c in career_df.columns]
 
     if "height" in career_df.columns:
         heights = career_df["height"].apply(height_to_inches)
@@ -512,19 +503,24 @@ def build_embedding_features(career_df: pd.DataFrame) -> tuple[pd.DataFrame, lis
     
     # Apply calibrated similarity feature weights
     FEATURE_WEIGHTS = {
-        "reb_per36_z": 1.7190,
-        "ast_per36_z": 1.3206,
-        "blk_per36_z": 1.3726,
-        "stl_per36_z": 0.8896,
-        "fg3a_rate_z": 3.1222,
-        "fta_rate_z": 1.3506,
-        "height_inches": 1.0926,
-        "weight_lbs": 1.1863,
+        "height_inches": 1.2,
+        "weight_lbs": 1.2,
+        "fg3a_rate_z": 4.5,
+        "reb_per36_z": 1.2,
+        "ast_per36_z": 2.0,
+        "ast_pct_z": 1.8,
+        "stl_per36_z": 1.5,
+        "blk_per36_z": 1.5,
+        "fta_rate_z": 1.2,
+        "efg_pct_z": 1.2,
+        "pts_per36_z": 1.0,
+        "mpg_z": 1.0,
+        "ts_pct_z": 1.0,
+        "tov_per36_z": 1.0,
     }
     for col, w in FEATURE_WEIGHTS.items():
         if col in X_scaled.columns:
             X_scaled[col] *= w
-
 
     X_scaled.insert(0, "player_id", career_df["player_id"].astype(int).to_numpy())
     return X_scaled, all_features

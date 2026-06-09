@@ -79,7 +79,7 @@ def build_similarity_index(
     n_neighbors = min(max(k * 3, k + 1), len(player_ids))
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
-        nn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
+        nn = NearestNeighbors(n_neighbors=n_neighbors, metric="cosine")
         nn.fit(X)
         dists, indices = nn.kneighbors(X)
 
@@ -101,7 +101,7 @@ def build_similarity_index(
             diff = abs(query_year - other_year)
             era_penalty = 1.0 - 0.05 * np.exp(-diff / 10.0)
             
-            raw_similarity = np.exp(-float(dist) / 50.0)
+            raw_similarity = max(0.0, min(1.0, 1.0 - float(dist)))
             adj_similarity = raw_similarity * era_penalty
             
             candidates.append(
