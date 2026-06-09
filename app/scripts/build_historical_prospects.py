@@ -74,6 +74,11 @@ def main() -> int:
         help="Force re-fetch of crawled drafts and player profile pages",
     )
     parser.add_argument(
+        "--recompute",
+        action="store_true",
+        help="Recompute similarity and overwrite outputs using cached raw data without re-fetching from web",
+    )
+    parser.add_argument(
         "--sleep",
         type=float,
         default=1.5,
@@ -106,12 +111,12 @@ def main() -> int:
     failure_count = 0
 
     for year in years:
-        # Check if year is already done (unless force)
+        # Check if year is already done (unless force or recompute is set)
         json_path = static_draft_dir / f"prospects_{year}.json"
         parquet_path = static_draft_dir / f"prospects_{year}.parquet"
         
-        if json_path.exists() and parquet_path.exists() and not args.force:
-            logger.info("Draft year %d has already been fully processed. Skipping. (Use --force to override)", year)
+        if json_path.exists() and parquet_path.exists() and not args.force and not args.recompute:
+            logger.info("Draft year %d has already been fully processed. Skipping. (Use --force or --recompute to override)", year)
             success_count += 1
             continue
             
@@ -128,7 +133,9 @@ def main() -> int:
             pipeline.parquet_output_path = parquet_path
 
         try:
-            pipeline.process_draft_class(year, force=args.force, sleep_time=args.sleep)
+            # If recomputing, we do not force scraping from the network
+            force_scrape = args.force and not args.recompute
+            pipeline.process_draft_class(year, force=force_scrape, sleep_time=args.sleep)
             success_count += 1
         except Exception as e:
             logger.exception("Failed to process draft class %d: %s", year, e)

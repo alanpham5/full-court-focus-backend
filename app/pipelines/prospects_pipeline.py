@@ -564,45 +564,49 @@ class ProspectsPipeline:
         mean_n_w = float(valid_n_w.mean()) if len(valid_n_w) > 0 else 215.0
         nba_weights[nba_weights == 0] = mean_n_w
 
-        # Compute prospect class-relative percentiles on the fly
-        prospect_pct_list = []
-        for col in SIMILARITY_FEATURES:
-            vals = prospects[col].to_numpy(dtype=float)
-            pcts = np.array([_percentile_of_score(vals, v) for v in vals])
-            if col == "mpg":
-                pcts = 80.0 + 0.2 * pcts
-            prospect_pct_list.append(pcts / 100.0)
-        prospect_pct = np.column_stack(prospect_pct_list)
+        # We use 8 stable features to prevent noise and role change distortion
+        STABLE_FEATURES = [
+            "reb_per36",
+            "ast_per36",
+            "blk_per36",
+            "stl_per36",
+            "fg3a_rate",
+            "fta_rate",
+        ]
 
-        # Extract NBA precomputed percentiles
-        nba_pct = nba[nba_pct_cols].fillna(50.0).to_numpy() / 100.0
+        p_raw = prospects[STABLE_FEATURES].to_numpy(dtype=float)
+        n_raw = nba[STABLE_FEATURES].to_numpy(dtype=float)
 
-        prospect_features = np.column_stack([prospect_pct, prospect_heights, prospect_weights])
-        nba_features = np.column_stack([nba_pct, nba_heights, nba_weights])
+        # Clip prospect raw stats to 1st and 99th percentile of NBA pool
+        n_1 = np.percentile(n_raw, 1, axis=0)
+        n_99 = np.percentile(n_raw, 99, axis=0)
+        p_raw_clipped = np.clip(p_raw, n_1, n_99)
 
-        scaler = StandardScaler()
-        n_scaled = scaler.fit_transform(nba_features)
-        p_scaled = scaler.transform(prospect_features)
+        prospect_features = np.column_stack([p_raw_clipped, prospect_heights, prospect_weights])
+        nba_features = np.column_stack([n_raw, nba_heights, nba_weights])
 
+        # Use independent standard scaling to align draft cohorts to the NBA pool correctly
+        p_scaled = StandardScaler().fit_transform(prospect_features)
+        n_scaled = StandardScaler().fit_transform(nba_features)
+
+        # Tuned playstyle-dominated weights with controlled overlap
         weights = np.array([
-            1.0,   # pts_per36
-            1.2,   # reb_per36
-            2.0,   # ast_per36
-            1.5,   # blk_per36
-            1.5,   # stl_per36
-            1.0,   # ts_pct
-            1.2,   # efg_pct
-            4.5,   # fg3a_rate
-            1.2,   # fta_rate
-            1.0,   # mpg
-            1.2,   # height_inches
-            1.2,   # weight_lbs
+            1.7190,  # reb_per36
+            1.3206,  # ast_per36
+            1.3726,  # blk_per36
+            0.8896,  # stl_per36
+            3.1222,  # fg3a_rate
+            1.3506,  # fta_rate
+            1.0926,  # height_inches
+            1.1863,  # weight_lbs
         ])
         p_weighted = p_scaled * weights
         n_weighted = n_scaled * weights
 
-        with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
-            playstyle_scores = cosine_similarity(p_weighted, n_weighted)
+        # Compute Euclidean distance and map to display similarity score [0, 1]
+        from sklearn.metrics.pairwise import euclidean_distances
+        dists = euclidean_distances(p_weighted, n_weighted)
+        playstyle_scores = np.exp(-dists / 50.0)
 
         pfv_keys = ["pts_per36", "reb_per36", "ast_per36", "blk_per36", "stl_per36", "ts_pct"]
         pfv_pct_arrays = {}
@@ -648,10 +652,8 @@ class ProspectsPipeline:
 
         from tqdm import tqdm
         for i in tqdm(range(len(prospects)), desc="Calculating similar NBA players for prospects", unit="prospect"):
-            p_qual = float(prospect_quality[i])
-            quality_diff = np.abs(p_qual - nba_quality)
-            quality_affinity = np.exp(-(quality_diff ** 2) / (2 * QUALITY_SIGMA ** 2))
-            composite = playstyle_scores[i] * quality_affinity
+            # Quality affinity is disabled to prioritize true playstyle similarity
+            composite = playstyle_scores[i]
             
             # Name match filter: exclude NBA counterpart with the exact same name
             prospect_name = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", "")).strip().lower()
