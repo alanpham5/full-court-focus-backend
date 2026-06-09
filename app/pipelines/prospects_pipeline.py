@@ -647,6 +647,16 @@ class ProspectsPipeline:
             for j in range(len(nba))
         ]
 
+        import unicodedata
+        import re
+        def clean_name(n: str) -> str:
+            normalized = unicodedata.normalize('NFKD', str(n))
+            cleaned = "".join(c for c in normalized if not unicodedata.combining(c))
+            cleaned = re.sub(r'[\.,]', '', cleaned)
+            return " ".join(cleaned.lower().split())
+
+        nba_names_clean = nba["player_name"].apply(clean_name)
+
         similar_payloads = []
         similar_names = []
 
@@ -655,9 +665,10 @@ class ProspectsPipeline:
             # Quality affinity is disabled to prioritize true playstyle similarity
             composite = playstyle_scores[i]
             
-            # Name match filter: exclude NBA counterpart with the exact same name
-            prospect_name = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", "")).strip().lower()
-            name_mask = nba["player_name"].str.strip().str.lower() == prospect_name
+            # Name match filter: exclude NBA counterpart with the exact same name (diacritic-insensitive)
+            prospect_name_raw = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", ""))
+            prospect_name_clean = clean_name(prospect_name_raw)
+            name_mask = nba_names_clean == prospect_name_clean
             composite[name_mask] = -1.0
 
             ranked = np.argsort(composite)[::-1]

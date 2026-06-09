@@ -258,14 +258,6 @@
     "pick": 3,
     "similar_nba_players": [
       {
-        "player_id": 1629029,
-        "player_name": "Luka Don\u010di\u0107",
-        "similarity_score": 81.3,
-        "career_span": "2018-19 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 201935,
         "player_name": "James Harden",
         "similarity_score": 79.0,
@@ -288,6 +280,14 @@
         "career_span": "2013-14 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1938,
+        "player_name": "Manu Ginobili",
+        "similarity_score": 73.1,
+        "career_span": "2002-03 to 2017-18",
+        "position_group": "W",
+        "role": "Designated Scorer"
       }
     ],
     "raw_stats": {
@@ -378,18 +378,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1628991,
-        "player_name": "Jaren Jackson Jr.",
-        "similarity_score": 74.8,
-        "career_span": "2018-19 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1629048,
         "player_name": "Goga Bitadze",
         "similarity_score": 68.4,
         "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1630192,
+        "player_name": "Zeke Nnaji",
+        "similarity_score": 68.3,
+        "career_span": "2020-21 to 2025-26",
         "position_group": "W",
         "role": "Defensive Specialist"
       }

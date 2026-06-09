@@ -2754,14 +2754,6 @@
     "pick": 27,
     "similar_nba_players": [
       {
-        "player_id": 203992,
-        "player_name": "Bogdan Bogdanovi\u0107",
-        "similarity_score": 91.6,
-        "career_span": "2017-18 to 2025-26",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 1629638,
         "player_name": "Nickeil Alexander-Walker",
         "similarity_score": 83.0,
@@ -2776,6 +2768,14 @@
         "career_span": "2004-05 to 2019-20",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629632,
+        "player_name": "Coby White",
+        "similarity_score": 81.9,
+        "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
       },
       {
         "player_id": 1626224,
