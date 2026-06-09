@@ -43,6 +43,7 @@ from pipelines.lineups_pipeline import LineupsPipeline
 from pipelines.team_profiles_pipeline import TeamProfilesPipeline
 from pipelines.player_profiles_pipeline import PlayerProfilesPipeline
 from pipelines.prospects_pipeline import ProspectsPipeline
+from analytics.prospect_apfv import normalize_global_prospect_apfv_files
 
 logger = logging.getLogger("pipeline_orchestrator")
 
@@ -232,6 +233,10 @@ def run_pipeline_orchestrator(
                 similar_count=4,
             )
             pipeline.run()
+            normalize_global_prospect_apfv_files(
+                PROSPECTS_JSON_PATH,
+                PROSPECTS_JSON_PATH.parent / "draft",
+            )
 
         logger.info("Pipeline executed successfully!")
         return 0
@@ -296,4 +301,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

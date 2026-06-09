@@ -1,22 +1,18 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from config import PROSPECTS_JSON_PATH
-from analytics.player_profiles.archetypes import (
-    calculate_adjusted_pfv,
-    calculate_apfv,
-    calculate_apfv_batch_by_height,
-    calculate_pfv,
-    height_bucket,
-    remove_mpg_adjustment_from_metrics,
+from config import DATA_STATIC_DIR, PROSPECTS_JSON_PATH
+from analytics.prospect_apfv import (
+    apply_global_prospect_pfv_apfv,
+    calculate_global_prospect_pfv_apfv,
 )
 
 router = APIRouter(prefix="/draft", tags=["draft"])
-
 
 
 class ProspectListItem(BaseModel):
@@ -52,82 +48,82 @@ def _prospects_by_id(request: Request) -> dict[str, dict]:
     return {p["prospect_id"]: p for p in _prospects(request)}
 
 
-def _collect_all_adjusted_pfvs(all_prospects: list[dict]) -> list[float]:
-    """Gather every prospect's MPG-adjusted PFV for population-level APFV ranking."""
-    adjusted_pfvs: list[float] = []
-    for p in all_prospects:
-        raw = p.get("raw_stats", {})
-        if raw.get("pfv") is None and p.get("pfv") is None:
-            raw["pfv"] = calculate_pfv(p)
-        adjusted_pfvs.append(calculate_adjusted_pfv(p, is_prospect=True))
-    return adjusted_pfvs
+def _load_historical_prospect_file(path: Path) -> list[dict]:
+    with path.open(encoding="utf-8") as f:
+        return json.load(f)
 
 
-def _ensure_pfv_apfv_in_raw_stats(prospect: dict, all_prospects: list[dict], all_adjusted_pfvs: list[float]) -> dict:
-    """Ensure pfv and apfv live inside raw_stats, computing if missing."""
-    raw = dict(prospect.get("raw_stats", {}))
+def _historical_prospects_for_year(request: Request, year: int) -> list[dict] | None:
+    cached = getattr(request.app.state, "historical_prospects_by_year", None)
+    if cached is not None and year in cached:
+        return cached[year]
 
-    # Resolve PFV
-    pfv_val = raw.get("pfv") or prospect.get("pfv")
-    if pfv_val is None:
-        pfv_val = calculate_pfv(prospect)
-    pfv_val = float(pfv_val)
+    path = DATA_STATIC_DIR / "draft" / f"prospects_{year}.json"
+    if not path.exists():
+        return None
+    return _load_historical_prospect_file(path)
 
-    # Resolve APFV
-    apfv_val = raw.get("apfv") or prospect.get("apfv")
-    if apfv_val is None:
-        all_heights = [p.get("height", "") for p in all_prospects]
-        all_height_buckets = [height_bucket(h) for h in all_heights]
-        apfvs = calculate_apfv_batch_by_height(all_adjusted_pfvs, all_height_buckets)
-        
-        target_idx = 0
-        for i, p in enumerate(all_prospects):
-            if p.get("prospect_id") == prospect.get("prospect_id"):
-                target_idx = i
-                break
-        apfv_val = apfvs[target_idx]
-    apfv_val = float(apfv_val)
 
-    raw["pfv"] = pfv_val
-    raw["apfv"] = apfv_val
-    raw.pop("npfv", None)
-    return raw
+def _all_prospect_population(request: Request) -> list[dict]:
+    """Return current and historical prospects as one APFV comparison universe."""
+    cached = getattr(request.app.state, "prospect_population", None)
+    if cached is not None:
+        return cached
+
+    prospects = list(_prospects(request))
+    draft_dir = DATA_STATIC_DIR / "draft"
+    if draft_dir.exists():
+        for path in draft_dir.glob("prospects_*.json"):
+            try:
+                prospects.extend(_load_historical_prospect_file(path))
+            except Exception:
+                continue
+    return prospects
+
+
+def _global_prospect_pfv_apfv_lookup(request: Request) -> dict[str, dict[str, float]]:
+    cached = getattr(request.app.state, "prospect_global_pfv_apfv", None)
+    if cached is not None:
+        return cached
+
+    population = _all_prospect_population(request)
+    lookup = calculate_global_prospect_pfv_apfv(population)
+    request.app.state.prospect_global_pfv_apfv = lookup
+    return lookup
+
+
+def _global_pfv_apfv_for_prospect(request: Request, prospect: dict) -> dict[str, float]:
+    lookup = _global_prospect_pfv_apfv_lookup(request)
+    prospect_id = str(prospect.get("prospect_id", ""))
+    if prospect_id in lookup:
+        return lookup[prospect_id]
+
+    population = [*_all_prospect_population(request), prospect]
+    return calculate_global_prospect_pfv_apfv(population).get(prospect_id, {"pfv": 0.0, "apfv": 0.0})
+
+
+def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
+    """Ensure globally-ranked PFV/APFV live inside raw_stats."""
+    prospect_copy = dict(prospect)
+    apply_global_prospect_pfv_apfv([prospect_copy], {str(prospect.get("prospect_id", "")): _global_pfv_apfv_for_prospect(request, prospect)})
+    return prospect_copy.get("raw_stats", {})
 
 
 @router.get("/prospects", response_model=list[ProspectListItem])
 def list_prospects(request: Request, year: int | None = None):
     """Return every prospect's id, name, team, and raw counting-stat totals."""
     if year is not None:
-        from config import DATA_STATIC_DIR
-        path = DATA_STATIC_DIR / "draft" / f"prospects_{year}.json"
-        if not path.exists():
+        all_prospects = _historical_prospects_for_year(request, year)
+        if all_prospects is None:
             raise HTTPException(
                 status_code=404,
                 detail=f"Prospects dataset for draft year {year} not found.",
             )
-        with path.open(encoding="utf-8") as f:
-            all_prospects = json.load(f)
     else:
         all_prospects = _prospects(request)
 
-    all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
-    all_heights = [p.get("height", "") for p in all_prospects]
-    all_height_buckets = [height_bucket(h) for h in all_heights]
-    apfvs = calculate_apfv_batch_by_height(all_adjusted_pfvs, all_height_buckets)
-
     results = []
-    for idx, (p, adjusted_pfv) in enumerate(zip(all_prospects, all_adjusted_pfvs)):
-        raw = dict(p.get("raw_stats", {}))
-        pfv_val = raw.get("pfv") or p.get("pfv")
-        if pfv_val is None:
-            pfv_val = calculate_pfv(p)
-        raw["pfv"] = pfv_val
-        apfv_val = raw.get("apfv") or p.get("apfv")
-        if apfv_val is None:
-            apfv_val = apfvs[idx]
-        raw["apfv"] = float(apfv_val)
-        raw.pop("npfv", None)
-
+    for p in all_prospects:
         results.append(
             ProspectListItem(
                 prospect_id=p["prospect_id"],
@@ -137,7 +133,7 @@ def list_prospects(request: Request, year: int | None = None):
                 weight=p.get("weight", ""),
                 role=p.get("role", ""),
                 pick=p.get("pick"),
-                raw_stats=raw,
+                raw_stats=_ensure_pfv_apfv_in_raw_stats(p, request),
             )
         )
     return results
@@ -148,16 +144,13 @@ def get_prospect(prospect_id: str, request: Request):
     """Return the full dataset for a single prospect."""
     index = _prospects_by_id(request)
     prospect = index.get(prospect_id)
-    
-    all_prospects = None
-    path = None
+
     if prospect is None:
         hist_map = getattr(request.app.state, "historical_prospects_map", {})
         path = hist_map.get(prospect_id)
         if path is not None:
             try:
-                with path.open(encoding="utf-8") as f:
-                    all_prospects = json.load(f)
+                all_prospects = _load_historical_prospect_file(path)
                 prospect = next((p for p in all_prospects if p["prospect_id"] == prospect_id), None)
             except Exception:
                 pass
@@ -169,12 +162,7 @@ def get_prospect(prospect_id: str, request: Request):
         )
     prospect = dict(prospect)
 
-    # Collect all adjusted PFVs in the class for APFV ranking
-    if all_prospects is None:
-        all_prospects = _prospects(request)
-    all_adjusted_pfvs = _collect_all_adjusted_pfvs(all_prospects)
-
-    raw = _ensure_pfv_apfv_in_raw_stats(prospect, all_prospects, all_adjusted_pfvs)
+    raw = _ensure_pfv_apfv_in_raw_stats(prospect, request)
     prospect["raw_stats"] = raw
 
     # Remove top-level pfv/apfv if they exist (they live in raw_stats now)

@@ -812,7 +812,6 @@ class ProspectsPipeline:
             "BPG",
         ]
         pfvs = []
-        adjusted_pfvs = []
         for record, raw in zip(records, prospects[raw_cols].to_dict(orient="records")):
             record["raw_stats"] = {RAW_STAT_JSON_KEYS[key]: value for key, value in raw.items()}
             for col in _PERCENTILE_COLS:
@@ -829,24 +828,13 @@ class ProspectsPipeline:
             }
             pfv_val = calculate_pfv(pfv_metrics)
             pfvs.append(pfv_val)
-            adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
 
             record["pfv"] = pfv_val
-
-        if adjusted_pfvs:
-            height_buckets = [height_bucket(record["height"]) for record in records]
-            apfvs = calculate_apfv_batch_by_height(adjusted_pfvs, height_buckets)
-            for record, apfv_val in zip(records, apfvs):
-                record["apfv"] = apfv_val
-            prospects["apfv"] = apfvs
-        else:
-            prospects["apfv"] = 0.0
 
         prospects["pfv"] = pfvs
 
         for record in records:
             record["raw_stats"]["pfv"] = record.pop("pfv", 0.0)
-            record["raw_stats"]["apfv"] = record.pop("apfv", 0.0)
 
         self.json_output_path.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
@@ -876,7 +864,6 @@ class ProspectsPipeline:
             *SIMILARITY_FEATURES,
             "similar_nba_player_names",
             "pfv",
-            "apfv",
             "pick",
         ]
         available_cols = [col for col in parquet_cols if col in prospects.columns]

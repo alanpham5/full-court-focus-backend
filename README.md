@@ -543,7 +543,7 @@ The draft endpoints support both the current year's draft prospects and historic
 
 - **Datasets**: Current-year prospects are loaded from `app/data/static/prospects.json`. Historical prospects datasets are stored by year under the `app/data/static/draft/` directory (e.g., `prospects_2023.json`).
 - **Startup Indexing**: On application startup, the server scans the `app/data/static/draft/` directory and builds an in-memory lookup map linking each historical `prospect_id` to its corresponding draft year file.
-- **Cohort-Relative Calculations**: Percentile ranks and Adjusted Polygonal Feature Value (APFV) scores are automatically computed **relative to the prospect's specific draft class cohort** (not the current class).
+- **Prospect APFV Calculations**: Adjusted Polygonal Feature Value (APFV) scores are computed against the combined pool of current prospects and all ingested historical draft classes, with height-bucket normalization applied across that full prospect population.
 
 ---
 
@@ -631,7 +631,7 @@ Requires `app/data/static/prospects.json` to be generated first via `run_pipelin
 
 #### `GET /draft/{prospect_id}`
 
-- **Description**: Returns the complete dataset for a single prospect from the current draft class, including physical metadata and playstyle role. Non-raw stats include both the raw value and the prospect's MPG-adjusted percentile rank within their draft class (0–100). RealGM profile URLs are not included in API responses. Returns a `404` error if the prospect is not found in the current or historical draft classes.
+- **Description**: Returns the complete dataset for a single prospect from the current draft class, including physical metadata and playstyle role. Non-raw stats include both the raw value and percentile rank. APFV is ranked against the combined current-plus-historical prospect population. RealGM profile URLs are not included in API responses. Returns a `404` error if the prospect is not found in the current or historical draft classes.
 - **Path Parameters**: `prospect_id` (string) — slugified name, e.g., `a-j-dybantsa`
 - **Sample Response**:
   ```json
@@ -676,10 +676,10 @@ Requires `app/data/static/prospects.json` to be generated first via `run_pipelin
 
 #### `GET /draft/{historical_prospect_id}` (Historical Detail Lookup Fallback)
 
-- **Description**: If a requested `prospect_id` is not found in the current draft class, the server automatically queries the historical prospects index. If a matching player is found in a historical draft class since 2007, it resolves their draft year, calculates class-relative percentiles and rankings, and returns their full profile.
+- **Description**: If a requested `prospect_id` is not found in the current draft class, the server automatically queries the historical prospects index. If a matching player is found in a historical draft class since 2007, it resolves their draft year, calculates prospect-population APFV rankings, and returns their full profile.
 - **Differences in Response Shape**:
   - Includes a `"pick"` attribute (integer) representing the selection number in their draft class.
-  - The `"percentile"` ranks for playstyle metrics are computed against their specific draft class cohort (not the current class).
+  - The `"raw_stats.apfv"` value is computed against the combined current and historical prospect population.
   - The `"similar_nba_players"` matches are computed using the historical database and will reflect raw coordinates matching their pre-draft profile.
 - **Example Path**: `GET /draft/victor-wembanyama`
 - **Example Response**:
