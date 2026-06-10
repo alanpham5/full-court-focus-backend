@@ -891,6 +891,15 @@ class ProspectsPipeline:
                 top_pool, era_buckets, self.similar_count,
                 usage=comp_usage, max_usage=COMP_MAX_APPEARANCES,
             )
+            def _comp_sort_key(idx: int) -> float:
+                row = nba.iloc[idx]
+                mpg = float(row.get("mpg", 0.0) or 0.0)
+                ppg = float(row.get("pts_per36", 0.0) or 0.0) * mpg / 36.0
+                apg = float(row.get("ast_per36", 0.0) or 0.0) * mpg / 36.0
+                rpg = float(row.get("reb_per36", 0.0) or 0.0) * mpg / 36.0
+                return 1.0 * ppg + 1.9 * apg + 0.75 * rpg
+
+            selected = sorted(selected, key=_comp_sort_key, reverse=True)
 
             matches = []
             names = []
