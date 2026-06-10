@@ -474,20 +474,20 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 200768,
-        "player_name": "Kyle Lowry",
-        "similarity_score": 72.8,
-        "career_span": "2006-07 to 2025-26",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1629645,
         "player_name": "Kevin Porter Jr.",
         "similarity_score": 76.1,
         "career_span": "2019-20 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200768,
+        "player_name": "Kyle Lowry",
+        "similarity_score": 72.8,
+        "career_span": "2006-07 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
       },
       {
         "player_id": 203114,
@@ -674,18 +674,18 @@
     "pick": 7,
     "similar_nba_players": [
       {
-        "player_id": 1628398,
-        "player_name": "Kyle Kuzma",
-        "similarity_score": 79.9,
-        "career_span": "2017-18 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 1628970,
         "player_name": "Miles Bridges",
         "similarity_score": 82.0,
         "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628398,
+        "player_name": "Kyle Kuzma",
+        "similarity_score": 79.9,
+        "career_span": "2017-18 to 2025-26",
         "position_group": "W",
         "role": "Rim Attacker"
       },
@@ -1202,6 +1202,14 @@
         "role": "Designated Scorer"
       },
       {
+        "player_id": 1627736,
+        "player_name": "Malik Beasley",
+        "similarity_score": 68.9,
+        "career_span": "2016-17 to 2024-25",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
         "player_id": 445,
         "player_name": "Wesley Person",
         "similarity_score": 66.5,
@@ -1216,14 +1224,6 @@
         "career_span": "2009-10 to 2016-17",
         "position_group": "W",
         "role": "Designated Scorer"
-      },
-      {
-        "player_id": 1627736,
-        "player_name": "Malik Beasley",
-        "similarity_score": 68.9,
-        "career_span": "2016-17 to 2024-25",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
       }
     ],
     "raw_stats": {
@@ -2442,20 +2442,20 @@
     "pick": 24,
     "similar_nba_players": [
       {
-        "player_id": 1626181,
-        "player_name": "Norman Powell",
-        "similarity_score": 68.0,
-        "career_span": "2015-16 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 702,
         "player_name": "Voshon Lenard",
         "similarity_score": 74.1,
         "career_span": "1996-97 to 2005-06",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1626181,
+        "player_name": "Norman Powell",
+        "similarity_score": 68.0,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
       },
       {
         "player_id": 201977,
@@ -4322,18 +4322,18 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 200782,
-        "player_name": "P.J. Tucker",
-        "similarity_score": 64.4,
-        "career_span": "2006-07 to 2024-25",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 1629684,
         "player_name": "Grant Williams",
         "similarity_score": 66.7,
         "career_span": "2019-20 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 200782,
+        "player_name": "P.J. Tucker",
+        "similarity_score": 64.4,
+        "career_span": "2006-07 to 2024-25",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
@@ -4626,18 +4626,18 @@
     "pick": 45,
     "similar_nba_players": [
       {
-        "player_id": 202083,
-        "player_name": "Wesley Matthews",
-        "similarity_score": 57.0,
-        "career_span": "2009-10 to 2023-24",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 1515,
         "player_name": "Anthony Parker",
         "similarity_score": 61.0,
         "career_span": "1997-98 to 2011-12",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202083,
+        "player_name": "Wesley Matthews",
+        "similarity_score": 57.0,
+        "career_span": "2009-10 to 2023-24",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
@@ -5058,18 +5058,18 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 200770,
-        "player_name": "Jordan Farmar",
-        "similarity_score": 73.7,
-        "career_span": "2006-07 to 2016-17",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 101129,
         "player_name": "Luther Head",
         "similarity_score": 82.8,
         "career_span": "2005-06 to 2010-11",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200770,
+        "player_name": "Jordan Farmar",
+        "similarity_score": 73.7,
+        "career_span": "2006-07 to 2016-17",
         "position_group": "W",
         "role": "Secondary Creator"
       }
@@ -5370,18 +5370,18 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 953,
-        "player_name": "Lorenzen Wright",
-        "similarity_score": 78.1,
-        "career_span": "1996-97 to 2008-09",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 201941,
         "player_name": "Jordan Hill",
         "similarity_score": 81.0,
         "career_span": "2009-10 to 2016-17",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 953,
+        "player_name": "Lorenzen Wright",
+        "similarity_score": 78.1,
+        "career_span": "1996-97 to 2008-09",
         "position_group": "W",
         "role": "Interior Presence"
       }
@@ -5466,18 +5466,18 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 2400,
-        "player_name": "Drew Gooden",
-        "similarity_score": 66.4,
-        "career_span": "2002-03 to 2015-16",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 1628963,
         "player_name": "Marvin Bagley III",
         "similarity_score": 69.1,
         "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 2400,
+        "player_name": "Drew Gooden",
+        "similarity_score": 66.4,
+        "career_span": "2002-03 to 2015-16",
         "position_group": "W",
         "role": "Interior Presence"
       },

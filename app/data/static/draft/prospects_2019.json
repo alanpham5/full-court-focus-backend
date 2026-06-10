@@ -1298,18 +1298,18 @@
     "pick": 13,
     "similar_nba_players": [
       {
-        "player_id": 2037,
-        "player_name": "Jamal Crawford",
-        "similarity_score": 72.0,
-        "career_span": "2000-01 to 2019-20",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 203903,
         "player_name": "Jordan Clarkson",
         "similarity_score": 73.3,
         "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2037,
+        "player_name": "Jamal Crawford",
+        "similarity_score": 72.0,
+        "career_span": "2000-01 to 2019-20",
         "position_group": "W",
         "role": "Designated Scorer"
       },
@@ -1722,20 +1722,20 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 200768,
-        "player_name": "Kyle Lowry",
-        "similarity_score": 72.1,
-        "career_span": "2006-07 to 2025-26",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1629645,
         "player_name": "Kevin Porter Jr.",
         "similarity_score": 75.4,
         "career_span": "2019-20 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200768,
+        "player_name": "Kyle Lowry",
+        "similarity_score": 72.1,
+        "career_span": "2006-07 to 2025-26",
+        "position_group": "W",
+        "role": "Playmaker"
       },
       {
         "player_id": 203114,
@@ -2234,18 +2234,18 @@
     "pick": 22,
     "similar_nba_players": [
       {
-        "player_id": 2585,
-        "player_name": "Zaza Pachulia",
-        "similarity_score": 66.0,
-        "career_span": "2003-04 to 2018-19",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 63,
         "player_name": "Michael Smith",
         "similarity_score": 69.0,
         "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 2585,
+        "player_name": "Zaza Pachulia",
+        "similarity_score": 66.0,
+        "career_span": "2003-04 to 2018-19",
         "position_group": "W",
         "role": "Interior Presence"
       },
@@ -2354,18 +2354,18 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 2230,
-        "player_name": "Maurice Evans",
-        "similarity_score": 53.2,
-        "career_span": "2001-02 to 2011-12",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 2574,
         "player_name": "Jason Kapono",
         "similarity_score": 55.4,
         "career_span": "2003-04 to 2011-12",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2230,
+        "player_name": "Maurice Evans",
+        "similarity_score": 53.2,
+        "career_span": "2001-02 to 2011-12",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -3394,18 +3394,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 204038,
-        "player_name": "Langston Galloway",
-        "similarity_score": 59.1,
-        "career_span": "2014-15 to 2021-22",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 203477,
         "player_name": "Isaiah Canaan",
         "similarity_score": 66.5,
         "career_span": "2013-14 to 2018-19",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 204038,
+        "player_name": "Langston Galloway",
+        "similarity_score": 59.1,
+        "career_span": "2014-15 to 2021-22",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -4522,14 +4522,6 @@
     "pick": 44,
     "similar_nba_players": [
       {
-        "player_id": 201959,
-        "player_name": "Taj Gibson",
-        "similarity_score": 41.9,
-        "career_span": "2009-10 to 2025-26",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 1630188,
         "player_name": "Jalen Smith",
         "similarity_score": 71.1,
@@ -4552,6 +4544,14 @@
         "career_span": "2001-02 to 2006-07",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201959,
+        "player_name": "Taj Gibson",
+        "similarity_score": 41.9,
+        "career_span": "2009-10 to 2025-26",
+        "position_group": "W",
+        "role": "Interior Presence"
       }
     ],
     "raw_stats": {
@@ -4946,18 +4946,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 2564,
-        "player_name": "Boris Diaw",
-        "similarity_score": 63.7,
-        "career_span": "2003-04 to 2016-17",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 202362,
         "player_name": "Lance Stephenson",
         "similarity_score": 66.8,
         "career_span": "2010-11 to 2021-22",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 2564,
+        "player_name": "Boris Diaw",
+        "similarity_score": 63.7,
+        "career_span": "2003-04 to 2016-17",
         "position_group": "W",
         "role": "Secondary Creator"
       },
@@ -5570,18 +5570,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 2037,
-        "player_name": "Jamal Crawford",
-        "similarity_score": 70.7,
-        "career_span": "2000-01 to 2019-20",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 203903,
         "player_name": "Jordan Clarkson",
         "similarity_score": 73.0,
         "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2037,
+        "player_name": "Jamal Crawford",
+        "similarity_score": 70.7,
+        "career_span": "2000-01 to 2019-20",
         "position_group": "W",
         "role": "Designated Scorer"
       },
@@ -5666,18 +5666,18 @@
     "pick": 55,
     "similar_nba_players": [
       {
-        "player_id": 203504,
-        "player_name": "Trey Burke",
-        "similarity_score": 53.6,
-        "career_span": "2013-14 to 2021-22",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 201166,
         "player_name": "Aaron Brooks",
         "similarity_score": 55.0,
         "career_span": "2007-08 to 2017-18",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 203504,
+        "player_name": "Trey Burke",
+        "similarity_score": 53.6,
+        "career_span": "2013-14 to 2021-22",
         "position_group": "W",
         "role": "Secondary Creator"
       },
@@ -5890,20 +5890,20 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 200826,
-        "player_name": "J.J. Barea",
-        "similarity_score": 68.5,
-        "career_span": "2006-07 to 2019-20",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1607,
         "player_name": "Troy Hudson",
         "similarity_score": 71.3,
         "career_span": "1997-98 to 2007-08",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200826,
+        "player_name": "J.J. Barea",
+        "similarity_score": 68.5,
+        "career_span": "2006-07 to 2019-20",
+        "position_group": "W",
+        "role": "Playmaker"
       }
     ],
     "raw_stats": {
