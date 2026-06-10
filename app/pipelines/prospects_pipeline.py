@@ -556,7 +556,8 @@ SIMILARITY_COMP_SMOOTH_LAMBDA = 0.8  # (1-l)*own score + l*best neighbor score
 SIMILARITY_COMP_SMOOTH_TOPK = 7  # smooth over each player's top-7 NBA-NBA similars
 # Display gamma for prospect comps: composite scores live well below 1.0
 # (euclidean-exp scale, not cosine), so the shared 5.5 gamma crushes them.
-PROSPECT_SIMILARITY_GAMMA = 0.25
+# 0.2 maps the stored-comp distribution to ~55-79 (median ~69).
+PROSPECT_SIMILARITY_GAMMA = 0.2
 # Anti-spam: candidates are RANKED by score * (1 - penalty * their mean
 # score across every prospect in the run), demoting "universal attractor"
 # players who look similar to everyone; displayed scores stay raw. The
@@ -565,6 +566,16 @@ PROSPECT_SIMILARITY_GAMMA = 0.25
 # COMP_MAX_APPEARANCES times in one run (one class / one current board).
 COMP_POPULARITY_PENALTY = 1.0
 COMP_MAX_APPEARANCES = 2
+# Career-establishment prior (selection-stage only; the similarity matrix
+# and the points metric are untouched): comp RANKING is multiplied by
+# (floor + (1-floor) * establishment)^alpha, where establishment is the
+# NBA player's mean percentile of career minutes and career APFV quality.
+# Among similarly-shaped candidates this prefers the player with the more
+# substantial career, fixing the systematic pessimism where strong
+# prospects drew bench-player comps. Data-driven, NBA-side only — no
+# draft position and no post-draft prospect information.
+COMP_ESTABLISHMENT_FLOOR = 0.35
+COMP_ESTABLISHMENT_ALPHA = 1.0
 
 
 def build_nba_neighbor_index(nba: pd.DataFrame, top_k: int | None = None) -> np.ndarray | None:
@@ -717,6 +728,17 @@ class ProspectsPipeline:
             if "interior_load" not in df.columns:
                 df["interior_load"] = df["reb_per36"] + 2.0 * df["blk_per36"]
 
+        # Quality (APFV) as an optional similarity dimension: prospect side
+        # is computed from pre-draft stats only; NBA side from career stats.
+        # Both become within-pool percentiles downstream, so a top-quality
+        # prospect matches players who had top-quality careers — a
+        # performance prior with no draft-position input.
+        if "quality" in FEATURES:
+            if "quality" not in prospects.columns:
+                prospects["quality"] = self.prospect_quality_scores(prospects)
+            if "quality" not in nba.columns:
+                nba["quality"] = self.nba_quality_scores(nba)
+
         # ---- height & weight (NBA & prospect), filled with pool means
         prospect_heights = prospects["height"].apply(_height_to_inches).to_numpy(dtype=float).copy()
         prospect_weights = prospects["weight"].apply(
@@ -788,7 +810,9 @@ class ProspectsPipeline:
         # information only — no post-draft prospect information enters.
         if SMOOTH_LAMBDA > 0.0:
             if neighbor_idx is None:
-                neighbor_idx = build_nba_neighbor_index(nba)
+                neighbor_idx = build_nba_neighbor_index(
+                    nba, top_k=SIMILARITY_COMP_SMOOTH_TOPK
+                )
             if neighbor_idx is not None:
                 neighbor_best = playstyle_scores[:, neighbor_idx].max(axis=2)
                 playstyle_scores = (
@@ -798,12 +822,12 @@ class ProspectsPipeline:
 
         return playstyle_scores
 
-    def _build_similarity_payload(
-        self,
-        prospects: pd.DataFrame,
-        nba: pd.DataFrame,
-        playstyle_scores: np.ndarray,
-    ) -> pd.DataFrame:
+    def prospect_quality_scores(self, prospects: pd.DataFrame) -> np.ndarray:
+        """Stats-only prospect quality (APFV, height-bucket-normalized).
+
+        Pre-draft information only: per-36 production, efficiency, minutes.
+        No draft position, no post-draft data.
+        """
         pfv_keys = ["pts_per36", "reb_per36", "ast_per36", "blk_per36", "stl_per36", "ts_pct"]
         pfv_pct_arrays = {}
         for col in pfv_keys:
@@ -826,8 +850,10 @@ class ProspectsPipeline:
             adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
 
         prospect_height_buckets = [height_bucket(h) for h in prospects["height"]]
-        prospect_quality = np.array(calculate_apfv_batch_by_height(adjusted_pfvs, prospect_height_buckets))
+        return np.array(calculate_apfv_batch_by_height(adjusted_pfvs, prospect_height_buckets))
 
+    def nba_quality_scores(self, nba: pd.DataFrame) -> np.ndarray:
+        """NBA career quality (APFV, height-bucket-normalized)."""
         nba_adjusted_pfvs = []
         for j in range(len(nba)):
             row_j = nba.iloc[j]
@@ -839,7 +865,16 @@ class ProspectsPipeline:
             nba_adjusted_pfvs.append(calculate_adjusted_pfv(metrics_j, is_prospect=False))
 
         nba_height_buckets = [height_bucket(h) for h in nba["height"]]
-        nba_quality = np.array(calculate_apfv_batch_by_height(nba_adjusted_pfvs, nba_height_buckets))
+        return np.array(calculate_apfv_batch_by_height(nba_adjusted_pfvs, nba_height_buckets))
+
+    def _build_similarity_payload(
+        self,
+        prospects: pd.DataFrame,
+        nba: pd.DataFrame,
+        playstyle_scores: np.ndarray,
+    ) -> pd.DataFrame:
+        prospect_quality = self.prospect_quality_scores(prospects)
+        nba_quality = self.nba_quality_scores(nba)
 
         era_buckets = [
             _era_bucket(str(nba.iloc[j].get("career_span", "")))
@@ -863,8 +898,26 @@ class ProspectsPipeline:
         # is high for everyone in the run. Ranking uses the penalized score;
         # the displayed similarity stays the raw composite.
         popularity = playstyle_scores.mean(axis=0)
-        rank_scores = playstyle_scores * (
-            1.0 - COMP_POPULARITY_PENALTY * popularity[None, :]
+
+        # Career-establishment prior: among similarly-shaped candidates,
+        # prefer the one with the more substantial NBA career.
+        career_minutes = pd.to_numeric(
+            nba["career_minutes"], errors="coerce"
+        ).fillna(0.0).to_numpy(dtype=float)
+        ref_m = np.sort(career_minutes)
+        mins_pct = np.searchsorted(ref_m, career_minutes, side="right") / max(len(ref_m), 1)
+        ref_q = np.sort(nba_quality)
+        qual_pct = np.searchsorted(ref_q, nba_quality, side="right") / max(len(ref_q), 1)
+        establishment = 0.5 * mins_pct + 0.5 * qual_pct
+        estab_prior = (
+            COMP_ESTABLISHMENT_FLOOR
+            + (1.0 - COMP_ESTABLISHMENT_FLOOR) * establishment
+        ) ** COMP_ESTABLISHMENT_ALPHA
+
+        rank_scores = (
+            playstyle_scores
+            * (1.0 - COMP_POPULARITY_PENALTY * popularity[None, :])
+            * estab_prior[None, :]
         )
         comp_usage: dict[int, int] = {}
 
