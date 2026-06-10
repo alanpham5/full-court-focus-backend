@@ -986,20 +986,20 @@
     "pick": 10,
     "similar_nba_players": [
       {
-        "player_id": 201935,
-        "player_name": "James Harden",
-        "similarity_score": 76.9,
-        "career_span": "2009-10 to 2025-26",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 1630595,
         "player_name": "Cade Cunningham",
         "similarity_score": 78.9,
         "career_span": "2021-22 to 2025-26",
         "position_group": "W",
         "role": "Designated Scorer"
+      },
+      {
+        "player_id": 201935,
+        "player_name": "James Harden",
+        "similarity_score": 76.9,
+        "career_span": "2009-10 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
       },
       {
         "player_id": 1503,
@@ -2234,20 +2234,20 @@
     "pick": 22,
     "similar_nba_players": [
       {
-        "player_id": 1626167,
-        "player_name": "Myles Turner",
-        "similarity_score": 70.7,
-        "career_span": "2015-16 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 686,
         "player_name": "Antonio McDyess",
         "similarity_score": 73.2,
         "career_span": "1996-97 to 2010-11",
         "position_group": "W",
         "role": "Interior Presence"
+      },
+      {
+        "player_id": 1626167,
+        "player_name": "Myles Turner",
+        "similarity_score": 70.7,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
       },
       {
         "player_id": 923,
@@ -3290,18 +3290,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 949,
-        "player_name": "Shareef Abdur-Rahim",
-        "similarity_score": 71.9,
-        "career_span": "1996-97 to 2007-08",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 2405,
         "player_name": "Amar'e Stoudemire",
         "similarity_score": 75.1,
         "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 949,
+        "player_name": "Shareef Abdur-Rahim",
+        "similarity_score": 71.9,
+        "career_span": "1996-97 to 2007-08",
         "position_group": "W",
         "role": "Designated Scorer"
       }
@@ -3498,18 +3498,18 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 45,
-        "player_name": "George McCloud",
-        "similarity_score": 69.1,
-        "career_span": "1996-97 to 2001-02",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 1626224,
         "player_name": "Cedi Osman",
         "similarity_score": 70.3,
         "career_span": "2017-18 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 45,
+        "player_name": "George McCloud",
+        "similarity_score": 69.1,
+        "career_span": "1996-97 to 2001-02",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -4018,18 +4018,18 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 1626181,
-        "player_name": "Norman Powell",
-        "similarity_score": 63.3,
-        "career_span": "2015-16 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 203924,
         "player_name": "Jerami Grant",
         "similarity_score": 63.7,
         "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1626181,
+        "player_name": "Norman Powell",
+        "similarity_score": 63.3,
+        "career_span": "2015-16 to 2025-26",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -4122,18 +4122,18 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 2557,
-        "player_name": "Luke Ridnour",
-        "similarity_score": 71.4,
-        "career_span": "2003-04 to 2014-15",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1541,
         "player_name": "Alvin Williams",
         "similarity_score": 74.6,
         "career_span": "1997-98 to 2006-07",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2557,
+        "player_name": "Luke Ridnour",
+        "similarity_score": 71.4,
+        "career_span": "2003-04 to 2014-15",
         "position_group": "W",
         "role": "Playmaker"
       }
@@ -4626,6 +4626,14 @@
     "pick": 45,
     "similar_nba_players": [
       {
+        "player_id": 1629013,
+        "player_name": "Landry Shamet",
+        "similarity_score": 73.6,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
         "player_id": 1627854,
         "player_name": "Bryn Forbes",
         "similarity_score": 71.4,
@@ -4638,14 +4646,6 @@
         "player_name": "Reggie Bullock Jr.",
         "similarity_score": 71.3,
         "career_span": "2013-14 to 2023-24",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
-        "player_id": 1629013,
-        "player_name": "Landry Shamet",
-        "similarity_score": 73.6,
-        "career_span": "2018-19 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
@@ -5146,18 +5146,18 @@
     "pick": 50,
     "similar_nba_players": [
       {
-        "player_id": 1888,
-        "player_name": "Richard Hamilton",
-        "similarity_score": 35.1,
-        "career_span": "1999-00 to 2012-13",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 275,
         "player_name": "Allan Houston",
         "similarity_score": 37.3,
         "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1888,
+        "player_name": "Richard Hamilton",
+        "similarity_score": 35.1,
+        "career_span": "1999-00 to 2012-13",
         "position_group": "W",
         "role": "Designated Scorer"
       },

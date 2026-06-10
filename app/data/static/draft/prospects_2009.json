@@ -474,18 +474,18 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 201952,
-        "player_name": "Jeff Teague",
-        "similarity_score": 64.9,
-        "career_span": "2009-10 to 2020-21",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 2551,
         "player_name": "T.J. Ford",
         "similarity_score": 70.2,
         "career_span": "2003-04 to 2011-12",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 201952,
+        "player_name": "Jeff Teague",
+        "similarity_score": 64.9,
+        "career_span": "2009-10 to 2020-21",
         "position_group": "W",
         "role": "Playmaker"
       },
@@ -1002,18 +1002,18 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 72,
-        "player_name": "Kenny Anderson",
-        "similarity_score": 60.4,
-        "career_span": "1996-97 to 2004-05",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1747,
         "player_name": "Rafer Alston",
         "similarity_score": 60.6,
         "career_span": "1999-00 to 2009-10",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 72,
+        "player_name": "Kenny Anderson",
+        "similarity_score": 60.4,
+        "career_span": "1996-97 to 2004-05",
         "position_group": "W",
         "role": "Playmaker"
       }
@@ -1714,22 +1714,6 @@
     "pick": 17,
     "similar_nba_players": [
       {
-        "player_id": 1884,
-        "player_name": "Baron Davis",
-        "similarity_score": 60.2,
-        "career_span": "1999-00 to 2011-12",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
-        "player_id": 467,
-        "player_name": "Jason Kidd",
-        "similarity_score": 60.2,
-        "career_span": "1996-97 to 2012-13",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1630581,
         "player_name": "Josh Giddey",
         "similarity_score": 74.2,
@@ -1744,6 +1728,22 @@
         "career_span": "2019-20 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1884,
+        "player_name": "Baron Davis",
+        "similarity_score": 60.2,
+        "career_span": "1999-00 to 2011-12",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 467,
+        "player_name": "Jason Kidd",
+        "similarity_score": 60.2,
+        "career_span": "1996-97 to 2012-13",
+        "position_group": "W",
+        "role": "Playmaker"
       }
     ],
     "raw_stats": {
@@ -2562,20 +2562,20 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 965,
-        "player_name": "Derek Fisher",
-        "similarity_score": 67.5,
-        "career_span": "1996-97 to 2013-14",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 1630631,
         "player_name": "Jose Alvarado",
         "similarity_score": 70.5,
         "career_span": "2021-22 to 2025-26",
         "position_group": "W",
         "role": "Playmaker"
+      },
+      {
+        "player_id": 965,
+        "player_name": "Derek Fisher",
+        "similarity_score": 67.5,
+        "career_span": "1996-97 to 2013-14",
+        "position_group": "W",
+        "role": "Secondary Creator"
       }
     ],
     "raw_stats": {
@@ -3186,18 +3186,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 101138,
-        "player_name": "Brandon Bass",
-        "similarity_score": 72.1,
-        "career_span": "2005-06 to 2016-17",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 673,
         "player_name": "Alan Henderson",
         "similarity_score": 73.7,
         "career_span": "1996-97 to 2006-07",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 101138,
+        "player_name": "Brandon Bass",
+        "similarity_score": 72.1,
+        "career_span": "2005-06 to 2016-17",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -4122,18 +4122,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 101141,
-        "player_name": "Ersan Ilyasova",
-        "similarity_score": 71.1,
-        "career_span": "2006-07 to 2020-21",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 2804,
         "player_name": "Andres Nocioni",
         "similarity_score": 73.9,
         "career_span": "2004-05 to 2011-12",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 101141,
+        "player_name": "Ersan Ilyasova",
+        "similarity_score": 71.1,
+        "career_span": "2006-07 to 2020-21",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -5458,14 +5458,6 @@
     "pick": 53,
     "similar_nba_players": [
       {
-        "player_id": 203897,
-        "player_name": "Zach LaVine",
-        "similarity_score": 67.1,
-        "career_span": "2014-15 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1629639,
         "player_name": "Tyler Herro",
         "similarity_score": 68.3,
@@ -5474,9 +5466,9 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 203903,
-        "player_name": "Jordan Clarkson",
-        "similarity_score": 68.3,
+        "player_id": 203897,
+        "player_name": "Zach LaVine",
+        "similarity_score": 67.1,
         "career_span": "2014-15 to 2025-26",
         "position_group": "W",
         "role": "Designated Scorer"
@@ -5486,6 +5478,14 @@
         "player_name": "Jordan Crawford",
         "similarity_score": 80.3,
         "career_span": "2010-11 to 2017-18",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 203903,
+        "player_name": "Jordan Clarkson",
+        "similarity_score": 68.3,
+        "career_span": "2014-15 to 2025-26",
         "position_group": "W",
         "role": "Designated Scorer"
       }
@@ -5882,20 +5882,20 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 202692,
-        "player_name": "Alec Burks",
-        "similarity_score": 63.1,
-        "career_span": "2011-12 to 2024-25",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 369,
         "player_name": "Charlie Ward",
         "similarity_score": 68.6,
         "career_span": "1996-97 to 2004-05",
         "position_group": "W",
         "role": "Playmaker"
+      },
+      {
+        "player_id": 202692,
+        "player_name": "Alec Burks",
+        "similarity_score": 63.1,
+        "career_span": "2011-12 to 2024-25",
+        "position_group": "W",
+        "role": "Rim Attacker"
       },
       {
         "player_id": 345,

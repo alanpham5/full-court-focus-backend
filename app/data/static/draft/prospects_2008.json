@@ -466,18 +466,18 @@
     "pick": 5,
     "similar_nba_players": [
       {
-        "player_id": 252,
-        "player_name": "Karl Malone",
-        "similarity_score": 72.2,
-        "career_span": "1996-97 to 2003-04",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1626157,
         "player_name": "Karl-Anthony Towns",
         "similarity_score": 74.7,
         "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 252,
+        "player_name": "Karl Malone",
+        "similarity_score": 72.2,
+        "career_span": "1996-97 to 2003-04",
         "position_group": "W",
         "role": "Designated Scorer"
       },
@@ -2138,20 +2138,20 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 2449,
-        "player_name": "Luis Scola",
-        "similarity_score": 61.9,
-        "career_span": "2007-08 to 2016-17",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 202703,
         "player_name": "Nikola Mirotic",
         "similarity_score": 69.2,
         "career_span": "2014-15 to 2018-19",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2449,
+        "player_name": "Luis Scola",
+        "similarity_score": 61.9,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Interior Presence"
       },
       {
         "player_id": 101112,
@@ -3170,20 +3170,20 @@
     "pick": 31,
     "similar_nba_players": [
       {
-        "player_id": 735,
-        "player_name": "Bryant Reeves",
-        "similarity_score": 44.1,
-        "career_span": "1996-97 to 2000-01",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 2201,
         "player_name": "Eddy Curry",
         "similarity_score": 63.3,
         "career_span": "2001-02 to 2012-13",
         "position_group": "W",
         "role": "Designated Scorer"
+      },
+      {
+        "player_id": 735,
+        "player_name": "Bryant Reeves",
+        "similarity_score": 44.1,
+        "career_span": "1996-97 to 2000-01",
+        "position_group": "W",
+        "role": "Rim Attacker"
       },
       {
         "player_id": 1134,
@@ -3394,20 +3394,20 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 200794,
-        "player_name": "Paul Millsap",
-        "similarity_score": 60.8,
-        "career_span": "2006-07 to 2021-22",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 431,
         "player_name": "Shawn Kemp",
         "similarity_score": 63.6,
         "career_span": "1996-97 to 2002-03",
         "position_group": "W",
         "role": "Designated Scorer"
+      },
+      {
+        "player_id": 200794,
+        "player_name": "Paul Millsap",
+        "similarity_score": 60.8,
+        "career_span": "2006-07 to 2021-22",
+        "position_group": "W",
+        "role": "Interior Presence"
       }
     ],
     "raw_stats": {
@@ -3602,18 +3602,18 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 2198,
-        "player_name": "Kwame Brown",
-        "similarity_score": 74.5,
-        "career_span": "2001-02 to 2012-13",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 2036,
         "player_name": "Chris Mihm",
         "similarity_score": 76.7,
         "career_span": "2000-01 to 2008-09",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 2198,
+        "player_name": "Kwame Brown",
+        "similarity_score": 74.5,
+        "career_span": "2001-02 to 2012-13",
         "position_group": "W",
         "role": "Interior Presence"
       }
@@ -4418,20 +4418,20 @@
     "pick": 43,
     "similar_nba_players": [
       {
-        "player_id": 1631222,
-        "player_name": "Jake LaRavia",
-        "similarity_score": 71.1,
-        "career_span": "2022-23 to 2025-26",
-        "position_group": "W",
-        "role": "Defensive Specialist"
-      },
-      {
         "player_id": 202697,
         "player_name": "Iman Shumpert",
         "similarity_score": 75.0,
         "career_span": "2011-12 to 2020-21",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1631222,
+        "player_name": "Jake LaRavia",
+        "similarity_score": 71.1,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
       },
       {
         "player_id": 197,
@@ -4738,20 +4738,20 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 2449,
-        "player_name": "Luis Scola",
-        "similarity_score": 66.5,
-        "career_span": "2007-08 to 2016-17",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 2211,
         "player_name": "Troy Murphy",
         "similarity_score": 68.6,
         "career_span": "2001-02 to 2012-13",
         "position_group": "W",
         "role": "Rim Attacker"
+      },
+      {
+        "player_id": 2449,
+        "player_name": "Luis Scola",
+        "similarity_score": 66.5,
+        "career_span": "2007-08 to 2016-17",
+        "position_group": "W",
+        "role": "Interior Presence"
       },
       {
         "player_id": 136,
@@ -5250,18 +5250,18 @@
     "pick": 51,
     "similar_nba_players": [
       {
-        "player_id": 2037,
-        "player_name": "Jamal Crawford",
-        "similarity_score": 64.3,
-        "career_span": "2000-01 to 2019-20",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 203903,
         "player_name": "Jordan Clarkson",
         "similarity_score": 66.3,
         "career_span": "2014-15 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 2037,
+        "player_name": "Jamal Crawford",
+        "similarity_score": 64.3,
+        "career_span": "2000-01 to 2019-20",
         "position_group": "W",
         "role": "Designated Scorer"
       },

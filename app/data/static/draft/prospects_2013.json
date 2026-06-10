@@ -674,6 +674,14 @@
     "pick": 7,
     "similar_nba_players": [
       {
+        "player_id": 203468,
+        "player_name": "CJ McCollum",
+        "similarity_score": 76.3,
+        "career_span": "2013-14 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
         "player_id": 203897,
         "player_name": "Zach LaVine",
         "similarity_score": 73.8,
@@ -686,14 +694,6 @@
         "player_name": "Tyler Herro",
         "similarity_score": 74.0,
         "career_span": "2019-20 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
-        "player_id": 203468,
-        "player_name": "CJ McCollum",
-        "similarity_score": 76.3,
-        "career_span": "2013-14 to 2025-26",
         "position_group": "W",
         "role": "Designated Scorer"
       },
@@ -1722,20 +1722,20 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 200826,
-        "player_name": "J.J. Barea",
-        "similarity_score": 73.7,
-        "career_span": "2006-07 to 2019-20",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1607,
         "player_name": "Troy Hudson",
         "similarity_score": 78.1,
         "career_span": "1997-98 to 2007-08",
         "position_group": "W",
         "role": "Secondary Creator"
+      },
+      {
+        "player_id": 200826,
+        "player_name": "J.J. Barea",
+        "similarity_score": 73.7,
+        "career_span": "2006-07 to 2019-20",
+        "position_group": "W",
+        "role": "Playmaker"
       },
       {
         "player_id": 1731,
@@ -2562,18 +2562,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 202066,
-        "player_name": "Garrett Temple",
-        "similarity_score": 68.3,
-        "career_span": "2009-10 to 2025-26",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 1630182,
         "player_name": "Josh Green",
         "similarity_score": 70.7,
         "career_span": "2020-21 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202066,
+        "player_name": "Garrett Temple",
+        "similarity_score": 68.3,
+        "career_span": "2009-10 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -2666,20 +2666,20 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 923,
-        "player_name": "Donyell Marshall",
-        "similarity_score": 64.1,
-        "career_span": "1996-97 to 2008-09",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 201152,
         "player_name": "Thaddeus Young",
         "similarity_score": 64.8,
         "career_span": "2007-08 to 2023-24",
         "position_group": "W",
         "role": "Rim Attacker"
+      },
+      {
+        "player_id": 923,
+        "player_name": "Donyell Marshall",
+        "similarity_score": 64.1,
+        "career_span": "1996-97 to 2008-09",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
       }
     ],
     "raw_stats": {
@@ -4122,18 +4122,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 201590,
-        "player_name": "Donte Greene",
-        "similarity_score": 76.3,
-        "career_span": "2008-09 to 2011-12",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 200761,
         "player_name": "Shawne Williams",
         "similarity_score": 78.7,
         "career_span": "2006-07 to 2014-15",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 201590,
+        "player_name": "Donte Greene",
+        "similarity_score": 76.3,
+        "career_span": "2008-09 to 2011-12",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -4218,20 +4218,20 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 1716,
-        "player_name": "Larry Hughes",
-        "similarity_score": 68.0,
-        "career_span": "1998-99 to 2011-12",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 203487,
         "player_name": "Michael Carter-Williams",
         "similarity_score": 69.4,
         "career_span": "2013-14 to 2022-23",
         "position_group": "W",
         "role": "Playmaker"
+      },
+      {
+        "player_id": 1716,
+        "player_name": "Larry Hughes",
+        "similarity_score": 68.0,
+        "career_span": "1998-99 to 2011-12",
+        "position_group": "W",
+        "role": "Secondary Creator"
       },
       {
         "player_id": 1627936,
@@ -5058,18 +5058,18 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 203488,
-        "player_name": "Mike Muscala",
-        "similarity_score": 77.5,
-        "career_span": "2013-14 to 2023-24",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 2588,
         "player_name": "Matt Bonner",
         "similarity_score": 79.1,
         "career_span": "2004-05 to 2015-16",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203488,
+        "player_name": "Mike Muscala",
+        "similarity_score": 77.5,
+        "career_span": "2013-14 to 2023-24",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -5258,18 +5258,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 101138,
-        "player_name": "Brandon Bass",
-        "similarity_score": 71.1,
-        "career_span": "2005-06 to 2016-17",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 673,
         "player_name": "Alan Henderson",
         "similarity_score": 71.9,
         "career_span": "1996-97 to 2006-07",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 101138,
+        "player_name": "Brandon Bass",
+        "similarity_score": 71.1,
+        "career_span": "2005-06 to 2016-17",
         "position_group": "W",
         "role": "Rim Attacker"
       },
@@ -5370,18 +5370,18 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 2557,
-        "player_name": "Luke Ridnour",
-        "similarity_score": 72.0,
-        "career_span": "2003-04 to 2014-15",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
         "player_id": 1541,
         "player_name": "Alvin Williams",
         "similarity_score": 75.0,
         "career_span": "1997-98 to 2006-07",
+        "position_group": "W",
+        "role": "Playmaker"
+      },
+      {
+        "player_id": 2557,
+        "player_name": "Luke Ridnour",
+        "similarity_score": 72.0,
+        "career_span": "2003-04 to 2014-15",
         "position_group": "W",
         "role": "Playmaker"
       }

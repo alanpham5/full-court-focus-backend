@@ -897,7 +897,11 @@ class ProspectsPipeline:
                 ppg = float(row.get("pts_per36", 0.0) or 0.0) * mpg / 36.0
                 apg = float(row.get("ast_per36", 0.0) or 0.0) * mpg / 36.0
                 rpg = float(row.get("reb_per36", 0.0) or 0.0) * mpg / 36.0
-                return 1.0 * ppg + 1.9 * apg + 0.75 * rpg
+                production = 1.0 * ppg + 1.9 * apg + 0.75 * rpg
+                sim_frac = similarity_pct(
+                    float(composite[idx]), gamma=PROSPECT_SIMILARITY_GAMMA
+                ) / 100.0
+                return production * sim_frac
 
             selected = sorted(selected, key=_comp_sort_key, reverse=True)
 

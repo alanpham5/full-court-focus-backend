@@ -241,11 +241,11 @@ Selection then walks the ranking $R(p, \cdot)$ in descending order over the top 
 2. **Era diversity**: at most 2 comps per career-era bucket (late-90s, early-2000s, late-2000s, early-2010s, late-2010s, 2020s, by career midpoint).
 3. **Usage cap**: no NBA player may appear more than 2 times across all prospects in a single run (one draft class, or one current board). Earlier-processed prospects claim first; later ones fall to the next-best distinct comp. The era constraint is relaxed before the usage cap if a prospect runs short.
 
-The four selected comps are stored and returned in decreasing order of a weighted career per-game production index,
+The four selected comps are stored and returned in decreasing order of a similarity-weighted career production index,
 
-$$I_j = 1.0\,\mathrm{PPG}_j + 1.9\,\mathrm{APG}_j + 0.75\,\mathrm{RPG}_j,$$
+$$I_j = \left(1.0\,\mathrm{PPG}_j + 1.9\,\mathrm{APG}_j + 0.75\,\mathrm{RPG}_j\right) \cdot \frac{\text{display}_j}{100},$$
 
-where each per-game rate is derived from career rates as $\mathrm{XPG}_j = \text{x\_per36}_j \cdot \text{mpg}_j / 36$.
+where each per-game rate is derived from career rates as $\mathrm{XPG}_j = \text{x\_per36}_j \cdot \text{mpg}_j / 36$ and $\text{display}_j$ is the displayed similarity percentage (Section 3.7).
 
 ### 3.7 Displayed percentage
 
