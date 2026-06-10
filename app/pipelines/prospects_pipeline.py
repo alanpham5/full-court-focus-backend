@@ -475,25 +475,133 @@ def _select_era_diverse(
     era_buckets: list[str],
     count: int,
     max_per_era: int = 2,
+    usage: dict[int, int] | None = None,
+    max_usage: int | None = None,
 ) -> list[int]:
+    """Pick `count` comps from a ranked candidate list.
+
+    Constraints: at most `max_per_era` per era bucket, and (if `usage` and
+    `max_usage` are given) at most `max_usage` appearances of any one NBA
+    player across the whole run — prospects processed earlier in the run get
+    first claim, later ones fall through to the next-best distinct comp.
+    Era constraint is relaxed before the usage cap if we run short.
+    """
+    def _capped(idx: int) -> bool:
+        return (
+            usage is not None
+            and max_usage is not None
+            and usage.get(idx, 0) >= max_usage
+        )
+
     selected: list[int] = []
     era_counts: dict[str, int] = {}
     for idx in ranked_indices:
         if len(selected) >= count:
             break
-        era = era_buckets[int(idx)]
+        idx = int(idx)
+        if _capped(idx):
+            continue
+        era = era_buckets[idx]
         if era_counts.get(era, 0) < max_per_era:
-            selected.append(int(idx))
+            selected.append(idx)
             era_counts[era] = era_counts.get(era, 0) + 1
 
     if len(selected) < count:
         for idx in ranked_indices:
             if len(selected) >= count:
                 break
-            if int(idx) not in selected:
-                selected.append(int(idx))
+            idx = int(idx)
+            if idx not in selected and not _capped(idx):
+                selected.append(idx)
 
+    if usage is not None:
+        for idx in selected:
+            usage[idx] = usage.get(idx, 0) + 1
     return selected
+
+
+# ---- prospect -> NBA similarity config (tuned; see scratch/tune_points.py)
+SIMILARITY_COMP_FEATURES = [
+    "pts_per36",
+    "reb_per36",
+    "ast_per36",
+    "blk_per36",
+    "stl_per36",
+    "fg3a_rate",
+    "fta_rate",
+    "ts_pct",
+    "ast_pct",
+    "mpg",
+    "stocks",        # stl_per36 + blk_per36
+    "scoring_load",  # pts_per36 * (1 - ast_pct)
+]
+SIMILARITY_COMP_WEIGHTS = np.array([
+    0.0,    # pts_per36
+    0.34,   # reb_per36
+    0.05,   # ast_per36
+    0.4,    # blk_per36
+    0.3,    # stl_per36
+    0.29,   # fg3a_rate
+    0.31,   # fta_rate
+    0.0,    # ts_pct
+    0.35,   # ast_pct
+    0.1,    # mpg
+    0.13,   # stocks
+    0.15,   # scoring_load
+    0.294,  # height_inches (h/w capped at 25% of squared-weight budget)
+    0.392,  # weight_lbs    (h/w capped at 25% of squared-weight budget)
+])
+SIMILARITY_COMP_BANDWIDTH = 0.08
+SIMILARITY_COMP_SMOOTH_LAMBDA = 0.8  # (1-l)*own score + l*best neighbor score
+SIMILARITY_COMP_SMOOTH_TOPK = 7  # smooth over each player's top-7 NBA-NBA similars
+# Display gamma for prospect comps: composite scores live well below 1.0
+# (euclidean-exp scale, not cosine), so the shared 5.5 gamma crushes them.
+PROSPECT_SIMILARITY_GAMMA = 0.25
+# Anti-spam: candidates are RANKED by score * (1 - penalty * their mean
+# score across every prospect in the run), demoting "universal attractor"
+# players who look similar to everyone; displayed scores stay raw. The
+# penalty is multiplicative so a dissimilar player can never outrank a
+# similar one. Additionally no NBA player may appear as a comp more than
+# COMP_MAX_APPEARANCES times in one run (one class / one current board).
+COMP_POPULARITY_PENALTY = 1.0
+COMP_MAX_APPEARANCES = 2
+
+
+def build_nba_neighbor_index(nba: pd.DataFrame, top_k: int | None = None) -> np.ndarray | None:
+    """Padded NBA-NBA neighbor index from player_profiles.json.
+
+    Row j lists the columns of player j's `similar_players` (first `top_k`
+    if given), padded with j itself (a neutral self-reference under
+    max-aggregation). Returns None if player_profiles.json is missing
+    (first-ever run) or has no usable edges.
+    """
+    from config import PLAYER_PROFILES_PATH
+    try:
+        profiles = json.loads(Path(PLAYER_PROFILES_PATH).read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        logger.warning(
+            "player_profiles.json not found; skipping NBA neighborhood smoothing."
+        )
+        return None
+    col_by_id = {int(pid): j for j, pid in enumerate(nba["player_id"].astype(int))}
+    neighbor_idx = []
+    for pid in nba["player_id"].astype(int):
+        sims = profiles.get(str(int(pid)), {}).get("similar_players", [])
+        if top_k is not None:
+            sims = sims[:top_k]
+        cols = [
+            col_by_id[int(s["player_id"])]
+            for s in sims
+            if int(s["player_id"]) in col_by_id
+        ]
+        neighbor_idx.append(cols)
+    max_deg = max((len(c) for c in neighbor_idx), default=0)
+    if max_deg == 0:
+        return None
+    return np.array(
+        [cols + [j] * (max_deg - len(cols)) for j, cols in enumerate(neighbor_idx)],
+        dtype=np.int64,
+    )
 
 
 def _percentile_of_score(arr: np.ndarray, score: float) -> float:
@@ -543,37 +651,44 @@ class ProspectsPipeline:
         - Quality affinity (APFV) further gates matches so a marginal prospect
           isn't paired with a star and vice versa.
 
-        Tuned on the historical 2007–2024 prospect cohorts (n=490 with NBA
-        counterparts in the pool): pre-name-mask top-7 hit rate ≈ 63%.
+        Tuned on the historical 2007–2023 prospect cohorts (n=490 with NBA
+        counterparts in the pool) against a points objective evaluated on the
+        raw top-7 before name filtering: +2 if the counterpart is in the
+        top-7, +1 per top-7 player whose own top-7 NBA-NBA similars contain
+        the counterpart. The tuner (scratch/tune_points.py) calls
+        compute_similarity_matrix directly so the eval space and production
+        space cannot drift. No post-draft information or draft position is
+        used, and height/weight carry a capped share of the weight budget.
         """
-        # ---- feature set & tuned weights (see scratch/tune_prospect_similarity.py)
-        FEATURES = [
-            "reb_per36",
-            "ast_per36",
-            "blk_per36",
-            "stl_per36",
-            "fg3a_rate",
-            "fta_rate",
-            "ts_pct",
-            "ast_pct",
-        ]
-        # weights order: features..., height, weight
-        WEIGHTS = np.array([
-            1.0,   # reb_per36
-            0.5,   # ast_per36
-            1.0,   # blk_per36
-            0.7,   # stl_per36
-            0.5,   # fg3a_rate
-            0.5,   # fta_rate
-            0.5,   # ts_pct
-            0.7,   # ast_pct
-            0.4,   # height_inches  (light size prior — playstyle should drive comps)
-            0.4,   # weight_lbs     (light size prior — playstyle should drive comps)
-        ])
-        BANDWIDTH = 2.0
-
         # ---- pool selection
         nba = career[career["career_games"] >= 200].copy().reset_index(drop=True)
+        playstyle_scores = self.compute_similarity_matrix(prospects, nba)
+
+        return self._build_similarity_payload(prospects, nba, playstyle_scores)
+
+    def compute_similarity_matrix(
+        self,
+        prospects: pd.DataFrame,
+        nba: pd.DataFrame,
+        *,
+        features: list[str] | None = None,
+        weights: np.ndarray | None = None,
+        bandwidth: float | None = None,
+        smooth_lambda: float | None = None,
+        neighbor_idx: np.ndarray | None = None,
+    ) -> np.ndarray:
+        """Composite similarity matrix (n_prospects, n_nba) for one class.
+
+        `nba` must already be the filtered comp pool (career_games >= 200).
+        Keyword overrides exist so scratch/tune_points.py can tune through
+        this exact code path; production uses the module-level constants.
+        """
+        FEATURES = features if features is not None else SIMILARITY_COMP_FEATURES
+        WEIGHTS = weights if weights is not None else SIMILARITY_COMP_WEIGHTS
+        BANDWIDTH = bandwidth if bandwidth is not None else SIMILARITY_COMP_BANDWIDTH
+        SMOOTH_LAMBDA = (
+            smooth_lambda if smooth_lambda is not None else SIMILARITY_COMP_SMOOTH_LAMBDA
+        )
 
         # ast_pct may be missing on older prospect parquet rows; compute proxy.
         if "ast_pct" not in prospects.columns:
@@ -582,6 +697,25 @@ class ProspectsPipeline:
                 prospects["ast_pct"] = (
                     prospects["APG"] / prospects["FGM"].replace(0, np.nan)
                 ).replace([np.inf, -np.inf], np.nan).fillna(0.0)
+
+        # Engineered archetype features (computed identically on both pools
+        # from pre-draft / per-36 stats only).
+        prospects = prospects.copy()
+        for df in (prospects, nba):
+            if "stocks" not in df.columns:
+                df["stocks"] = df["stl_per36"] + df["blk_per36"]
+            if "scoring_load" not in df.columns:
+                df["scoring_load"] = df["pts_per36"] * (
+                    1.0 - df["ast_pct"].clip(0.0, 1.0)
+                )
+            if "playmake_load" not in df.columns:
+                df["playmake_load"] = (
+                    df["ast_per36"] + 0.5 * df["ast_pct"].clip(0.0, 1.0)
+                )
+            if "perimeter_skill" not in df.columns:
+                df["perimeter_skill"] = df["fg3a_rate"] * df["ts_pct"]
+            if "interior_load" not in df.columns:
+                df["interior_load"] = df["reb_per36"] + 2.0 * df["blk_per36"]
 
         # ---- height & weight (NBA & prospect), filled with pool means
         prospect_heights = prospects["height"].apply(_height_to_inches).to_numpy(dtype=float).copy()
@@ -648,6 +782,28 @@ class ProspectsPipeline:
         dists = np.sqrt(diff_sq)
         playstyle_scores = np.exp(-dists / BANDWIDTH)
 
+        # ---- neighborhood smoothing over the NBA-NBA similarity graph
+        # score'(p, j) = (1-l)*score(p, j) + l*max_{k in similar_players(j)} score(p, k)
+        # Comps whose neighborhoods resemble the prospect rank higher. NBA-side
+        # information only — no post-draft prospect information enters.
+        if SMOOTH_LAMBDA > 0.0:
+            if neighbor_idx is None:
+                neighbor_idx = build_nba_neighbor_index(nba)
+            if neighbor_idx is not None:
+                neighbor_best = playstyle_scores[:, neighbor_idx].max(axis=2)
+                playstyle_scores = (
+                    (1.0 - SMOOTH_LAMBDA) * playstyle_scores
+                    + SMOOTH_LAMBDA * neighbor_best
+                )
+
+        return playstyle_scores
+
+    def _build_similarity_payload(
+        self,
+        prospects: pd.DataFrame,
+        nba: pd.DataFrame,
+        playstyle_scores: np.ndarray,
+    ) -> pd.DataFrame:
         pfv_keys = ["pts_per36", "reb_per36", "ast_per36", "blk_per36", "stl_per36", "ts_pct"]
         pfv_pct_arrays = {}
         for col in pfv_keys:
@@ -703,6 +859,15 @@ class ProspectsPipeline:
         similar_payloads = []
         similar_names = []
 
+        # Anti-spam ranking: demote "universal attractor" players whose score
+        # is high for everyone in the run. Ranking uses the penalized score;
+        # the displayed similarity stays the raw composite.
+        popularity = playstyle_scores.mean(axis=0)
+        rank_scores = playstyle_scores * (
+            1.0 - COMP_POPULARITY_PENALTY * popularity[None, :]
+        )
+        comp_usage: dict[int, int] = {}
+
         from tqdm import tqdm
         for i in tqdm(range(len(prospects)), desc="Calculating similar NBA players for prospects", unit="prospect"):
             # Composite = playstyle similarity in peer-percentile space.
@@ -712,16 +877,21 @@ class ProspectsPipeline:
             # consistently hurt predictive accuracy because the same person's
             # prospect-APFV and NBA-APFV often diverge.
             composite = playstyle_scores[i].copy()
+            ranking = rank_scores[i].copy()
 
             # Name match filter: exclude NBA counterpart with the exact same name (diacritic-insensitive)
             prospect_name_raw = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", ""))
             prospect_name_clean = clean_name(prospect_name_raw)
             name_mask = nba_names_clean == prospect_name_clean
             composite[name_mask] = -1.0
+            ranking[name_mask] = -np.inf
 
-            ranked = np.argsort(composite)[::-1]
-            top_pool = ranked[: self.similar_count * 5]
-            selected = _select_era_diverse(top_pool, era_buckets, self.similar_count)
+            ranked = np.argsort(ranking)[::-1]
+            top_pool = ranked[: self.similar_count * 10]
+            selected = _select_era_diverse(
+                top_pool, era_buckets, self.similar_count,
+                usage=comp_usage, max_usage=COMP_MAX_APPEARANCES,
+            )
 
             matches = []
             names = []
@@ -732,7 +902,9 @@ class ProspectsPipeline:
                     {
                         "player_id": int(player["player_id"]),
                         "player_name": str(player["player_name"]),
-                        "similarity_score": similarity_pct(float(composite[idx])),
+                        "similarity_score": similarity_pct(
+                            float(composite[idx]), gamma=PROSPECT_SIMILARITY_GAMMA
+                        ),
                         "career_span": str(player.get("career_span", "")),
                         "position_group": str(player.get("position_group", "")),
                         "role": str(player.get("role", "")),
