@@ -1,12 +1,13 @@
 # Scoring and Similarity Algorithms
 
-This document specifies the three core quantitative systems in the backend:
+This document specifies the four core quantitative systems in the backend:
 
 1. **PFV / APFV** — a single-number quality score for a player's statistical profile.
 2. **NBA-to-NBA similarity** — the `similar_players` lists in `player_profiles.json`.
 3. **Prospect-to-NBA similarity** — the `similar_nba_players` comps attached to draft prospects.
+4. **Lineup synergy** — the synergy score, style vector, and historical-lineup matching for custom five-man units.
 
-Sources of truth: `app/analytics/player_profiles/archetypes.py`, `app/analytics/player_profiles/similarity.py`, `app/pipelines/prospects_pipeline.py`, and the tuner `app/scratch/tune_points.py`.
+Sources of truth: `app/analytics/player_profiles/archetypes.py`, `app/analytics/player_profiles/similarity.py`, `app/pipelines/prospects_pipeline.py`, `app/analytics/lineup_synergy.py`, and the tuner `app/scratch/tune_points.py`.
 
 ---
 
@@ -240,6 +241,12 @@ Selection then walks the ranking $R(p, \cdot)$ in descending order over the top 
 2. **Era diversity**: at most 2 comps per career-era bucket (late-90s, early-2000s, late-2000s, early-2010s, late-2010s, 2020s, by career midpoint).
 3. **Usage cap**: no NBA player may appear more than 2 times across all prospects in a single run (one draft class, or one current board). Earlier-processed prospects claim first; later ones fall to the next-best distinct comp. The era constraint is relaxed before the usage cap if a prospect runs short.
 
+The four selected comps are stored and returned in decreasing order of a weighted career per-game production index,
+
+$$I_j = 1.0\,\mathrm{PPG}_j + 1.9\,\mathrm{APG}_j + 0.75\,\mathrm{RPG}_j,$$
+
+where each per-game rate is derived from career rates as $\mathrm{XPG}_j = \text{x\_per36}_j \cdot \text{mpg}_j / 36$.
+
 ### 3.7 Displayed percentage
 
 Composites are far below 1.0 on the $\exp(-d/0.08)$ scale, so the shared cosine-calibrated transform does not apply. Prospect comps use
@@ -247,3 +254,120 @@ Composites are far below 1.0 on the $\exp(-d/0.08)$ scale, so the shared cosine-
 $$\text{display} = 100 \cdot \left[\mathrm{clip}(s,\, 0,\, 1)\right]^{0.2},$$
 
 which maps the stored-comp distribution to approximately 55–79 with a median near 69.
+
+---
+
+## 4. Lineup synergy
+
+Computed in `analytics/lineup_synergy.py::calculate_lineup_synergy` for an arbitrary set of five player-season rows. The output is a synergy score in $[0, 100]$, a six-axis style vector of percentiles, a factor breakdown, narrative strengths/weaknesses, and a list of similar historical starting lineups.
+
+### 4.1 Role assignment
+
+Each player receives up to two roles from league-relative z-scores of their season rates (thresholds applied in order; first creation role, then shot-mix role, then interior/defense):
+
+| Role | Condition (z-scores) |
+|---|---|
+| Playmaker | $z_{\text{ast}} > 0.8$ and $z_{\text{ast\%}} > 0.6$ |
+| Designated Scorer | else $z_{\text{pts}} > 0.8$ and $z_{\text{ast\%}} < 0.4$ |
+| Secondary Creator | else $z_{\text{ast}} > 0.2$ and $z_{\text{pts}} > 0$ |
+| Perimeter Specialist | $z_{\text{3pa rate}} > 0.6$ |
+| Rim Attacker | else $z_{\text{fta rate}} > 0.5$ and $z_{\text{pts}} > 0$ |
+| Interior Presence | ($z_{\text{reb}} > 0.7$ or $z_{\text{blk}} > 0.7$) and $z_{\text{3pa rate}} < -0.4$ |
+| Defensive Specialist | ($z_{\text{stl}} > 0.8$ or $z_{\text{blk}} > 0.8$) and not Interior Presence |
+
+A fallback assigns Secondary Creator / Interior Presence / Defensive Specialist by sign of $z_{\text{pts}}$, $z_{\text{reb}}$.
+
+### 4.2 Collective lineup statistics
+
+Per-36 rates are summed over the five players and scaled by $48/36 = 1.3\overline{3}$ to project a full team-game stat line: three-point attempts, paint attempts, assists, made field goals, rebounds, blocks. Derived quantities:
+
+$$\text{ast\%}_{\text{proj}} = 100\,\frac{\mathrm{AST}_{\text{proj}}}{\mathrm{FGM}_{\text{proj}}}, \qquad
+\text{paint\_score} = \mathrm{REB}_{\text{proj}} + 4\,\mathrm{BLK}_{\text{proj}}.$$
+
+Paint attempts per player are estimated from non-three attempts with an archetype-dependent ratio:
+
+$$\text{paint FGA} = (\mathrm{FGA} - \mathrm{3PA}) \cdot
+\begin{cases}
+0.80 & z_{\text{reb}} > 0.5 \text{ or } z_{\text{blk}} > 0.5 \\
+0.30 & \mathrm{3PA}/\mathrm{FGA} > 0.45 \\
+0.45 & \text{otherwise.}
+\end{cases}$$
+
+A per-player defense score (summed over the lineup) is
+
+$$D = \text{stl}_{36} + 1.2\,\text{blk}_{36} +
+\begin{cases} 1.5 & \text{Defensive Specialist} \\ 1.0 & \text{Interior Presence} \\ 0 & \text{otherwise.} \end{cases}$$
+
+The same statistics are computed for every actual starting lineup of the chosen season; their means ($\overline{\mathrm{REB}}$, $\overline{D}$, $\overline{\text{paint}}$, $\overline{\mathrm{BLK}}$) serve as league baselines.
+
+### 4.3 Style vector
+
+Six percentiles, each ranked against the season's real teams (or real starting lineups where noted):
+
+- **Pace**: minutes-weighted average of each player's team pace, ranked against team paces.
+- **Three-point volume**: projected lineup 3PA ranked against team 3PA.
+- **Paint**: estimated team paint FGA, $\;\widehat{\text{PFGA}} = \overline{\text{PFGA}}_{\text{teams}} + 15\,\frac{\text{paint\_score} - \overline{\text{paint}}}{\overline{\text{paint}}}$, clipped to $[25, 70]$, then ranked.
+- **Rebounding**: estimated REB%, $\;\widehat{\mathrm{REB\%}} = \overline{\mathrm{REB\%}}_{\text{teams}} + 10\,\frac{\mathrm{REB}_{\text{proj}} - \overline{\mathrm{REB}}}{\overline{\mathrm{REB}}}$, clipped to $[40, 60]$, then ranked.
+- **Defense**: estimated defensive rating $\;\widehat{\mathrm{DRtg}} = \overline{\mathrm{DRtg}}_{\text{teams}} - 15\,\frac{D - \overline{D}}{\overline{D}}$, ranked and inverted (lower rating = higher percentile).
+- **Playmaking**: $0.55 \cdot \mathrm{pctile}(\mathrm{AST}_{\text{proj}} \mid \text{starting lineups}) + 0.45 \cdot \mathrm{pctile}(\text{ast\%}_{\text{proj}} \mid \text{starting lineups})$.
+
+### 4.4 Synergy score
+
+**Baseline talent.** Each player's rating is a weighted blend of season percentiles,
+
+$$r_i = 0.30\,P_{\text{pts}} + 0.15\,P_{\text{ast}} + 0.15\,P_{\text{reb}} + 0.10\,P_{\text{stl}} + 0.10\,P_{\text{blk}} + 0.20\,P_{\text{ts}},$$
+
+and the lineup baseline penalizes weak links:
+
+$$B = 0.85\,\overline{r} + 0.15\,\min_i r_i.$$
+
+**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted by role or $\text{3PM}_{36} \ge 1.5$ or 3PA-rate percentile $> 65$, and defenders by role or steal/block percentile $> 80$:
+
+| Factor | Values |
+|---|---|
+| Playmaking | $-15$ if $m = 0$; $0$ if $m \le 1$; $+5$ if $m \le 2.5$; $-10$ if $m > 2.5$ (crowding) |
+| Spacing | $-20 / -10 / +2.5 / +6$ for $0 / 1 / 2 / 3{+}$ shooters |
+| Interior | with $\rho_r = \mathrm{REB}_{\text{proj}}/\overline{\mathrm{REB}}$, $\rho_b = \mathrm{BLK}_{\text{proj}}/\overline{\mathrm{BLK}}$: $-15$ if $\rho_r < 0.88$ or $\rho_b < 0.70$; $-10$ if $\rho_r > 1.25$ and $\rho_b > 1.60$ (congestion); $+5$ if $\rho_r \ge 1.05$ and $\rho_b \ge 1.15$; else $+2$ |
+| Defense | $-10 / 0 / +4$ for $0 / 1 / 2{+}$ defenders |
+| Role overlap | $-6$ if any of {Designated Scorer, Interior Presence, Playmaker} appears as a primary role $\ge 3$ times |
+
+Each role-based adjustment is then reconciled against the corresponding measured style-vector percentile (for example, a negative playmaking adjustment is softened when the measured playmaking percentile is $\ge 60$, and forced to at most $-5$ when it is below $45$; spacing, interior, and defense adjustments are clamped negative when their percentiles fall below $45$).
+
+$$\text{synergy} = \mathrm{clip}\left(B + \Delta_{\text{play}} + \Delta_{\text{space}} + \Delta_{\text{interior}} + \Delta_{\text{def}} + \Delta_{\text{overlap}},\; 0,\; 100\right).$$
+
+Strength/weakness narratives are emitted from the same gated conditions, capped at seven entries.
+
+### 4.5 Similar historical lineups
+
+Every historical starting lineup $(T, s)$ is scored against the custom unit as a blend of four affinities.
+
+**Style affinity.** With both style vectors scaled to $[0,1]^6$ and axis weights $u = (0.75, 1.20, 1.00, 1.15, 1.20, 0.95)$ for (pace, three-point volume, paint, defense, playmaking, rebounding):
+
+$$d = \sqrt{\frac{\sum_k u_k (a_k - b_k)^2}{\sum_k u_k}}, \qquad
+A_{\text{style}} = \max\!\left(0,\; 1 - \frac{d}{0.78}\right).$$
+
+**Role affinity.** Cosine similarity between the two seven-dimensional role-count vectors (each player contributes up to two roles).
+
+**Quality affinity.** The synergy score maps to a target winning percentage
+
+$$w^* = \mathrm{clip}(0.24 + 0.0062 \cdot \text{synergy},\; 0.25,\; 0.82), \qquad
+A_{\text{qual}} = \max\!\left(0,\; 1 - \frac{|w_{\text{hist}} - w^*|}{0.52}\right).$$
+
+**Player affinity.** Exact roster matches are removed first; the remaining players are matched by maximum-weight bipartite assignment (permutation search) where a pair's weight is the NBA-to-NBA `similar_players` display score divided by 100 (checked in both directions), else $0.35$ for same role, else $0.15$:
+
+$$A_{\text{player}} = \frac{\#\text{exact} + \max_{\sigma} \sum_i \mathrm{sim}(p_i, h_{\sigma(i)})}{5}.$$
+
+**Combination.** With exact-overlap count $e$:
+
+$$w_p = \min\!\left(0.55,\; 0.12 + 0.10\,e + 0.22\max(0,\, A_{\text{player}} - 0.35)\right),$$
+
+$$S_{\text{base}} = w_p A_{\text{player}} + (1 - w_p)\left(0.54\,A_{\text{style}} + 0.26\,A_{\text{role}} + 0.20\,A_{\text{qual}}\right).$$
+
+For near-exact rosters ($A_{\text{player}} \ge 0.6$) a quadratic boost pulls the combined score toward $A_{\text{player}}$:
+
+$$t = \left(\frac{A_{\text{player}} - 0.6}{0.4}\right)^2, \qquad
+S = S_{\text{base}} + t\,(A_{\text{player}} - S_{\text{base}}),$$
+
+and lineups sharing $e \ge 2$ actual players receive an additive bonus of $0.045\,(e - 1)$, capped at $1.0$. The displayed percentage is $100\,S$.
+
+**Selection.** The final list of eight is chosen by a staged heuristic: first lineups with $e \ge 4$ and score $\ge 78$, then $e \ge 3$ and score $\ge 64$ (roster continuity), then the best candidate $\ge 58$ from each decade not yet represented, then greedy fill maximizing score minus diversity penalties ($-5$ per already-selected lineup from the same franchise, $-3$ per same decade, $-4$ if it shares four starters with an already-selected lineup, $+6$ if $e \ge 3$). The result is sorted by score descending.
