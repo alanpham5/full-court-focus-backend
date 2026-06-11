@@ -329,24 +329,44 @@ def add_normalized_features(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+PERCENTILE_MIN_CAREER_GAMES = 200
+
+
+def _rank_against_reference(values: np.ndarray, reference: np.ndarray) -> np.ndarray:
+    """Percentile rank of each value against a (possibly smaller) reference population."""
+    if len(reference) == 0:
+        return np.full(len(values), 50.0)
+    ref_sorted = np.sort(reference)
+    return np.searchsorted(ref_sorted, values, side="right") / len(ref_sorted) * 100.0
+
+
 def add_career_percentiles(career_df: pd.DataFrame) -> pd.DataFrame:
     from analytics.player_profiles.archetypes import height_bucket
 
     out = career_df.copy()
     buckets = out["height"].apply(height_bucket)
+    games = pd.to_numeric(out.get("career_games", 0), errors="coerce").fillna(0.0)
+    qualified = (games >= PERCENTILE_MIN_CAREER_GAMES).to_numpy()
+
     for feature in PLAYSTYLE_METRIC_KEYS:
         if feature not in out.columns:
             out[feature] = 0.0
-        values = pd.to_numeric(out[feature], errors="coerce").astype(float)
+        values = pd.to_numeric(out[feature], errors="coerce").astype(float).to_numpy()
 
-        # Global percentile (used by similarity), unaffected by height bucketing.
-        out[f"{feature}_global_pctile"] = values.rank(pct=True).fillna(0.5) * 100.0
+        # Global percentile (used by similarity), ranked against players with
+        # at least PERCENTILE_MIN_CAREER_GAMES career games.
+        out[f"{feature}_global_pctile"] = _rank_against_reference(values, values[qualified])
 
-        # Display percentile: bucketed by height bin, with negative stats inverted.
+        # Display percentile: bucketed by height bin, with negative stats inverted,
+        # ranked against qualified players within the same bucket.
         display_values = -values if feature == "tov_per36" else values
-        out[f"{feature}_career_pctile"] = (
-            display_values.groupby(buckets).rank(pct=True).fillna(0.5) * 100.0
-        )
+        pctiles = np.full(len(out), 50.0)
+        for bucket_name in buckets.unique():
+            mask = (buckets == bucket_name).to_numpy()
+            ref = display_values[mask & qualified]
+            pctiles[mask] = _rank_against_reference(display_values[mask], ref)
+        out[f"{feature}_career_pctile"] = pctiles
+
     return out
 
 
