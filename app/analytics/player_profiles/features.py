@@ -330,12 +330,23 @@ def add_normalized_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_career_percentiles(career_df: pd.DataFrame) -> pd.DataFrame:
+    from analytics.player_profiles.archetypes import height_bucket
+
     out = career_df.copy()
+    buckets = out["height"].apply(height_bucket)
     for feature in PLAYSTYLE_METRIC_KEYS:
         if feature not in out.columns:
             out[feature] = 0.0
         values = pd.to_numeric(out[feature], errors="coerce").astype(float)
-        out[f"{feature}_career_pctile"] = values.rank(pct=True).fillna(0.5) * 100.0
+
+        # Global percentile (used by similarity), unaffected by height bucketing.
+        out[f"{feature}_global_pctile"] = values.rank(pct=True).fillna(0.5) * 100.0
+
+        # Display percentile: bucketed by height bin, with negative stats inverted.
+        display_values = -values if feature == "tov_per36" else values
+        out[f"{feature}_career_pctile"] = (
+            display_values.groupby(buckets).rank(pct=True).fillna(0.5) * 100.0
+        )
     return out
 
 

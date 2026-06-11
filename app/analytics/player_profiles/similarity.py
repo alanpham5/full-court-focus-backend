@@ -132,7 +132,7 @@ def _percentile_matrix(career_df: pd.DataFrame, features: list[str]) -> np.ndarr
     """Return (n_players, n_features) of career percentile / 100 in [0,1]."""
     cols = []
     for f in features:
-        pct_col = f"{f}_career_pctile"
+        pct_col = f"{f}_global_pctile"
         if pct_col in career_df.columns:
             cols.append(career_df[pct_col].to_numpy(dtype=float) / 100.0)
         elif f in career_df.columns:
@@ -146,7 +146,7 @@ def _percentile_matrix(career_df: pd.DataFrame, features: list[str]) -> np.ndarr
 
 def _height_inches_array(career_df: pd.DataFrame) -> np.ndarray:
     from analytics.player_profiles.features import height_to_inches
-    h = career_df["height"].apply(height_to_inches).to_numpy(dtype=float)
+    h = career_df["height"].apply(height_to_inches).to_numpy(dtype=float, copy=True)
     mean_h = h[h > 0].mean() if (h > 0).any() else 78.0
     h[h == 0] = mean_h
     return h
@@ -154,7 +154,7 @@ def _height_inches_array(career_df: pd.DataFrame) -> np.ndarray:
 
 def _weight_lbs_array(career_df: pd.DataFrame) -> np.ndarray:
     from analytics.player_profiles.features import clean_weight_to_float
-    w = career_df["weight"].apply(lambda v: clean_weight_to_float(v, 215.0)).to_numpy(dtype=float)
+    w = career_df["weight"].apply(lambda v: clean_weight_to_float(v, 215.0)).to_numpy(dtype=float, copy=True)
     mean_w = w[w > 0].mean() if (w > 0).any() else 215.0
     w[w == 0] = mean_w
     return w
@@ -171,7 +171,7 @@ def _caliber_array(career_df: pd.DataFrame) -> np.ndarray:
         metrics = {}
         for col in ["pts_per36", "reb_per36", "ast_per36", "blk_per36",
                     "stl_per36", "ts_pct", "mpg"]:
-            pct_col = f"{col}_career_pctile"
+            pct_col = f"{col}_global_pctile"
             val = float(row.get(col, 0.0) or 0.0)
             pct = float(row.get(pct_col, 50.0) or 50.0)
             metrics[col] = {"value": val, "percentile": pct}
