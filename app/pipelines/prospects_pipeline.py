@@ -733,7 +733,7 @@ class ProspectsPipeline:
 
         n_feat = np.empty_like(n_raw, dtype=float)
         for j, col in enumerate(FEATURES):
-            pct_col = f"{col}_career_pctile"
+            pct_col = f"{col}_global_pctile"
             if pct_col in nba.columns:
                 n_feat[:, j] = nba[pct_col].to_numpy(dtype=float) / 100.0
             else:
@@ -818,7 +818,7 @@ class ProspectsPipeline:
             metrics_j = {}
             for col in SIMILARITY_FEATURES:
                 val = float(row_j.get(col, 0.0))
-                pct = float(row_j.get(f"{col}_career_pctile", 0.0))
+                pct = float(row_j.get(f"{col}_global_pctile", 0.0))
                 metrics_j[col] = {"value": val, "percentile": pct}
             nba_adjusted_pfvs.append(calculate_adjusted_pfv(metrics_j, is_prospect=False))
 
