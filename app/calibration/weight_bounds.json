@@ -1,0 +1,47 @@
+{
+  "_comment": "Floors/ceilings per column for prospect->NBA similarity weight calibration. Edit 'bounds' [floor, ceiling] to constrain each column, then run: python3 app/calibration/calibrate_weights.py --search. 'height'/'weight' are the size prior. See README.md.",
+
+  "features": [
+    "pts_per36",
+    "reb_per36",
+    "ast_per36",
+    "blk_per36",
+    "stl_per36",
+    "fg3a_rate",
+    "fta_rate",
+    "ts_pct",
+    "ast_pct",
+    "mpg",
+    "stocks",
+    "scoring_load"
+  ],
+
+  "bounds": {
+    "pts_per36":    [0.0, 0.50],
+    "reb_per36":    [0.0, 0.60],
+    "ast_per36":    [0.0, 0.50],
+    "blk_per36":    [0.0, 0.60],
+    "stl_per36":    [0.0, 0.50],
+    "fg3a_rate":    [0.0, 0.50],
+    "fta_rate":     [0.0, 0.50],
+    "ts_pct":       [0.0, 0.40],
+    "ast_pct":      [0.0, 0.50],
+    "mpg":          [0.0, 0.30],
+    "stocks":       [0.0, 0.40],
+    "scoring_load": [0.0, 0.40],
+    "height":       [0.0, 0.30],
+    "weight":       [0.0, 0.40]
+  },
+
+  "bandwidth":    { "fixed": 0.08 },
+  "smooth_lambda": { "fixed": 0.65 },
+
+  "hw_budget": 0.18,
+
+  "search": {
+    "n_random": 400,
+    "seeds": [7, 11, 23],
+    "cd_rounds": 12,
+    "cd_step": 0.05
+  }
+}

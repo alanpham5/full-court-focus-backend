@@ -532,29 +532,34 @@ SIMILARITY_COMP_FEATURES = [
     "scoring_load",
 ]
 SIMILARITY_COMP_WEIGHTS = np.array([
-    0.0,
-    0.34,
-    0.05,
-    0.4,
-    0.3,
-    0.29,
-    0.31,
-    0.0,
-    0.35,
-    0.1,
-    0.13,
-    0.15,
-    0.294,
-    0.392,
+    0.1,    # pts_per36
+    0.34,   # reb_per36
+    0.05,   # ast_per36
+    0.4,    # blk_per36
+    0.3,    # stl_per36
+    0.29,   # fg3a_rate
+    0.31,   # fta_rate
+    0.05,   # ts_pct
+    0.35,   # ast_pct
+    0.0,    # mpg
+    0.13,   # stocks
+    0.15,   # scoring_load
+    0.239,  # height  (toned down from 0.294)
+    0.318,  # weight  (toned down from 0.392)
 ])
 SIMILARITY_COMP_BANDWIDTH = 0.08
-SIMILARITY_COMP_SMOOTH_LAMBDA = 0.8
+SIMILARITY_COMP_SMOOTH_LAMBDA = 0.65
 SIMILARITY_COMP_SMOOTH_TOPK = 7
 PROSPECT_SIMILARITY_GAMMA = 0.2
 COMP_POPULARITY_PENALTY = 1.0
-COMP_MAX_APPEARANCES = 2
-COMP_ESTABLISHMENT_FLOOR = 0.35
-COMP_ESTABLISHMENT_ALPHA = 1.0
+COMP_MAX_APPEARANCES = 1   # each NBA player may fill a comp slot at most once per
+                           # draft class (was 2) — kills within-class repeats.
+# Establishment prior softened (floor 0.35->0.40, alpha 1.0->0.85) so selection
+# isn't concentrated on the same recognizable-star tier across prospects. This
+# only diversifies the long tail; marquee prospects' comps are unchanged, and the
+# points/top-7 metric is unaffected (it's measured on the raw pre-display matrix).
+COMP_ESTABLISHMENT_FLOOR = 0.40
+COMP_ESTABLISHMENT_ALPHA = 0.85
 
 
 def build_nba_neighbor_index(nba: pd.DataFrame, top_k: int | None = None) -> np.ndarray | None:
