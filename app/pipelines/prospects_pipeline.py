@@ -22,6 +22,7 @@ from config import PROSPECTS_JSON_PATH, PLAYER_CAREER_FEATURES_PATH
 from analytics.similarity_scoring import similarity_pct
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
+    calculate_apfv_batch,
     calculate_apfv_batch_by_height,
     calculate_pfv,
     height_bucket,
@@ -475,14 +476,6 @@ def _select_era_diverse(
     usage: dict[int, int] | None = None,
     max_usage: int | None = None,
 ) -> list[int]:
-    """Pick `count` comps from a ranked candidate list.
-
-    Constraints: at most `max_per_era` per era bucket, and (if `usage` and
-    `max_usage` are given) at most `max_usage` appearances of any one NBA
-    player across the whole run — prospects processed earlier in the run get
-    first claim, later ones fall through to the next-best distinct comp.
-    Era constraint is relaxed before the usage cap if we run short.
-    """
     def _capped(idx: int) -> bool:
         return (
             usage is not None
@@ -530,41 +523,37 @@ SIMILARITY_COMP_FEATURES = [
     "mpg",
     "stocks",
     "scoring_load",
+    "quality",
 ]
 SIMILARITY_COMP_WEIGHTS = np.array([
+    0.02,
+    0.3098,
+    0.0537,
+    0.4172,
+    0.2344,
+    0.1784,
+    0.1973,
     0.0,
-    0.34,
-    0.05,
-    0.4,
-    0.3,
-    0.29,
-    0.31,
-    0.0,
-    0.35,
-    0.1,
-    0.13,
-    0.15,
-    0.294,
-    0.392,
+    0.3473,
+    0.0513,
+    0.1267,
+    0.0622,
+    0.1224,
+    0.2903,
+    0.3185,
 ])
-SIMILARITY_COMP_BANDWIDTH = 0.08
-SIMILARITY_COMP_SMOOTH_LAMBDA = 0.8
+SIMILARITY_COMP_BANDWIDTH = 0.0442
+SIMILARITY_COMP_SMOOTH_LAMBDA = 0.494
 SIMILARITY_COMP_SMOOTH_TOPK = 7
 PROSPECT_SIMILARITY_GAMMA = 0.2
 COMP_POPULARITY_PENALTY = 1.0
 COMP_MAX_APPEARANCES = 2
 COMP_ESTABLISHMENT_FLOOR = 0.35
 COMP_ESTABLISHMENT_ALPHA = 1.0
+SIMILARITY_COMP_QUALITY_BUCKET = False
 
 
 def build_nba_neighbor_index(nba: pd.DataFrame, top_k: int | None = None) -> np.ndarray | None:
-    """Padded NBA-NBA neighbor index from player_profiles.json.
-
-    Row j lists the columns of player j's `similar_players` (first `top_k`
-    if given), padded with j itself (a neutral self-reference under
-    max-aggregation). Returns None if player_profiles.json is missing
-    (first-ever run) or has no usable edges.
-    """
     from config import PLAYER_PROFILES_PATH
     try:
         profiles = json.loads(Path(PLAYER_PROFILES_PATH).read_text(encoding="utf-8"))
@@ -625,31 +614,6 @@ class ProspectsPipeline:
             return pd.read_parquet(path, engine="fastparquet")
 
     def add_similar_nba_players(self, prospects: pd.DataFrame, career: pd.DataFrame) -> pd.DataFrame:
-        """Prospect -> NBA similarity in PEER-PERCENTILE SPACE.
-
-        Predictive design:
-        - Each NBA player is described by their career percentile (within the
-          NBA pool) on each playstyle feature. Each prospect is described by
-          their class percentile (within their draft class). Both live in
-          [0, 1] and answer the same question: "where does this player rank
-          relative to their peers on this dimension?" — the unit that
-          transfers best across the college -> NBA gap.
-        - Height & weight enter as a softly weighted size prior: they cannot
-          dominate (combined squared weight is ~20 % of the budget) so the
-          algorithm cannot collapse to a trivial "same person has identical
-          h/w" identity match.
-        - Quality affinity (APFV) further gates matches so a marginal prospect
-          isn't paired with a star and vice versa.
-
-        Tuned on the historical 2007–2023 prospect cohorts (n=490 with NBA
-        counterparts in the pool) against a points objective evaluated on the
-        raw top-7 before name filtering: +2 if the counterpart is in the
-        top-7, +1 per top-7 player whose own top-7 NBA-NBA similars contain
-        the counterpart. The tuner (scratch/tune_points.py) calls
-        compute_similarity_matrix directly so the eval space and production
-        space cannot drift. No post-draft information or draft position is
-        used, and height/weight carry a capped share of the weight budget.
-        """
         nba = career[career["career_games"] >= 200].copy().reset_index(drop=True)
         playstyle_scores = self.compute_similarity_matrix(prospects, nba)
 
@@ -666,12 +630,6 @@ class ProspectsPipeline:
         smooth_lambda: float | None = None,
         neighbor_idx: np.ndarray | None = None,
     ) -> np.ndarray:
-        """Composite similarity matrix (n_prospects, n_nba) for one class.
-
-        `nba` must already be the filtered comp pool (career_games >= 200).
-        Keyword overrides exist so scratch/tune_points.py can tune through
-        this exact code path; production uses the module-level constants.
-        """
         FEATURES = features if features is not None else SIMILARITY_COMP_FEATURES
         WEIGHTS = weights if weights is not None else SIMILARITY_COMP_WEIGHTS
         BANDWIDTH = bandwidth if bandwidth is not None else SIMILARITY_COMP_BANDWIDTH
@@ -705,9 +663,13 @@ class ProspectsPipeline:
 
         if "quality" in FEATURES:
             if "quality" not in prospects.columns:
-                prospects["quality"] = self.prospect_quality_scores(prospects)
+                prospects["quality"] = self.prospect_quality_scores(
+                    prospects, bucket=SIMILARITY_COMP_QUALITY_BUCKET
+                )
             if "quality" not in nba.columns:
-                nba["quality"] = self.nba_quality_scores(nba)
+                nba["quality"] = self.nba_quality_scores(
+                    nba, bucket=SIMILARITY_COMP_QUALITY_BUCKET
+                )
 
         prospect_heights = prospects["height"].apply(_height_to_inches).to_numpy(dtype=float).copy()
         prospect_weights = prospects["weight"].apply(
@@ -780,12 +742,9 @@ class ProspectsPipeline:
 
         return playstyle_scores
 
-    def prospect_quality_scores(self, prospects: pd.DataFrame) -> np.ndarray:
-        """Stats-only prospect quality (APFV, height-bucket-normalized).
-
-        Pre-draft information only: per-36 production, efficiency, minutes.
-        No draft position, no post-draft data.
-        """
+    def prospect_quality_scores(
+        self, prospects: pd.DataFrame, *, bucket: bool = True
+    ) -> np.ndarray:
         pfv_keys = ["pts_per36", "reb_per36", "ast_per36", "blk_per36", "stl_per36", "ts_pct"]
         pfv_pct_arrays = {}
         for col in pfv_keys:
@@ -807,11 +766,12 @@ class ProspectsPipeline:
             metrics["team"] = str(prospects.iloc[i].get("team", "") or prospects.iloc[i].get("Team", "") or "")
             adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
 
+        if not bucket:
+            return np.array(calculate_apfv_batch(adjusted_pfvs))
         prospect_height_buckets = [height_bucket(h) for h in prospects["height"]]
         return np.array(calculate_apfv_batch_by_height(adjusted_pfvs, prospect_height_buckets))
 
-    def nba_quality_scores(self, nba: pd.DataFrame) -> np.ndarray:
-        """NBA career quality (APFV, height-bucket-normalized)."""
+    def nba_quality_scores(self, nba: pd.DataFrame, *, bucket: bool = True) -> np.ndarray:
         nba_adjusted_pfvs = []
         for j in range(len(nba)):
             row_j = nba.iloc[j]
@@ -822,6 +782,8 @@ class ProspectsPipeline:
                 metrics_j[col] = {"value": val, "percentile": pct}
             nba_adjusted_pfvs.append(calculate_adjusted_pfv(metrics_j, is_prospect=False))
 
+        if not bucket:
+            return np.array(calculate_apfv_batch(nba_adjusted_pfvs))
         nba_height_buckets = [height_bucket(h) for h in nba["height"]]
         return np.array(calculate_apfv_batch_by_height(nba_adjusted_pfvs, nba_height_buckets))
 

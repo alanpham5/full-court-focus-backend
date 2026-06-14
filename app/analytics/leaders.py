@@ -49,7 +49,6 @@ def _fetch_players_season_totals_cached(team_id: int, season: str, timeout: int 
 
 
 def _fetch_players_season_totals(team_id: int, season: str, timeout: int = 22, retries: int = 3) -> pd.DataFrame:
-    """Fetch per-game player stats for a team-season, cached within one scrape run."""
     return _fetch_players_season_totals_cached(team_id, season, timeout, retries).copy()
 
 

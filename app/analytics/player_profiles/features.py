@@ -339,10 +339,8 @@ def add_career_percentiles(career_df: pd.DataFrame) -> pd.DataFrame:
             out[feature] = 0.0
         values = pd.to_numeric(out[feature], errors="coerce").astype(float)
 
-        # Global percentile (used by similarity), unaffected by height bucketing.
         out[f"{feature}_global_pctile"] = values.rank(pct=True).fillna(0.5) * 100.0
 
-        # Display percentile: bucketed by height bin, with negative stats inverted.
         display_values = -values if feature == "tov_per36" else values
         out[f"{feature}_career_pctile"] = (
             display_values.groupby(buckets).rank(pct=True).fillna(0.5) * 100.0
@@ -512,7 +510,6 @@ def build_embedding_features(career_df: pd.DataFrame) -> tuple[pd.DataFrame, lis
     all_features = feature_cols + ["height_inches", "weight_lbs"]
     X_scaled = pd.DataFrame(StandardScaler().fit_transform(X), columns=all_features, index=career_df.index)
     
-    # Apply calibrated similarity feature weights
     FEATURE_WEIGHTS = {
         "height_inches": 1.2,
         "weight_lbs": 1.2,

@@ -93,7 +93,6 @@ async def lifespan(app: FastAPI):
             app.state.player_profiles = json.load(f)
         print(f"  ✓ Player profiles ({len(app.state.player_profiles)} players)")
 
-        # Collect MPG-adjusted PFVs and heights for population-level APFV ranking
         from analytics.player_profiles.archetypes import (
             calculate_adjusted_pfv,
             remove_mpg_adjustment_from_metrics,
@@ -135,7 +134,6 @@ async def lifespan(app: FastAPI):
         app.state.prospects_by_id = {}
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
-    # Load historical prospects map
     app.state.historical_prospects_map = {}
     app.state.historical_prospects = []
     app.state.historical_prospects_by_year = {}
@@ -158,7 +156,6 @@ async def lifespan(app: FastAPI):
         print("  [INFO] Historical drafts folder (static/draft/) does not exist yet")
     app.state.prospect_population = app.state.prospects + app.state.historical_prospects
 
-    # Compute global prospect APFV pool and percentile arrays during startup
     try:
         from analytics.prospect_apfv import prospect_percentile_arrays, global_prospect_metrics
         from analytics.player_profiles.archetypes import calculate_adjusted_pfv, height_bucket

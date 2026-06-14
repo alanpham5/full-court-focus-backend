@@ -79,14 +79,8 @@ class LineupsPipeline:
         timeout: int = 15,
         retries: int = 2,
     ) -> dict[str, Any]:
-        """Runs starting lineups build.
-
-        If replace is True, writes only freshly scraped lineups.
-        Else, merges into existing.
-        """
         existing = {} if replace else self.load_existing()
 
-        # Deduplicate keys
         seen = set()
         deduped_keys = []
         for key in keys:

@@ -58,11 +58,6 @@ class TeamProfilesPipeline:
         sim_index: dict | None = None,
         progress_every: int = 100,
     ) -> dict[str, Any]:
-        """Runs the team profiles pipeline.
-
-        If profile_keys is provided, performs an incremental update.
-        Otherwise, runs a full rebuild.
-        """
         logger.info("Starting team profiles pipeline...")
         if df is None:
             if not self.parquet_path.exists():
@@ -97,7 +92,6 @@ class TeamProfilesPipeline:
 
             static_profiles = build_team_profile_static_cache(df, norm, similar_display)
 
-            # Filter df & norm to only include the keys we want to refresh
             profile_df = df[
                 df.apply(lambda r: f"{int(r.TEAM_ID)}:{r.SEASON}" in wanted, axis=1)
             ].copy()

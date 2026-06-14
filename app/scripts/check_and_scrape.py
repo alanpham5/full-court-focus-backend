@@ -1,4 +1,3 @@
-"""Run incremental scrape only when data is stale vs the NBA season schedule."""
 
 from __future__ import annotations
 
@@ -21,8 +20,6 @@ STATE_PATH = _APP_ROOT / "data" / "static" / "scrape_state.json"
 
 
 def incremental_scrape() -> bool:
-    """Refresh the current season. Returns True if successful."""
-    # Run all standard stages incrementally
     res = run_pipeline_orchestrator(
         stages_to_run=["team", "badge", "similar", "lineup", "profile", "player"],
         current_season_only=True,

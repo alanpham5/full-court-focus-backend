@@ -19,14 +19,12 @@ STYLE_AXIS_WEIGHTS = np.array([0.75, 1.20, 1.00, 1.15, 1.20, 0.95], dtype=float)
 
 
 def style_affinity(a: np.ndarray, b: np.ndarray) -> float:
-    """Distance-based style similarity for percentile vectors in 0..1 space."""
     diff = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     dist = float(np.sqrt(np.average(diff * diff, weights=STYLE_AXIS_WEIGHTS)))
     return float(max(0.0, 1.0 - dist / 0.78))
 
 
 def synergy_win_pct_target(synergy_score: float) -> float:
-    """Map lineup synergy onto a realistic team-quality band for matching."""
     return float(min(0.82, max(0.25, 0.24 + 0.0062 * synergy_score)))
 
 
@@ -56,7 +54,6 @@ def select_similar_lineup_candidates(candidates: list[dict], limit: int = 8) -> 
         selected_keys.add(key)
         return True
 
-    # Preserve visible historical roster continuity before adding diversity.
     for item in ordered:
         if item.get("exact_overlap", 0) >= 4 and item["similarity_pct"] >= 78.0:
             add(item)
@@ -69,7 +66,6 @@ def select_similar_lineup_candidates(candidates: list[dict], limit: int = 8) -> 
             if len(selected) >= min(5, limit):
                 break
 
-    # Ensure the strongest credible match from each era has a path into the list.
     for decade in ("1990s", "2000s", "2010s", "2020s"):
         if any(item.get("decade") == decade for item in selected):
             continue
@@ -145,7 +141,6 @@ def compute_defense_score(row: pd.Series, role: str) -> float:
     return stl_per36 + 1.2 * blk_per36 + role_bonus
 
 def assign_player_roles_absolute(df: pd.DataFrame) -> Dict[int, List[str]]:
-    """Assign roles to players based on absolute, league-relative z-scores."""
     roles_dict = {}
     for _, r in df.iterrows():
         pid = int(r["PLAYER_ID"])
@@ -160,32 +155,24 @@ def assign_player_roles_absolute(df: pd.DataFrame) -> Dict[int, List[str]]:
         
         roles = []
         
-        # Playmaker
         if ast > 0.8 and ast_pct > 0.6:
             roles.append("Playmaker")
-        # Designated Scorer
         elif pts > 0.8 and ast_pct < 0.4:
             roles.append("Designated Scorer")
-        # Secondary Creator
         elif ast > 0.2 and pts > 0.0:
             roles.append("Secondary Creator")
             
-        # Perimeter Specialist
         if fg3 > 0.6:
             roles.append("Perimeter Specialist")
-        # Rim Attacker
         elif fta > 0.5 and pts > 0.0:
             roles.append("Rim Attacker")
             
-        # Interior Presence
         if (reb > 0.7 or blk > 0.7) and fg3 < -0.4:
             roles.append("Interior Presence")
             
-        # Defensive Specialist
         if (stl > 0.8 or blk > 0.8) and "Interior Presence" not in roles:
             roles.append("Defensive Specialist")
             
-        # Fallback
         if not roles:
             if pts > 0.0:
                 roles.append("Secondary Creator")
@@ -252,7 +239,7 @@ def cosine_similarity(a, b):
 
 def height_to_inches(height_val: Any) -> float:
     if pd.isna(height_val) or not height_val:
-        return 78.0 # default 6'6"
+        return 78.0
     val_str = str(height_val).strip()
     if not val_str:
         return 78.0
@@ -278,9 +265,6 @@ def compute_lineup_player_similarity(
     h_starter_ids: List[int],
     player_profiles: Dict[str, Any]
 ) -> float:
-    """Computes a player-based similarity score (0.0 to 1.0) between two 5-player lineups
-    using maximum weight bipartite matching (greedy/permutation search).
-    """
     if not player_profiles:
         overlap = len(set(player_ids) & set(h_starter_ids))
         return overlap / 5.0
@@ -307,21 +291,18 @@ def compute_lineup_player_similarity(
     def get_player_sim(p_id: int, h_id: int) -> float:
         if p_id == h_id:
             return 1.0
-        # Check similar_players list in p_id's profile
         profile = player_profiles.get(str(p_id), {})
         similar_players = profile.get("similar_players", [])
         for sim_p in similar_players:
             if sim_p.get("player_id") == h_id:
                 return float(sim_p.get("similarity_score", 0.0)) / 100.0
                 
-        # Check vice-versa (symmetry check)
         profile_h = player_profiles.get(str(h_id), {})
         similar_players_h = profile_h.get("similar_players", [])
         for sim_p in similar_players_h:
             if sim_p.get("player_id") == p_id:
                 return float(sim_p.get("similarity_score", 0.0)) / 100.0
                 
-        # Archetype/role match baseline
         role_p = profile.get("role")
         role_h = profile_h.get("role")
         if role_p and role_h and role_p == role_h:
@@ -349,7 +330,6 @@ def calculate_lineup_synergy(
     team_metadata: Dict[str, Any],
     player_profiles: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
-    # 1. Get player season data
     season_players = player_season_df[player_season_df["SEASON"] == season]
     if season_players.empty:
         raise ValueError(f"No player data found for season {season}")
@@ -360,18 +340,14 @@ def calculate_lineup_synergy(
     if missing_ids:
         raise ValueError(f"Player IDs {missing_ids} not found in season {season}")
         
-    # Reorder rows to match requested input order
     lineup_rows = lineup_rows.set_index("PLAYER_ID").loc[player_ids].reset_index()
     
-    # 2. Get season-specific roles for the custom lineup absolutely
     from analytics.player_profiles.archetypes import get_player_archetypes
     player_roles = assign_player_roles_absolute(lineup_rows)
     
-    # 3. Compute collective stats for the custom lineup
     player_rows_list = [lineup_rows.iloc[i] for i in range(len(lineup_rows))]
     custom_stats = compute_lineup_collective_stats(player_rows_list, player_roles)
     
-    # 4. Compute collective stats for all actual starting lineups in this season
     season_lineup_keys = [k for k in starting_lineups.keys() if k.endswith(f":{season}")]
     starting_rebs = []
     starting_defs = []
@@ -385,7 +361,6 @@ def calculate_lineup_synergy(
         starter_ids = [s["player_id"] for s in lineup["starters"]]
         s_rows = season_players[season_players["PLAYER_ID"].isin(starter_ids)]
         if len(s_rows) >= 5:
-            # Assign roles to the starters using absolute assignment
             s_roles = assign_player_roles_absolute(s_rows)
             s_rows_list = [s_rows.iloc[i] for i in range(len(s_rows))]
             s_stats = compute_lineup_collective_stats(s_rows_list, s_roles)
@@ -401,13 +376,10 @@ def calculate_lineup_synergy(
     mean_starting_paint = np.mean(starting_paints) if starting_paints else 1.0
     mean_starting_blk = np.mean(starting_blks) if starting_blks else 1.0
     
-    # 5. Get team stats for this season to compute style vector percentiles
     season_teams = teams_df[teams_df["SEASON"] == season]
     if season_teams.empty:
         raise ValueError(f"No team historical stats found for season {season}")
         
-    # Estimate raw style vector properties for custom lineup
-    # PACE: Weighted average of players' team paces
     team_abbr_to_id = {v["abbreviation"]: int(k) for k, v in team_metadata.items()}
     
     custom_paces = []
@@ -428,23 +400,19 @@ def calculate_lineup_synergy(
     sum_mpg = sum(custom_mpgs)
     custom_pace = sum(p * m for p, m in zip(custom_paces, custom_mpgs)) / sum_mpg if sum_mpg > 0 else 98.0
     
-    # Rebounding (REB_PCT): Map to team REB_PCT
     avg_team_reb_pct = (season_teams["REB_PCT"].mean() or 0.50) * 100.0
     estimated_reb_pct = avg_team_reb_pct + 10.0 * (custom_stats["reb"] - mean_starting_reb) / mean_starting_reb
     estimated_reb_pct = min(60.0, max(40.0, estimated_reb_pct))
     
-    # Paint (PAINT_FGA): Map to team PAINT_FGA using rebounds and blocks
     avg_team_paint_fga = season_teams["PAINT_FGA"].mean()
     if pd.isna(avg_team_paint_fga) or avg_team_paint_fga <= 0.0:
         avg_team_paint_fga = 44.3
     estimated_paint_fga = avg_team_paint_fga + 15.0 * (custom_stats["paint_score"] - mean_starting_paint) / mean_starting_paint
     estimated_paint_fga = min(70.0, max(25.0, estimated_paint_fga))
     
-    # Defense (DEF_RATING): Map to team DEF_RATING
     avg_team_def_rating = season_teams["DEF_RATING"].mean() or 110.0
     estimated_def_rating = avg_team_def_rating - 15.0 * (custom_stats["def_score"] - mean_starting_def) / mean_starting_def
     
-    # Style vector percentiles ranked against actual teams
     pace_pct = percentileofscore(season_teams["PACE"].dropna().to_numpy(), custom_pace, kind="rank")
     fg3a_pct = percentileofscore(season_teams["FG3A"].dropna().to_numpy(), custom_stats["fg3a"], kind="rank")
     
@@ -467,9 +435,8 @@ def calculate_lineup_synergy(
         )
     rebounding_pct = percentileofscore(season_teams["REB_PCT"].dropna().to_numpy() * 100.0, estimated_reb_pct, kind="rank")
     
-    # Defense is lower-is-better for rating, so we invert the percentile (or use lower-is-better scoring)
     defense_pct = percentileofscore(season_teams["DEF_RATING"].dropna().to_numpy(), estimated_def_rating, kind="rank")
-    defense_pct = 100.0 - defense_pct # Lower rating = better defense = higher percentile
+    defense_pct = 100.0 - defense_pct
     
     style_vector = {
         "pace": round(min(100.0, max(0.0, pace_pct)), 1),
@@ -480,8 +447,6 @@ def calculate_lineup_synergy(
         "rebounding": round(min(100.0, max(0.0, rebounding_pct)), 1)
     }
     
-    # 6. Compute Synergy Score out of 100
-    # Baseline talent
     player_ratings = []
     for _, r in lineup_rows.iterrows():
         pts_p = float(r.get("pts_per36_pctile", 50.0) or 50.0)
@@ -494,10 +459,8 @@ def calculate_lineup_synergy(
         rating = 0.30 * pts_p + 0.15 * ast_p + 0.15 * reb_p + 0.10 * stl_p + 0.10 * blk_p + 0.20 * ts_p
         player_ratings.append(rating)
         
-    # Baseline talent is a blend of average and minimum player rating to penalize weak links
     baseline_talent = 0.85 * np.mean(player_ratings) + 0.15 * np.min(player_ratings)
     
-    # Identify roles counts
     playmakers_count = sum(1 for pid in player_ids if "Playmaker" in player_roles.get(pid, []))
     creators_count = sum(1 for pid in player_ids if "Secondary Creator" in player_roles.get(pid, []) or "Designated Scorer" in player_roles.get(pid, []))
     
@@ -520,7 +483,6 @@ def calculate_lineup_synergy(
         if is_def_spec or stl_pctile > 80.0 or blk_pctile > 80.0:
             defenders_count += 1
             
-    # Playmaking adjustment (scaled down for more realistic synergy impact)
     playmaker_score = playmakers_count + 0.5 * creators_count
     if playmaker_score == 0:
         playmaking_adj = -15.0
@@ -531,7 +493,6 @@ def calculate_lineup_synergy(
     else:
         playmaking_adj = -10.0
         
-    # Spacing adjustment (scaled down for more realistic synergy impact)
     if shooters_count == 0:
         spacing_adj = -20.0
     elif shooters_count == 1:
@@ -541,20 +502,18 @@ def calculate_lineup_synergy(
     else:
         spacing_adj = 6.0
         
-    # Size/Interior adjustment using rebounds and blocks ratios relative to league starting lineups
     reb_ratio = custom_stats["reb"] / mean_starting_reb if mean_starting_reb > 0 else 1.0
     blk_ratio = custom_stats["blk"] / mean_starting_blk if mean_starting_blk > 0 else 1.0
     
     if reb_ratio < 0.88 or blk_ratio < 0.70:
         interior_adj = -15.0
     elif reb_ratio > 1.25 and blk_ratio > 1.60:
-        interior_adj = -10.0 # penalty for excessive bigs/interior congestion
+        interior_adj = -10.0
     elif reb_ratio >= 1.05 and blk_ratio >= 1.15:
         interior_adj = 5.0
     else:
         interior_adj = 2.0
         
-    # Defense adjustment (scaled down for more realistic synergy impact)
     if defenders_count == 0:
         defense_adj = -10.0
     elif defenders_count == 1:
@@ -562,7 +521,6 @@ def calculate_lineup_synergy(
     else:
         defense_adj = 4.0
 
-    # Reconcile role-based playmaking with measured assist output
     if playmaking_pct >= 60.0:
         if playmaking_adj < 0:
             playmaking_adj = 2.5 if playmaker_score > 2.5 else max(playmaking_adj, -3.0)
@@ -587,7 +545,6 @@ def calculate_lineup_synergy(
     elif defense_pct >= 60.0 and defense_adj >= 0.0:
         defense_adj = max(3.0, defense_adj)
         
-    # Role overlap penalty
     primary_roles = [player_roles.get(pid)[0] for pid in player_ids if player_roles.get(pid)]
     overlap_adj = 0.0
     for role in set(primary_roles):
@@ -599,7 +556,6 @@ def calculate_lineup_synergy(
     synergy_score = baseline_talent + playmaking_adj + spacing_adj + interior_adj + defense_adj + overlap_adj
     synergy_score = round(min(100.0, max(0.0, synergy_score)), 1)
     
-    # 7. Identify Strengths & Weaknesses based on synergy factors & size
     strengths = []
     weaknesses = []
     custom_fg3a = custom_stats["fg3a"]
@@ -607,7 +563,6 @@ def calculate_lineup_synergy(
     sum_stl = sum(float(r.get("stl_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_pts = sum(float(r.get("pts_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     
-    # 7a. Playmaking — requires style_vector.playmaking and breakdown.playmaking to agree
     if playmaking_pct >= 60.0 and playmaking_adj >= 5.0:
         if playmakers_count >= 2 and sum_ast >= 25.0:
             strengths.append(
@@ -637,7 +592,6 @@ def calculate_lineup_synergy(
                 "Limited Ball Movement - Assist volume and rates rank below average, raising the risk of stagnant half-court possessions."
             )
 
-    # 7b. Spacing — gated on three_point_volume percentile
     if spacing_adj < 0 and fg3a_pct < 45.0:
         if shooters_count == 0 or custom_fg3a < 22.0:
             weaknesses.append(
@@ -661,7 +615,6 @@ def calculate_lineup_synergy(
                 "Stretch-the-Floor Shooting - Above-average three-point volume forces defenses to extend, opening up the interior."
             )
 
-    # 7c. Interior — paint and rebounding percentiles must support the narrative
     if interior_adj < 0:
         if interior_adj == -15.0 and (rebounding_pct < 45.0 or paint_pct < 45.0):
             weaknesses.append(
@@ -696,7 +649,6 @@ def calculate_lineup_synergy(
                 "Paint Scoring Pressure - High interior shot volume keeps rim protectors honest and generates efficient looks at the basket."
             )
 
-    # 7d. Defense — gated on defense percentile
     if defense_adj < 0 and defense_pct < 45.0:
         if blk_ratio < 0.70 and defenders_count == 0:
             weaknesses.append(
@@ -724,7 +676,6 @@ def calculate_lineup_synergy(
                 "Solid Defensive Foundation - Above-average defensive projection supports consistent half-court stops."
             )
 
-    # 7e. Scoring talent — independent of style vector but tied to baseline metrics
     if sum_pts >= 95.0 and baseline_talent >= 72.0:
         strengths.append(
             "High-End Scoring - Elite individual scoring profiles give this lineup multiple ways to generate points against set defenses."
@@ -734,10 +685,9 @@ def calculate_lineup_synergy(
             "Scoring Depth Concerns - Limited high-volume scoring options increase the risk of cold stretches against disciplined defenses."
         )
         
-    # Limit combined strengths/weaknesses to 7, keeping a balanced mix
     total_allowed = 7
     if len(strengths) + len(weaknesses) > total_allowed:
-        max_each = total_allowed // 2 # 3
+        max_each = total_allowed // 2
         if len(strengths) > max_each and len(weaknesses) > max_each:
             strengths = strengths[:4]
             weaknesses = weaknesses[:3]
@@ -746,7 +696,6 @@ def calculate_lineup_synergy(
         else:
             strengths = strengths[:(total_allowed - len(weaknesses))]
         
-    # 8. Similar Historical Teams (roles, style, roster overlap, and team quality)
     custom_role_vector = np.zeros(len(ALL_ROLES))
     for pid in player_ids:
         for role in player_roles.get(pid, []):
@@ -793,31 +742,20 @@ def calculate_lineup_synergy(
         role_sim = cosine_similarity(custom_role_vector, h_role_vector)
         style_sim = style_affinity(custom_style_vector, h_style_vector)
         
-        # Calculate roster similarity
         player_sim = compute_lineup_player_similarity(player_ids, h_starter_ids, player_profiles)
         exact_overlap = len(set(player_ids) & set(h_starter_ids))
         quality_sim = quality_affinity(target_win_pct, h_profile.get("win_pct"))
         
-        # Dynamic blending weight for player similarity based on roster similarity.
-        # Exact overlap should matter most when present, while non-overlap matches
-        # should earn their spot through style, role balance, and quality.
         w_player = min(0.55, 0.12 + 0.10 * exact_overlap + 0.22 * max(0.0, player_sim - 0.35))
         context_sim = 0.54 * style_sim + 0.26 * role_sim + 0.20 * quality_sim
         base_sim = w_player * player_sim + (1.0 - w_player) * context_sim
         
-        # Non-linear boost for high player similarity (exact/near-exact roster matches)
-        # When player_sim >= 0.6, apply a quadratic boost that pulls combined score
-        # toward player_sim, ensuring exact matches reach ~98-100% regardless of
-        # style estimation noise.
         if player_sim >= 0.6:
-            boost_t = ((player_sim - 0.6) / 0.4) ** 2  # 0 at 0.6, 1.0 at 1.0
+            boost_t = ((player_sim - 0.6) / 0.4) ** 2
             combined_sim = base_sim + boost_t * (player_sim - base_sim)
         else:
             combined_sim = base_sim
         
-        # Direct overlap bonus: sharing actual players is the strongest similarity
-        # signal a user can see. Smaller bonuses keep 2-3 player historical cores
-        # visible without overwhelming better full-lineup style matches.
         if exact_overlap >= 2:
             overlap_bonus = 0.045 * (exact_overlap - 1)
             combined_sim = min(1.0, combined_sim + overlap_bonus)
@@ -866,7 +804,6 @@ def calculate_lineup_synergy(
             "starters": starters_out
         })
         
-    # Construct player payload for response
     players_payload = []
     for _, r in lineup_rows.iterrows():
         pid = int(r["PLAYER_ID"])

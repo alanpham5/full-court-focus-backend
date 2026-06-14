@@ -98,7 +98,6 @@ class TeamStatsPipeline:
                 return df
             except Exception as exc:
                 last_err = exc
-                # Exponential backoff with jitter
                 sleep = 2.0 * (2 ** (attempt - 1)) + random.random() * 0.5
                 logger.warning(
                     "%s fetch failed for %s on attempt %s/%s: %s. Retrying in %.2fs...",
@@ -204,25 +203,18 @@ class TeamStatsPipeline:
         self.metadata_path.parent.mkdir(parents=True, exist_ok=True)
         self.season_index_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # 1. Season Index
         index = df.groupby("TEAM_ID")["SEASON"].apply(list).to_dict()
         index = {str(k): v for k, v in index.items()}
         with open(self.season_index_path, "w") as f:
             json.dump(index, f)
         logger.info("Saved season index to %s", self.season_index_path)
 
-        # 2. Team Metadata
         metadata = self.build_team_metadata()
         with open(self.metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
         logger.info("Saved team metadata to %s", self.metadata_path)
 
     def run(self, *, current_season_only: bool = False) -> pd.DataFrame:
-        """Runs the team stats pipeline.
-
-        If current_season_only is True, does an incremental update.
-        Else, runs a full scrape.
-        """
         if current_season_only and self.parquet_path.exists():
             season = season_str(current_season_year())
             logger.info("Incremental team stats scrape for season: %s", season)
@@ -255,11 +247,9 @@ class TeamStatsPipeline:
             combined = pd.concat(rows, ignore_index=True)
             print(f"✓ Team stats completed: {len(rows)}/{len(years)} seasons scraped.")
 
-        # Write to parquet
         write_teams_parquet(combined, self.parquet_path)
         logger.info("Saved %s team-seasons to %s", len(combined), self.parquet_path)
 
-        # Save metadata & indices
         self.save_metadata_and_indices(combined)
 
         return combined

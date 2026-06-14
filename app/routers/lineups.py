@@ -65,7 +65,6 @@ def search_season_players(
     if not top_matches:
         return []
         
-    # Create small df to assign roles on the fly
     matched_df = pd.DataFrame([m[0] for m in top_matches])
     from analytics.lineup_synergy import assign_player_roles_absolute
     roles_dict = assign_player_roles_absolute(matched_df)
