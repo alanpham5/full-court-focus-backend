@@ -15,12 +15,10 @@ from pipelines.prospects_pipeline import ProspectsPipeline, fetch_html, add_pros
 
 logger = logging.getLogger(__name__)
 
-# Cache locations
 HISTORICAL_DIR = Path(__file__).resolve().parents[1] / "data" / "historical"
 PLAYERS_CACHE_DIR = HISTORICAL_DIR / "players"
 
 def fetch_html_with_retry(url: str, retries: int = 3, backoff: float = 2.0) -> str:
-    """Wrapper around fetch_html that adds exponential backoff and jitter."""
     for attempt in range(retries + 1):
         try:
             return fetch_html(url)
@@ -35,7 +33,6 @@ def fetch_html_with_retry(url: str, retries: int = 3, backoff: float = 2.0) -> s
     raise RuntimeError("Unreachable")
 
 def parse_season_end_year(season_str: str) -> int | None:
-    """Parses season string like '2022-23' or '2023' to end year (2023)."""
     cleaned = re.sub(r'[^0-9\-]', '', str(season_str)).strip()
     if '-' in cleaned:
         parts = cleaned.split('-')
@@ -71,12 +68,10 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
             parquet_output_path=parquet_output_path or "",
             similar_count=similar_count
         )
-        # Ensure directories exist
         HISTORICAL_DIR.mkdir(parents=True, exist_ok=True)
         PLAYERS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     def crawl_draft_class_players(self, year: int, force: bool = False) -> list[dict]:
-        """Crawl the list of drafted players for the given year."""
         raw_cache_path = HISTORICAL_DIR / f"draft_class_{year}_raw.json"
         if raw_cache_path.exists() and not force:
             logger.info("Loading draft class %d from cache: %s", year, raw_cache_path.name)
@@ -148,7 +143,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                     "nationality": nat_val
                 })
                 
-        # Save cache
         with raw_cache_path.open("w", encoding="utf-8") as f:
             json.dump(prospects, f, indent=2)
             
@@ -156,9 +150,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
         return prospects
 
     def fetch_player_pre_draft_stats(self, profile_link: str, draft_year: int, force: bool = False) -> dict | None:
-        """Fetch pre-draft season stats row from the player's profile page."""
-        # Extract player ID
-        # e.g., /player/Victor-Wembanyama/Summary/136048 -> 136048
         player_id = profile_link.split("/")[-1]
         player_cache_path = PLAYERS_CACHE_DIR / f"{player_id}.json"
         
@@ -178,7 +169,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
         dom_tables = soup.find_all("table")
         tables = pd.read_html(StringIO(html))
         
-        # 1. Identify all eligible regular season stats tables
         eligible_tables = []
         for idx, table in enumerate(dom_tables):
             prev_h2 = table.find_previous(["h2", "h3", "h1"])
@@ -197,7 +187,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 
             eligible_tables.append((idx, title, parent_id, headers, tables[idx]))
             
-        # 2. Find the final pre-draft season end year <= draft_year
         best_season_end_year = -1
         best_season_label = ""
         
@@ -215,12 +204,10 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                         
         if best_season_end_year == -1:
             logger.warning("No pre-draft season found for %s", profile_link)
-            # Cache empty dict to avoid re-fetching
             with player_cache_path.open("w", encoding="utf-8") as f:
                 json.dump({}, f)
             return None
             
-        # 3. Gather all candidate rows matching the best pre-draft season
         candidate_rows = []
         for idx, title, parent_id, headers, df in eligible_tables:
             season_col = "Season" if "Season" in df.columns else "Year"
@@ -234,7 +221,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 cleaned_val = re.sub(r'[^0-9\-]', '', str(season_val)).strip()
                 cleaned_best = re.sub(r'[^0-9\-]', '', best_season_label).strip()
                 if cleaned_val == cleaned_best:
-                    # Safely parse PTS
                     pts_val = 0.0
                     try:
                         pts_str = str(row.get("PTS", 0.0)).strip()
@@ -243,7 +229,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                     except ValueError:
                         pass
 
-                    # Safely parse MIN
                     min_val = str(row.get("MIN", "0")).strip()
                     if not min_val or min_val == "-":
                         min_float = 0.0
@@ -259,7 +244,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                         except ValueError:
                             min_float = 0.0
                     
-                    # Safely parse GP
                     gp_val = 0.0
                     try:
                         gp_str = str(row.get("GP", 0.0)).strip()
@@ -269,11 +253,9 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                         gp_val = 0.0
 
                     if gp_val > 0 and min_float > 0:
-                        is_totals = min_float > 50.0  # Totals usually has MIN in hundreds
+                        is_totals = min_float > 50.0
                         if not is_totals:
-                            # Convert series to dict
                             row_dict = row.to_dict()
-                            # Convert numpy values to standard python types for JSON serialization
                             serializable_dict = {}
                             for k, v in row_dict.items():
                                 if pd.isna(v):
@@ -290,9 +272,7 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 json.dump({}, f)
             return None
             
-        # 4. Selection priority
         selected_row = None
-        # Look for 'All Teams'
         for row in candidate_rows:
             team_col = "School" if "School" in row else ("Team" if "Team" in row else "Event")
             team_val = str(row.get(team_col, ""))
@@ -301,7 +281,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 break
                 
         if selected_row is None:
-            # Sort by MIN descending
             def get_min_float(row):
                 min_val = str(row.get("MIN", "0"))
                 if ':' in min_val:
@@ -317,7 +296,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
             candidate_rows.sort(key=get_min_float, reverse=True)
             selected_row = candidate_rows[0]
 
-        # Resolve real team name if the selected row uses 'All Teams'
         if selected_row:
             team_col = "School" if "School" in selected_row else ("Team" if "Team" in selected_row else "Event")
             team_val = str(selected_row.get(team_col, ""))
@@ -338,22 +316,18 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                     selected_row = dict(selected_row)
                     selected_row[team_col] = best_other_team
 
-        # Cache the selected row
         with player_cache_path.open("w", encoding="utf-8") as f:
             json.dump(selected_row, f, indent=2)
             
         return selected_row
 
     def process_draft_class(self, year: int, force: bool = False, sleep_time: float = 1.5):
-        """Crawls, scrapes, and processes a draft class year."""
         logger.info("--------------------------------------------------")
         logger.info("Processing Draft Class Year: %d", year)
         
-        # 1. Crawl players list
         players = self.crawl_draft_class_players(year, force=force)
         logger.info("Found %d players in draft class %d.", len(players), year)
         
-        # 2. Scrape pre-draft stats for each player
         mapped_records = []
         for idx, player in enumerate(players):
             name = player["player_name"]
@@ -369,19 +343,15 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 stats_row = self.fetch_player_pre_draft_stats(link, year, force=force)
                 
                 if force or not is_cached:
-                    time.sleep(sleep_time) # Respect rate limit
+                    time.sleep(sleep_time)
                 
-            # Map row to the normalized schema input
             mapped = self.map_prospect_row(player, stats_row)
             mapped_records.append(mapped)
             
-        # 3. Create DataFrame
         df = pd.DataFrame(mapped_records)
         
-        # 4. Add features
         prospects = add_prospect_features(df)
         
-        # 5. Read career features for NBA counterparts
         if not self.career_features_path.exists():
             raise FileNotFoundError(
                 f"Career features parquet not found: {self.career_features_path}. "
@@ -389,19 +359,16 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
             )
         career = self.read_parquet_compat(self.career_features_path)
         
-        # 6. Add similar NBA players & roles
         logger.info("Adding similar NBA players and playstyle roles...")
         prospects = self.add_similar_nba_players(prospects, career)
         prospects = self.add_prospect_roles(prospects)
         
-        # 7. Write outputs
         logger.info("Writing finalized outputs for %d draft class...", year)
         self.write_outputs(prospects)
         logger.info("Successfully processed draft class %d. Output saved.", year)
         print(f"✓ Draft year {year} completed: {len(prospects)} prospects processed.")
 
     def map_prospect_row(self, player: dict, stats_row: dict | None) -> dict:
-        """Maps crawled player details and scraped stats to standard DataFrame columns."""
         def parse_mpg(val):
             if pd.isna(val) or val is None:
                 return 0.0
@@ -472,7 +439,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
         }
 
     def write_outputs(self, prospects: pd.DataFrame) -> None:
-        """First call ProspectsPipeline's write_outputs to write locally, then sync to GCS."""
         super().write_outputs(prospects)
         
         import os
@@ -483,7 +449,6 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
             self.upload_file_to_gcs(self.parquet_output_path, gcs_uri)
 
     def upload_file_to_gcs(self, local_path: Path, gcs_uri: str) -> None:
-        """Uploads a local file to GCS under both draft/ and prefix/draft/ keys."""
         try:
             from google.cloud import storage as gcs_storage
         except ModuleNotFoundError:

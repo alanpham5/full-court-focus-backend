@@ -22,7 +22,6 @@ router = APIRouter(prefix="/draft", tags=["draft"])
 
 
 class ProspectListItem(BaseModel):
-    """Lightweight row returned by GET /draft/prospects."""
 
     prospect_id: str
     player_name: str
@@ -36,7 +35,6 @@ class ProspectListItem(BaseModel):
 
 
 def _prospects(request: Request) -> list[dict]:
-    """Return the prospects list, preferring the in-memory cache."""
     cached = getattr(request.app.state, "prospects", None)
     if cached is not None:
         return cached
@@ -47,7 +45,6 @@ def _prospects(request: Request) -> list[dict]:
 
 
 def _prospects_by_id(request: Request) -> dict[str, dict]:
-    """Return the prospects keyed by prospect_id, preferring the in-memory cache."""
     cached = getattr(request.app.state, "prospects_by_id", None)
     if cached is not None:
         return cached
@@ -71,7 +68,6 @@ def _historical_prospects_for_year(request: Request, year: int) -> list[dict] | 
 
 
 def _all_prospect_population(request: Request) -> list[dict]:
-    """Return current and historical prospects as one APFV comparison universe."""
     cached = getattr(request.app.state, "prospect_population", None)
     if cached is not None:
         return cached
@@ -88,7 +84,6 @@ def _all_prospect_population(request: Request) -> list[dict]:
 
 
 def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
-    """Gather every prospect's MPG-adjusted PFV for population-level APFV ranking."""
     adjusted_pfvs = []
     for p in prospects:
         pfv_metrics = {
@@ -104,7 +99,6 @@ def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
 
 
 def _ensure_global_percentiles(prospect: dict, request: Request) -> dict:
-    """Ensure individual metric percentiles are calculated globally."""
     prospect_copy = dict(prospect)
     percentile_arrays = getattr(request.app.state, "global_prospect_percentile_arrays", {})
     for col in PROSPECT_PERCENTILE_COLS:
@@ -120,7 +114,6 @@ def _ensure_global_percentiles(prospect: dict, request: Request) -> dict:
 
 
 def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
-    """Ensure globally-ranked PFV/APFV live inside raw_stats."""
     raw = dict(prospect.get("raw_stats", {}))
 
     percentile_arrays = getattr(request.app.state, "global_prospect_percentile_arrays", {})
@@ -164,7 +157,6 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
 
 @router.get("/prospects", response_model=list[ProspectListItem])
 def list_prospects(request: Request, year: int | None = None):
-    """Return every prospect's id, name, team, and raw counting-stat totals."""
     if year is not None:
         all_prospects = _historical_prospects_for_year(request, year)
         if all_prospects is None:
@@ -194,7 +186,6 @@ def list_prospects(request: Request, year: int | None = None):
 
 @router.get("/{prospect_id}")
 def get_prospect(prospect_id: str, request: Request):
-    """Return the full dataset for a single prospect."""
     index = _prospects_by_id(request)
     prospect = index.get(prospect_id)
 
@@ -215,13 +206,11 @@ def get_prospect(prospect_id: str, request: Request):
         )
     prospect = dict(prospect)
 
-    # Recompute individual metric percentiles globally
     prospect = _ensure_global_percentiles(prospect, request)
 
     raw = _ensure_pfv_apfv_in_raw_stats(prospect, request)
     prospect["raw_stats"] = raw
 
-    # Remove top-level pfv/apfv if they exist (they live in raw_stats now)
     prospect.pop("pfv", None)
     prospect.pop("apfv", None)
     prospect.pop("npfv", None)

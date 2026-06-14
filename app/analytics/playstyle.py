@@ -182,7 +182,6 @@ def assign_badges(row: pd.Series) -> list[Badge]:
 
 
 def exemplar_score(badge_id: str, row: pd.Series) -> float:
-    """Higher = stronger fit for the badge within a season (z-score space)."""
     pace_z = _z(row, "PACE_Z")
     fg3a_z = _z(row, "FG3A_Z")
     fg3_pct_z = _z(row, "FG3_PCT_Z")

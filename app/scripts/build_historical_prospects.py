@@ -12,7 +12,6 @@ _APP_ROOT = Path(__file__).resolve().parents[1]
 if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
 
-# Load env defaults
 def _load_env_defaults() -> None:
     env_path = _APP_ROOT / ".env"
     if env_path.exists():
@@ -33,7 +32,6 @@ from pipelines.historical_prospects_pipeline import HistoricalProspectsPipeline,
 logger = logging.getLogger("historical_prospects_runner")
 
 def get_available_years() -> list[int]:
-    """Scrapes the dropdown on RealGM to get all available draft years >= 2007."""
     url = "https://basketball.realgm.com/nba/draft/past-drafts"
     try:
         logger.info("Fetching draft index page to discover draft years: %s", url)
@@ -53,7 +51,6 @@ def get_available_years() -> list[int]:
     except Exception as e:
         logger.warning("Failed to scrape draft years dynamically: %s. Using fallback list.", e)
     
-    # Fallback to hardcoded list if fetch fails
     return list(range(2007, 2026))
 
 def main() -> int:
@@ -98,11 +95,9 @@ def main() -> int:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
 
-    # Ensure output folders exist
     static_draft_dir = DATA_STATIC_DIR / "draft"
     static_draft_dir.mkdir(parents=True, exist_ok=True)
 
-    # Determine years to process
     if args.normalize_apfv_only:
         years = []
     elif args.all:
@@ -119,7 +114,6 @@ def main() -> int:
     failure_count = 0
 
     for year in years:
-        # Check if year is already done (unless force or recompute is set)
         json_path = static_draft_dir / f"prospects_{year}.json"
         parquet_path = static_draft_dir / f"prospects_{year}.parquet"
         
@@ -136,12 +130,10 @@ def main() -> int:
                 similar_count=4
             )
         else:
-            # Update output paths for current year
             pipeline.json_output_path = json_path
             pipeline.parquet_output_path = parquet_path
 
         try:
-            # If recomputing, we do not force scraping from the network
             force_scrape = args.force and not args.recompute
             pipeline.process_draft_class(year, force=force_scrape, sleep_time=args.sleep)
             success_count += 1

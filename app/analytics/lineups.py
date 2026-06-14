@@ -1,4 +1,3 @@
-"""Most common starting lineup + roles for a team-season."""
 
 from __future__ import annotations
 
@@ -146,10 +145,6 @@ def _lineup_has_rotation_minutes(rows: list[pd.Series]) -> bool:
 
 
 def build_starting_lineup(team_id: int, season: str, timeout: int = 15, retries: int = 2) -> dict | None:
-    """
-    Return lineup payload or None if roster fetch fails.
-    Uses NBA 5-man lineup minutes when available; otherwise top-minute players.
-    """
     try:
         roster = _fetch_players_season_totals(team_id, season, timeout=timeout, retries=retries)
     except Exception as e:

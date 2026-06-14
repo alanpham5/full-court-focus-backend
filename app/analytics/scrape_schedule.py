@@ -1,4 +1,3 @@
-"""When scheduled scrapes are due (matches the old GitHub Actions cron)."""
 
 from __future__ import annotations
 
@@ -11,7 +10,6 @@ FIRST_SCHEDULE_YEAR = 1996
 
 
 def _season_year_datetimes(season_start_year: int) -> list[datetime]:
-    """Nov/Dec of Y, then Jan–Apr of Y+1."""
     out: list[datetime] = []
     y = season_start_year
     for month in SCHEDULE_MONTHS:
@@ -24,7 +22,6 @@ def _season_year_datetimes(season_start_year: int) -> list[datetime]:
 
 
 def latest_scheduled_run(before: datetime | None = None) -> datetime | None:
-    """Most recent scheduled run time that is on or before ``before`` (default: now)."""
     before = (before or datetime.now(timezone.utc)).astimezone(timezone.utc)
     latest: datetime | None = None
     for y in range(FIRST_SCHEDULE_YEAR, before.year + 2):
@@ -35,7 +32,6 @@ def latest_scheduled_run(before: datetime | None = None) -> datetime | None:
 
 
 def is_stale(last_updated: datetime, now: datetime | None = None) -> bool:
-    """True if a scheduled run was due after ``last_updated``."""
     last_updated = last_updated.astimezone(timezone.utc)
     due = latest_scheduled_run(now)
     if due is None:

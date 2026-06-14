@@ -257,7 +257,7 @@ def _fetch_and_populate_missing_bio(player_id: int, profile: dict):
                 fallback_h, fallback_w = "6-3", 190.0
             elif mapped_pos == "B":
                 fallback_h, fallback_w = "6-10", 240.0
-            else:  # "W"
+            else:
                 fallback_h, fallback_w = "6-7", 215.0
 
             def clean_val(v):

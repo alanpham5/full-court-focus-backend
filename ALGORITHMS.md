@@ -181,14 +181,23 @@ The central normalization idea: a prospect and an NBA player are compared by *wh
 
 Both sides therefore live in $[0,1]^d$ and answer the same question.
 
-Twelve playstyle features are used (ten base, two engineered, computed identically on both pools):
+Thirteen features are used (ten base, two engineered playstyle, one caliber, computed identically on both pools):
 
 ```
 pts_per36, reb_per36, ast_per36, blk_per36, stl_per36,
 fg3a_rate, fta_rate, ts_pct, ast_pct, mpg,
 stocks        = stl_per36 + blk_per36,
-scoring_load  = pts_per36 * (1 - clip(ast_pct, 0, 1))
+scoring_load  = pts_per36 * (1 - clip(ast_pct, 0, 1)),
+quality       = APFV percentile of the player within their own pool
 ```
+
+The **quality** axis is the absolute-caliber rank (Section 1, ranked across the
+whole pool rather than within a height bucket, so it preserves absolute rather
+than position-relative caliber). It is the unit that prevents an elite,
+balanced prospect from collapsing onto generic same-shape journeymen: without
+it the matcher saw only a prospect's secondary shape (a do-everything wing
+reduced to "moderate rebounding/stocks/3-rate of his size") and returned
+role-player comps regardless of star quality.
 
 Height and weight are standardized against the pooled prospect-plus-NBA distribution:
 
@@ -198,31 +207,41 @@ $$\tilde h = \frac{h - \mu_h}{\sigma_h}, \qquad \tilde m = \frac{m - \mu_m}{\sig
 
 With the tuned weight vector (order matching the feature list, then height, weight)
 
-$$w = (0.0,\, 0.34,\, 0.05,\, 0.4,\, 0.3,\, 0.29,\, 0.31,\, 0.0,\, 0.35,\, 0.1,\, 0.13,\, 0.15,\, 0.294,\, 0.392)$$
+$$w = (0.02,\, 0.310,\, 0.054,\, 0.417,\, 0.234,\, 0.178,\, 0.197,\, 0.0,\, 0.347,\, 0.051,\, 0.127,\, 0.062,\, 0.122,\, 0.290,\, 0.319)$$
 
 the base similarity between prospect $p$ and NBA player $j$ is a Laplacian kernel on weighted Euclidean distance:
 
 $$d(p, j) = \lVert w \odot (z_p - z_j) \rVert_2, \qquad
-s_0(p, j) = \exp\!\left(-\frac{d(p, j)}{\beta}\right), \quad \beta = 0.08.$$
+s_0(p, j) = \exp\!\left(-\frac{d(p, j)}{\beta}\right), \quad \beta = 0.0442.$$
 
-The height/weight weights satisfy the 25 percent budget cap: $0.294^2 + 0.392^2 = 0.240$ against a playstyle sum of squares of $0.719$.
+The height/weight weights satisfy the 25 percent budget cap: $0.290^2 + 0.319^2 = 0.186$ against a playstyle-plus-caliber sum of squares of $0.657$ ($0.186 / 0.843 = 0.22 \le 0.25$).
 
 ### 3.4 Graph smoothing (second-order similarity)
 
 Let $N_7(j)$ be the first seven entries of NBA player $j$'s `similar_players` list (Section 2). The final score blends each candidate's own similarity with the best similarity in its NBA-NBA neighborhood:
 
-$$s(p, j) = (1 - \lambda)\, s_0(p, j) + \lambda \max_{k \in N_7(j)} s_0(p, k), \qquad \lambda = 0.8.$$
+$$s(p, j) = (1 - \lambda)\, s_0(p, j) + \lambda \max_{k \in N_7(j)} s_0(p, k), \qquad \lambda = 0.494.$$
 
 Candidates whose *neighborhoods* resemble the prospect rank higher, so the player the prospect actually becomes tends to sit at most one hop from the displayed comps. This uses NBA-side information only.
 
 ### 3.5 Tuning objective
 
-Parameters (feature set, weights, bandwidth, smoothing) maximize a points metric over the 2007–2023 draft classes ($n = 490$ prospects with an NBA counterpart in the pool), evaluated on the raw engine output *before* exact-name filtering:
+Parameters (feature set, weights, bandwidth, smoothing) maximize an **augmented** points metric over the 2007–2023 draft classes ($n = 490$ prospects with an NBA counterpart in the pool), evaluated on the raw engine output *before* exact-name filtering. The objective has two parts:
+
+$$\text{score}(p) = \underbrace{\text{recall}(p)}_{\le 9} + \gamma \cdot \underbrace{\text{caliber\_align}(p)}_{\in [0,1]}.$$
+
+**Recall** (the legacy metric, max 9 per prospect):
 
 - **+2** if the prospect's NBA counterpart (same player, matched by normalized name) ranks in the top 7 of $s(p, \cdot)$;
 - **+1** for each NBA player in that top 7 whose own top-7 NBA-NBA similars contain the counterpart.
 
-Maximum 9 points per prospect. Optimization is random search followed by coordinate descent, with the height/weight budget constraint enforced at every step. Classes 2024 and later are excluded (insufficient NBA sample). The shipped configuration scores 1150 of 4410 (26.1 percent), with the counterpart in the raw top 7 for 40.8 percent of prospects.
+**Caliber alignment** rewards the top 7's mean caliber sitting near the prospect's own caliber, so the optimizer is no longer indifferent to a star prospect drawing bench comps (the legacy objective was caliber-blind, which is what drove the scoring/efficiency weights to zero and shipped implausible comps):
+
+$$\text{caliber\_align}(p) = 1 - \left| q_p - \tfrac{1}{7}\textstyle\sum_{j \in \text{top7}} q_j \right|,$$
+
+where $q$ is the whole-pool APFV rank (the same axis as the `quality` feature). It is defined for *every* prospect, including those without an NBA counterpart, so it shapes comps for current-board prospects too.
+
+Optimization is random search followed by coordinate descent, with the height/weight budget constraint enforced at every step. Classes 2024 and later are excluded (insufficient NBA sample). Adding the caliber axis and re-tuning the bandwidth ($0.08 \to 0.044$) and smoothing ($\lambda: 0.8 \to 0.49$) lifted the counterpart-in-top-7 rate from roughly 41 percent to roughly 58 percent while improving comp caliber — the prior bandwidth/smoothing were over-broad and were localizing the counterpart only indirectly.
 
 ### 3.6 Display selection
 

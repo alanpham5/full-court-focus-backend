@@ -1,13 +1,8 @@
-"""Team name search with ordered-character (subsequence) matching."""
 
 from __future__ import annotations
 
 
 def ordered_subsequence_score(query: str, text: str) -> float:
-    """
-  Score 0–100 when every query character appears in order in text.
-  Consecutive matches at the start of text score highest.
-  """
     q = query.strip().lower()
     t = text.lower()
     if not q or not t:
@@ -33,7 +28,6 @@ def ordered_subsequence_score(query: str, text: str) -> float:
 
 
 def score_team_match(query: str, meta: dict) -> float:
-    """Best ordered-match score across abbreviation, full name, nickname, and name tokens."""
     q = query.strip()
     if not q:
         return 0.0
@@ -71,7 +65,6 @@ def rank_team_search(
     limit: int = 6,
     score_cutoff: float = 35.0,
 ) -> list[str]:
-    """Return team IDs sorted by match quality (best first)."""
     scored: list[tuple[float, str]] = []
     for tid, meta in metadata.items():
         score = score_team_match(query, meta)

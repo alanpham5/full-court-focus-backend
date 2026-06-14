@@ -12,7 +12,6 @@ _APP_ROOT = Path(__file__).resolve().parents[1]
 if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
 
-# Load env variables before pipeline imports
 def _load_env_defaults() -> None:
     env_path = _APP_ROOT / ".env"
     if env_path.exists():
@@ -108,7 +107,6 @@ def run_pipeline_orchestrator(
     sleep_time: float = 2.0,
     rate_limit: float = 1.5,
 ) -> int:
-    """Programmatic entry point to execute the pipeline stages."""
     allowed_stages = {"team", "badge", "similar", "lineup", "profile", "player", "prospect"}
     stages_to_run = [s.strip().lower() for s in stages_to_run if s.strip()]
     for s in stages_to_run:
@@ -124,7 +122,6 @@ def run_pipeline_orchestrator(
         storage_uri = str(_APP_ROOT / "data" / "player_profiles")
 
     try:
-        # 1. Team Stats Stage
         if "team" in stages_to_run:
             pipeline = TeamStatsPipeline(
                 parquet_path=TEAMS_PARQUET_PATH,
@@ -137,7 +134,6 @@ def run_pipeline_orchestrator(
             from parquet_io import read_teams_parquet
             df = read_teams_parquet(TEAMS_PARQUET_PATH)
 
-        # 2. Badge Leaders Stage
         if "badge" in stages_to_run:
             pipeline = BadgeLeadersPipeline(
                 parquet_path=TEAMS_PARQUET_PATH,
@@ -146,7 +142,6 @@ def run_pipeline_orchestrator(
             )
             pipeline.run(df)
 
-        # 3. Similar Teams Stage
         if "similar" in stages_to_run:
             pipeline = SimilarTeamsPipeline(
                 parquet_path=TEAMS_PARQUET_PATH,
@@ -158,7 +153,6 @@ def run_pipeline_orchestrator(
             with open(SIMILAR_TEAMS_PATH) as f:
                 sim_index = json.load(f)
 
-        # Determine lineup/profile keys to update if --current is active
         lineup_keys = None
         if current_season_only and df is not None:
             from pipelines.team_stats_pipeline import season_str, current_season_year
@@ -166,7 +160,6 @@ def run_pipeline_orchestrator(
             curr_data = df[df["SEASON"] == curr_season]
             lineup_keys = [f"{int(tid)}:{curr_season}" for tid in curr_data["TEAM_ID"].unique()]
 
-        # 4. Lineups Stage
         if "lineup" in stages_to_run:
             pipeline = LineupsPipeline(
                 parquet_path=TEAMS_PARQUET_PATH,
@@ -180,10 +173,8 @@ def run_pipeline_orchestrator(
                 else:
                     lineup_keys = pipeline.get_known_keys()
 
-            # Pass fast-failing timeouts and retries for lineups bulk scraping
             pipeline.run(lineup_keys, replace=False, timeout=15, retries=2)
 
-        # 5. Team Profiles Stage
         if "profile" in stages_to_run:
             pipeline = TeamProfilesPipeline(
                 parquet_path=TEAMS_PARQUET_PATH,
@@ -194,7 +185,6 @@ def run_pipeline_orchestrator(
             )
             pipeline.run(df, profile_keys=lineup_keys, sim_index=sim_index)
 
-        # 6. Player Profiles Stage
         if "player" in stages_to_run:
             pipeline = PlayerProfilesPipeline(
                 storage_uri=storage_uri,
@@ -207,7 +197,7 @@ def run_pipeline_orchestrator(
                 seasons = sorted(df["SEASON"].unique().tolist())
             else:
                 from analytics.player_profiles.seasons import seasons_since_1996
-                seasons = seasons_since_1996(2023)  # default fallback
+                seasons = seasons_since_1996(2023)
 
             current_season_start_year = int(seasons[-1][:4])
             pipeline.run(
@@ -217,12 +207,10 @@ def run_pipeline_orchestrator(
                 copy_to_static_dir=_APP_ROOT / "data" / "static",
             )
 
-            # Sync local to GCS if GCS config matches and player stage was run
             gcs_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
             if gcs_uri and gcs_uri.startswith("gs://"):
                 upload_local_to_gcs(Path(storage_uri), gcs_uri)
 
-        # 7. Prospects Stage
         if "prospect" in stages_to_run:
             from pipelines.prospects_pipeline import DEFAULT_SOURCE_URL
             pipeline = ProspectsPipeline(

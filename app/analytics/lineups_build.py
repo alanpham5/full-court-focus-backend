@@ -14,7 +14,6 @@ def build_starting_lineups_index(
     timeout: int = 15,
     retries: int = 2,
 ) -> dict[str, dict[str, Any]]:
-    """Build lineup payloads for ``team_id:season`` keys."""
     out: dict[str, dict[str, Any]] = {}
     from tqdm import tqdm
     for sk in tqdm(keys, desc="Scraping starting lineups", unit="team"):

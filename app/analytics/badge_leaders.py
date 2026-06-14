@@ -44,7 +44,6 @@ def build_badge_leaders_index(
     norm_df: pd.DataFrame,
     team_metadata: dict[str, dict],
 ) -> dict[str, dict[str, dict[str, Any]]]:
-    """Per season, per badge: top 2 badge holders ranked by exemplar_score."""
     hist_ix = df.drop_duplicates(["TEAM_ID", "SEASON"], keep="first").set_index(
         ["TEAM_ID", "SEASON"]
     )

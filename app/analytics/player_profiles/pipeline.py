@@ -137,7 +137,6 @@ class PlayerProfilePipeline:
                         attempts[pid],
                         max_attempts,
                     )
-                    # Pass headers for reliability and use client timeout configuration
                     endpoint = commonplayerinfo.CommonPlayerInfo(
                         player_id=int(pid),
                         timeout=timeout_val,
@@ -206,14 +205,12 @@ class PlayerProfilePipeline:
                             if pos:
                                 career.loc[idx, "primary_position"] = pg
 
-                    # Sleep with extra cushion to avoid timeouts and rate limits
                     sleep_time = base_sleep + 1.0 + random.random() * (jitter + 0.5)
                     logger.info("Successfully fetched player %s bio. Sleeping for %.2fs", pid, sleep_time)
                     pbar.update(1)
                     time.sleep(sleep_time)
 
                 except Exception as e:
-                    # Check if the exception contains a 4xx response status code
                     status_code = None
                     if hasattr(e, "response") and e.response is not None:
                         status_code = getattr(e.response, "status_code", None)
@@ -240,7 +237,6 @@ class PlayerProfilePipeline:
                     if attempts[pid] < max_attempts:
                         logger.info("Adding player %s to the queue to retry", pid)
                         queue.append(pid)
-                        # Sleep for 3 seconds before retrying
                         sleep_time = 3.0
                         logger.info("Sleeping for %.2fs before retrying next player", sleep_time)
                         time.sleep(sleep_time)

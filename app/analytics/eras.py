@@ -1,4 +1,3 @@
-"""NBA season → decade helpers for era-filtered queries."""
 
 from __future__ import annotations
 
