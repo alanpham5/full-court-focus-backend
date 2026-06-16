@@ -58,14 +58,6 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1628991,
-        "player_name": "Jaren Jackson Jr.",
-        "similarity_score": 35.5,
-        "career_span": "2018-19 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 739,
         "player_name": "Rasheed Wallace",
         "similarity_score": 35.5,
@@ -74,12 +66,20 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 1626174,
-        "player_name": "Christian Wood",
+        "player_id": 1626167,
+        "player_name": "Myles Turner",
         "similarity_score": 35.5,
-        "career_span": "2015-16 to 2023-24",
+        "career_span": "2015-16 to 2025-26",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1631117,
+        "player_name": "Walker Kessler",
+        "similarity_score": 37.8,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
       }
     ],
     "raw_stats": {
@@ -162,28 +162,28 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 201142,
-        "player_name": "Kevin Durant",
-        "similarity_score": 38.8,
-        "career_span": "2007-08 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
-        "player_id": 1641708,
-        "player_name": "Amen Thompson",
-        "similarity_score": 42.9,
-        "career_span": "2023-24 to 2025-26",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 203952,
         "player_name": "Andrew Wiggins",
         "similarity_score": 40.2,
         "career_span": "2014-15 to 2025-26",
         "position_group": "W",
         "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1628367,
+        "player_name": "Josh Jackson",
+        "similarity_score": 43.5,
+        "career_span": "2017-18 to 2021-22",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1631212,
+        "player_name": "Peyton Watson",
+        "similarity_score": 46.3,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
       }
     ],
     "raw_stats": {
@@ -258,36 +258,36 @@
     "pick": 3,
     "similar_nba_players": [
       {
-        "player_id": 101114,
-        "player_name": "Deron Williams",
-        "similarity_score": 44.2,
-        "career_span": "2005-06 to 2016-17",
+        "player_id": 203901,
+        "player_name": "Elfrid Payton",
+        "similarity_score": 50.0,
+        "career_span": "2014-15 to 2024-25",
         "position_group": "W",
         "role": "Playmaker"
       },
       {
-        "player_id": 89,
-        "player_name": "Nick Van Exel",
-        "similarity_score": 45.6,
-        "career_span": "1996-97 to 2005-06",
+        "player_id": 1628365,
+        "player_name": "Markelle Fultz",
+        "similarity_score": 52.3,
+        "career_span": "2017-18 to 2025-26",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 101181,
+        "player_name": "Jose Calderon",
+        "similarity_score": 49.1,
+        "career_span": "2005-06 to 2018-19",
         "position_group": "W",
         "role": "Playmaker"
       },
       {
-        "player_id": 1729,
-        "player_name": "Ricky Davis",
-        "similarity_score": 47.2,
-        "career_span": "1998-99 to 2009-10",
+        "player_id": 1628372,
+        "player_name": "Dennis Smith Jr.",
+        "similarity_score": 52.3,
+        "career_span": "2017-18 to 2023-24",
         "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
-        "player_id": 358,
-        "player_name": "Anfernee Hardaway",
-        "similarity_score": 47.2,
-        "career_span": "1996-97 to 2007-08",
-        "position_group": "W",
-        "role": "Secondary Creator"
+        "role": "Playmaker"
       }
     ],
     "raw_stats": {
@@ -370,18 +370,18 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 1628983,
-        "player_name": "Shai Gilgeous-Alexander",
-        "similarity_score": 42.9,
-        "career_span": "2018-19 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1536,
         "player_name": "Stephen Jackson",
         "similarity_score": 41.4,
         "career_span": "2000-01 to 2013-14",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1630700,
+        "player_name": "Dyson Daniels",
+        "similarity_score": 46.8,
+        "career_span": "2022-23 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
       },
@@ -482,18 +482,18 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 1536,
-        "player_name": "Stephen Jackson",
-        "similarity_score": 40.8,
-        "career_span": "2000-01 to 2013-14",
+        "player_id": 358,
+        "player_name": "Anfernee Hardaway",
+        "similarity_score": 42.3,
+        "career_span": "1996-97 to 2007-08",
         "position_group": "W",
         "role": "Secondary Creator"
       },
       {
-        "player_id": 1627747,
-        "player_name": "Caris LeVert",
-        "similarity_score": 41.4,
-        "career_span": "2016-17 to 2025-26",
+        "player_id": 166,
+        "player_name": "Ron Harper",
+        "similarity_score": 44.7,
+        "career_span": "1996-97 to 2000-01",
         "position_group": "W",
         "role": "Secondary Creator"
       }
@@ -906,10 +906,10 @@
         "role": "Defensive Specialist"
       },
       {
-        "player_id": 1630231,
-        "player_name": "KJ Martin",
+        "player_id": 1627884,
+        "player_name": "Derrick Jones Jr.",
         "similarity_score": 60.0,
-        "career_span": "2020-21 to 2024-25",
+        "career_span": "2016-17 to 2025-26",
         "position_group": "W",
         "role": "Defensive Specialist"
       }
@@ -1090,14 +1090,6 @@
     "pick": 11,
     "similar_nba_players": [
       {
-        "player_id": 2034,
-        "player_name": "Mike Miller",
-        "similarity_score": 42.5,
-        "career_span": "2000-01 to 2016-17",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 1629130,
         "player_name": "Duncan Robinson",
         "similarity_score": 44.9,
@@ -1118,6 +1110,14 @@
         "player_name": "Rasual Butler",
         "similarity_score": 46.4,
         "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 2592,
+        "player_name": "James Jones",
+        "similarity_score": 51.2,
+        "career_span": "2003-04 to 2016-17",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -1202,14 +1202,6 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 203943,
-        "player_name": "Noah Vonleh",
-        "similarity_score": 41.8,
-        "career_span": "2014-15 to 2022-23",
-        "position_group": "W",
-        "role": "Defensive Specialist"
-      },
-      {
         "player_id": 969,
         "player_name": "Travis Knight",
         "similarity_score": 48.1,
@@ -1222,6 +1214,14 @@
         "player_name": "Ekpe Udoh",
         "similarity_score": 41.9,
         "career_span": "2010-11 to 2018-19",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1916,
+        "player_name": "Calvin Booth",
+        "similarity_score": 43.8,
+        "career_span": "1999-00 to 2008-09",
         "position_group": "W",
         "role": "Defensive Specialist"
       }
@@ -1298,34 +1298,34 @@
     "pick": 13,
     "similar_nba_players": [
       {
-        "player_id": 203095,
-        "player_name": "Evan Fournier",
-        "similarity_score": 49.7,
-        "career_span": "2012-13 to 2023-24",
+        "player_id": 1629004,
+        "player_name": "Svi Mykhailiuk",
+        "similarity_score": 57.2,
+        "career_span": "2018-19 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 202130,
-        "player_name": "Reggie Williams",
-        "similarity_score": 52.7,
-        "career_span": "2009-10 to 2016-17",
+        "player_id": 1630182,
+        "player_name": "Josh Green",
+        "similarity_score": 56.8,
+        "career_span": "2020-21 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 1631108,
-        "player_name": "Max Christie",
-        "similarity_score": 51.6,
-        "career_span": "2022-23 to 2025-26",
+        "player_id": 1627788,
+        "player_name": "Furkan Korkmaz",
+        "similarity_score": 59.2,
+        "career_span": "2017-18 to 2023-24",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 204038,
-        "player_name": "Langston Galloway",
-        "similarity_score": 51.4,
-        "career_span": "2014-15 to 2021-22",
+        "player_id": 2756,
+        "player_name": "Sasha Vujacic",
+        "similarity_score": 57.5,
+        "career_span": "2004-05 to 2016-17",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -1402,22 +1402,6 @@
     "pick": 14,
     "similar_nba_players": [
       {
-        "player_id": 203897,
-        "player_name": "Zach LaVine",
-        "similarity_score": 42.6,
-        "career_span": "2014-15 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
-        "player_id": 1630224,
-        "player_name": "Jalen Green",
-        "similarity_score": 44.1,
-        "career_span": "2021-22 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 203903,
         "player_name": "Jordan Clarkson",
         "similarity_score": 44.1,
@@ -1426,10 +1410,26 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1722,
-        "player_name": "Michael Dickerson",
-        "similarity_score": 45.2,
-        "career_span": "1998-99 to 2002-03",
+        "player_id": 1631108,
+        "player_name": "Max Christie",
+        "similarity_score": 52.7,
+        "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 203200,
+        "player_name": "Justin Holiday",
+        "similarity_score": 46.4,
+        "career_span": "2012-13 to 2023-24",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1629013,
+        "player_name": "Landry Shamet",
+        "similarity_score": 47.9,
+        "career_span": "2018-19 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -1506,12 +1506,12 @@
     "pick": 15,
     "similar_nba_players": [
       {
-        "player_id": 1628370,
-        "player_name": "Malik Monk",
-        "similarity_score": 58.3,
-        "career_span": "2017-18 to 2025-26",
+        "player_id": 1630165,
+        "player_name": "Killian Hayes",
+        "similarity_score": 63.6,
+        "career_span": "2020-21 to 2025-26",
         "position_group": "W",
-        "role": "Secondary Creator"
+        "role": "Playmaker"
       },
       {
         "player_id": 1630245,
@@ -1530,10 +1530,10 @@
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 204020,
-        "player_name": "Tyler Johnson",
-        "similarity_score": 53.5,
-        "career_span": "2014-15 to 2021-22",
+        "player_id": 202066,
+        "player_name": "Garrett Temple",
+        "similarity_score": 58.9,
+        "career_span": "2009-10 to 2025-26",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -1730,18 +1730,18 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 1515,
-        "player_name": "Anthony Parker",
-        "similarity_score": 44.1,
-        "career_span": "1997-98 to 2011-12",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
         "player_id": 2052,
         "player_name": "DeShawn Stevenson",
         "similarity_score": 45.6,
         "career_span": "2000-01 to 2012-13",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 695,
+        "player_name": "Eldridge Recasner",
+        "similarity_score": 53.0,
+        "career_span": "1996-97 to 2001-02",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -1834,18 +1834,18 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 2202,
-        "player_name": "Jason Richardson",
-        "similarity_score": 49.1,
+        "player_id": 2222,
+        "player_name": "Gerald Wallace",
+        "similarity_score": 50.4,
         "career_span": "2001-02 to 2014-15",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Rim Attacker"
       },
       {
-        "player_id": 1890,
-        "player_name": "Shawn Marion",
-        "similarity_score": 49.2,
-        "career_span": "1999-00 to 2014-15",
+        "player_id": 1739,
+        "player_name": "Ruben Patterson",
+        "similarity_score": 51.8,
+        "career_span": "1998-99 to 2007-08",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -1930,26 +1930,26 @@
         "role": "Playmaker"
       },
       {
-        "player_id": 1629630,
-        "player_name": "Ja Morant",
-        "similarity_score": 54.9,
+        "player_id": 1883,
+        "player_name": "Steve Francis",
+        "similarity_score": 57.0,
+        "career_span": "1999-00 to 2007-08",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1629645,
+        "player_name": "Kevin Porter Jr.",
+        "similarity_score": 58.3,
         "career_span": "2019-20 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
       },
       {
-        "player_id": 202322,
-        "player_name": "John Wall",
-        "similarity_score": 55.4,
-        "career_span": "2010-11 to 2022-23",
-        "position_group": "W",
-        "role": "Playmaker"
-      },
-      {
-        "player_id": 1883,
-        "player_name": "Steve Francis",
-        "similarity_score": 57.0,
-        "career_span": "1999-00 to 2007-08",
+        "player_id": 1628404,
+        "player_name": "Josh Hart",
+        "similarity_score": 56.9,
+        "career_span": "2017-18 to 2025-26",
         "position_group": "W",
         "role": "Secondary Creator"
       }
@@ -2338,22 +2338,6 @@
     "pick": 23,
     "similar_nba_players": [
       {
-        "player_id": 204001,
-        "player_name": "Kristaps Porzi\u0146\u0123is",
-        "similarity_score": 49.4,
-        "career_span": "2015-16 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
-        "player_id": 1890,
-        "player_name": "Shawn Marion",
-        "similarity_score": 51.6,
-        "career_span": "1999-00 to 2014-15",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 1626174,
         "player_name": "Christian Wood",
         "similarity_score": 56.9,
@@ -2362,12 +2346,28 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1628991,
-        "player_name": "Jaren Jackson Jr.",
-        "similarity_score": 49.5,
-        "career_span": "2018-19 to 2025-26",
+        "player_id": 1631099,
+        "player_name": "Keegan Murray",
+        "similarity_score": 56.5,
+        "career_span": "2022-23 to 2025-26",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 101107,
+        "player_name": "Marvin Williams",
+        "similarity_score": 54.2,
+        "career_span": "2005-06 to 2019-20",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 202329,
+        "player_name": "Al-Farouq Aminu",
+        "similarity_score": 58.3,
+        "career_span": "2010-11 to 2020-21",
+        "position_group": "W",
+        "role": "Defensive Specialist"
       }
     ],
     "raw_stats": {
@@ -2650,14 +2650,6 @@
     "pick": 26,
     "similar_nba_players": [
       {
-        "player_id": 84,
-        "player_name": "Latrell Sprewell",
-        "similarity_score": 46.9,
-        "career_span": "1996-97 to 2004-05",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 203903,
         "player_name": "Jordan Clarkson",
         "similarity_score": 52.1,
@@ -2666,20 +2658,28 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1888,
-        "player_name": "Richard Hamilton",
-        "similarity_score": 46.2,
-        "career_span": "1999-00 to 2012-13",
+        "player_id": 202348,
+        "player_name": "Jordan Crawford",
+        "similarity_score": 54.0,
+        "career_span": "2010-11 to 2017-18",
         "position_group": "W",
         "role": "Designated Scorer"
       },
       {
-        "player_id": 2037,
-        "player_name": "Jamal Crawford",
-        "similarity_score": 47.4,
-        "career_span": "2000-01 to 2019-20",
+        "player_id": 317,
+        "player_name": "John Starks",
+        "similarity_score": 56.3,
+        "career_span": "1996-97 to 2001-02",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 201164,
+        "player_name": "Rudy Fernandez",
+        "similarity_score": 52.6,
+        "career_span": "2008-09 to 2011-12",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
       }
     ],
     "raw_stats": {
@@ -2874,20 +2874,20 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1627759,
-        "player_name": "Jaylen Brown",
-        "similarity_score": 39.8,
-        "career_span": "2016-17 to 2025-26",
+        "player_id": 2617,
+        "player_name": "Udonis Haslem",
+        "similarity_score": 48.7,
+        "career_span": "2003-04 to 2022-23",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Interior Presence"
       },
       {
-        "player_id": 203953,
-        "player_name": "Jabari Parker",
-        "similarity_score": 40.6,
-        "career_span": "2014-15 to 2021-22",
+        "player_id": 203118,
+        "player_name": "Mike Scott",
+        "similarity_score": 48.1,
+        "career_span": "2012-13 to 2020-21",
         "position_group": "W",
-        "role": "Rim Attacker"
+        "role": "Perimeter Specialist"
       }
     ],
     "raw_stats": {
@@ -2986,10 +2986,10 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 203501,
-        "player_name": "Tim Hardaway Jr.",
-        "similarity_score": 48.1,
-        "career_span": "2013-14 to 2025-26",
+        "player_id": 1627814,
+        "player_name": "Damion Lee",
+        "similarity_score": 51.4,
+        "career_span": "2017-18 to 2024-25",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -3066,14 +3066,6 @@
     "pick": 30,
     "similar_nba_players": [
       {
-        "player_id": 2546,
-        "player_name": "Carmelo Anthony",
-        "similarity_score": 41.9,
-        "career_span": "2003-04 to 2021-22",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 952,
         "player_name": "Antoine Walker",
         "similarity_score": 42.3,
@@ -3096,6 +3088,14 @@
         "career_span": "1999-00 to 2016-17",
         "position_group": "W",
         "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1903,
+        "player_name": "Kenny Thomas",
+        "similarity_score": 47.0,
+        "career_span": "1999-00 to 2009-10",
+        "position_group": "W",
+        "role": "Interior Presence"
       }
     ],
     "raw_stats": {
@@ -3274,14 +3274,6 @@
     "pick": 32,
     "similar_nba_players": [
       {
-        "player_id": 201565,
-        "player_name": "Derrick Rose",
-        "similarity_score": 40.0,
-        "career_span": "2008-09 to 2023-24",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 2590,
         "player_name": "Mo Williams",
         "similarity_score": 41.9,
@@ -3302,6 +3294,14 @@
         "player_name": "David Wesley",
         "similarity_score": 40.5,
         "career_span": "1996-97 to 2006-07",
+        "position_group": "W",
+        "role": "Secondary Creator"
+      },
+      {
+        "player_id": 1626144,
+        "player_name": "Emmanuel Mudiay",
+        "similarity_score": 44.3,
+        "career_span": "2015-16 to 2021-22",
         "position_group": "W",
         "role": "Secondary Creator"
       }
@@ -3378,14 +3378,6 @@
     "pick": 33,
     "similar_nba_players": [
       {
-        "player_id": 2547,
-        "player_name": "Chris Bosh",
-        "similarity_score": 39.4,
-        "career_span": "2003-04 to 2015-16",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1629008,
         "player_name": "Michael Porter Jr.",
         "similarity_score": 44.1,
@@ -3394,18 +3386,26 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 200746,
-        "player_name": "LaMarcus Aldridge",
-        "similarity_score": 38.5,
-        "career_span": "2006-07 to 2021-22",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 1631095,
         "player_name": "Jabari Smith Jr.",
         "similarity_score": 42.6,
         "career_span": "2022-23 to 2025-26",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 703,
+        "player_name": "Kurt Thomas",
+        "similarity_score": 44.1,
+        "career_span": "1996-97 to 2012-13",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 1629002,
+        "player_name": "Chimezie Metu",
+        "similarity_score": 46.1,
+        "career_span": "2018-19 to 2023-24",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -3586,14 +3586,6 @@
     "pick": 35,
     "similar_nba_players": [
       {
-        "player_id": 1888,
-        "player_name": "Richard Hamilton",
-        "similarity_score": 40.8,
-        "career_span": "1999-00 to 2012-13",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 203613,
         "player_name": "Jonathon Simmons",
         "similarity_score": 46.2,
@@ -3602,18 +3594,26 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 1629003,
-        "player_name": "Shake Milton",
-        "similarity_score": 43.3,
-        "career_span": "2018-19 to 2024-25",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
         "player_id": 1628411,
         "player_name": "Wes Iwundu",
         "similarity_score": 52.8,
         "career_span": "2017-18 to 2021-22",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 688,
+        "player_name": "Michael Curry",
+        "similarity_score": 46.4,
+        "career_span": "1996-97 to 2004-05",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 2624,
+        "player_name": "Quinton Ross",
+        "similarity_score": 48.1,
+        "career_span": "2004-05 to 2010-11",
         "position_group": "W",
         "role": "Defensive Specialist"
       }
@@ -3794,34 +3794,34 @@
     "pick": 37,
     "similar_nba_players": [
       {
+        "player_id": 204001,
+        "player_name": "Kristaps Porzi\u0146\u0123is",
+        "similarity_score": 32.3,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1626174,
+        "player_name": "Christian Wood",
+        "similarity_score": 37.2,
+        "career_span": "2015-16 to 2023-24",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
+        "player_id": 1628991,
+        "player_name": "Jaren Jackson Jr.",
+        "similarity_score": 32.3,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
         "player_id": 1631106,
         "player_name": "Tari Eason",
         "similarity_score": 33.6,
         "career_span": "2022-23 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
-        "player_id": 202702,
-        "player_name": "Kenneth Faried",
-        "similarity_score": 29.9,
-        "career_span": "2011-12 to 2018-19",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
-        "player_id": 101107,
-        "player_name": "Marvin Williams",
-        "similarity_score": 31.6,
-        "career_span": "2005-06 to 2019-20",
-        "position_group": "W",
-        "role": "Perimeter Specialist"
-      },
-      {
-        "player_id": 1630167,
-        "player_name": "Obi Toppin",
-        "similarity_score": 33.9,
-        "career_span": "2020-21 to 2025-26",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -4634,14 +4634,6 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 1626162,
-        "player_name": "Kelly Oubre Jr.",
-        "similarity_score": 44.8,
-        "career_span": "2015-16 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 2566,
         "player_name": "Travis Outlaw",
         "similarity_score": 59.7,
@@ -4654,6 +4646,14 @@
         "player_name": "John Wallace",
         "similarity_score": 57.9,
         "career_span": "1996-97 to 2003-04",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 1944,
+        "player_name": "Eddie Robinson",
+        "similarity_score": 59.5,
+        "career_span": "1999-00 to 2003-04",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -4946,6 +4946,14 @@
         "role": "Secondary Creator"
       },
       {
+        "player_id": 1888,
+        "player_name": "Richard Hamilton",
+        "similarity_score": 58.2,
+        "career_span": "1999-00 to 2012-13",
+        "position_group": "W",
+        "role": "Designated Scorer"
+      },
+      {
         "player_id": 147,
         "player_name": "Jalen Rose",
         "similarity_score": 57.3,
@@ -4958,14 +4966,6 @@
         "player_name": "Brandon Knight",
         "similarity_score": 57.4,
         "career_span": "2011-12 to 2021-22",
-        "position_group": "W",
-        "role": "Secondary Creator"
-      },
-      {
-        "player_id": 1507,
-        "player_name": "Derek Anderson",
-        "similarity_score": 56.8,
-        "career_span": "1997-98 to 2007-08",
         "position_group": "W",
         "role": "Secondary Creator"
       }
@@ -5042,34 +5042,34 @@
     "pick": 49,
     "similar_nba_players": [
       {
-        "player_id": 951,
-        "player_name": "Ray Allen",
-        "similarity_score": 32.9,
-        "career_span": "1996-97 to 2013-14",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
-        "player_id": 1630530,
-        "player_name": "Trey Murphy III",
-        "similarity_score": 37.2,
-        "career_span": "2021-22 to 2025-26",
+        "player_id": 203138,
+        "player_name": "Hollis Thompson",
+        "similarity_score": 48.6,
+        "career_span": "2013-14 to 2016-17",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 1740,
-        "player_name": "Rashard Lewis",
-        "similarity_score": 32.8,
-        "career_span": "1998-99 to 2013-14",
+        "player_id": 201978,
+        "player_name": "Chase Budinger",
+        "similarity_score": 43.8,
+        "career_span": "2009-10 to 2015-16",
         "position_group": "W",
         "role": "Perimeter Specialist"
       },
       {
-        "player_id": 1629661,
-        "player_name": "Cameron Johnson",
-        "similarity_score": 37.2,
-        "career_span": "2019-20 to 2025-26",
+        "player_id": 15,
+        "player_name": "Eric Piatkowski",
+        "similarity_score": 43.0,
+        "career_span": "1996-97 to 2007-08",
+        "position_group": "W",
+        "role": "Perimeter Specialist"
+      },
+      {
+        "player_id": 1477,
+        "player_name": "Bruce Bowen",
+        "similarity_score": 42.8,
+        "career_span": "1996-97 to 2008-09",
         "position_group": "W",
         "role": "Perimeter Specialist"
       }
@@ -5162,20 +5162,20 @@
         "role": "Designated Scorer"
       },
       {
-        "player_id": 1631097,
-        "player_name": "Bennedict Mathurin",
-        "similarity_score": 34.3,
-        "career_span": "2022-23 to 2025-26",
+        "player_id": 2047,
+        "player_name": "Quentin Richardson",
+        "similarity_score": 35.5,
+        "career_span": "2000-01 to 2012-13",
         "position_group": "W",
-        "role": "Rim Attacker"
+        "role": "Perimeter Specialist"
       },
       {
-        "player_id": 1629640,
-        "player_name": "Keldon Johnson",
-        "similarity_score": 32.5,
-        "career_span": "2019-20 to 2025-26",
+        "player_id": 2250,
+        "player_name": "Bobby Simmons",
+        "similarity_score": 35.6,
+        "career_span": "2001-02 to 2011-12",
         "position_group": "W",
-        "role": "Rim Attacker"
+        "role": "Perimeter Specialist"
       }
     ],
     "raw_stats": {
@@ -5258,14 +5258,6 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 1628398,
-        "player_name": "Kyle Kuzma",
-        "similarity_score": 65.4,
-        "career_span": "2017-18 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
-      },
-      {
         "player_id": 202699,
         "player_name": "Tobias Harris",
         "similarity_score": 65.3,
@@ -5278,6 +5270,14 @@
         "player_name": "Caron Butler",
         "similarity_score": 65.4,
         "career_span": "2002-03 to 2015-16",
+        "position_group": "W",
+        "role": "Rim Attacker"
+      },
+      {
+        "player_id": 203084,
+        "player_name": "Harrison Barnes",
+        "similarity_score": 66.4,
+        "career_span": "2012-13 to 2025-26",
         "position_group": "W",
         "role": "Rim Attacker"
       }
@@ -5354,10 +5354,10 @@
     "pick": 52,
     "similar_nba_players": [
       {
-        "player_id": 201152,
-        "player_name": "Thaddeus Young",
-        "similarity_score": 50.6,
-        "career_span": "2007-08 to 2023-24",
+        "player_id": 1890,
+        "player_name": "Shawn Marion",
+        "similarity_score": 56.3,
+        "career_span": "1999-00 to 2014-15",
         "position_group": "W",
         "role": "Rim Attacker"
       },
@@ -5378,12 +5378,12 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 203077,
-        "player_name": "Michael Kidd-Gilchrist",
-        "similarity_score": 54.7,
-        "career_span": "2012-13 to 2019-20",
+        "player_id": 202344,
+        "player_name": "Trevor Booker",
+        "similarity_score": 60.1,
+        "career_span": "2010-11 to 2017-18",
         "position_group": "W",
-        "role": "Defensive Specialist"
+        "role": "Interior Presence"
       }
     ],
     "raw_stats": {
@@ -5474,10 +5474,10 @@
         "role": "Secondary Creator"
       },
       {
-        "player_id": 2605,
-        "player_name": "Marquis Daniels",
-        "similarity_score": 47.5,
-        "career_span": "2003-04 to 2012-13",
+        "player_id": 243,
+        "player_name": "Aaron McKie",
+        "similarity_score": 48.5,
+        "career_span": "1996-97 to 2006-07",
         "position_group": "W",
         "role": "Secondary Creator"
       },
@@ -5562,14 +5562,6 @@
     "pick": 54,
     "similar_nba_players": [
       {
-        "player_id": 202695,
-        "player_name": "Kawhi Leonard",
-        "similarity_score": 48.0,
-        "career_span": "2011-12 to 2025-26",
-        "position_group": "W",
-        "role": "Designated Scorer"
-      },
-      {
         "player_id": 2222,
         "player_name": "Gerald Wallace",
         "similarity_score": 54.5,
@@ -5578,20 +5570,28 @@
         "role": "Rim Attacker"
       },
       {
-        "player_id": 1905,
-        "player_name": "Andrei Kirilenko",
-        "similarity_score": 47.5,
-        "career_span": "2001-02 to 2014-15",
+        "player_id": 1626178,
+        "player_name": "Rondae Hollis-Jefferson",
+        "similarity_score": 52.0,
+        "career_span": "2015-16 to 2020-21",
         "position_group": "W",
         "role": "Rim Attacker"
       },
       {
-        "player_id": 1739,
-        "player_name": "Ruben Patterson",
-        "similarity_score": 47.6,
-        "career_span": "1998-99 to 2007-08",
+        "player_id": 448,
+        "player_name": "Bo Outlaw",
+        "similarity_score": 58.8,
+        "career_span": "1996-97 to 2007-08",
         "position_group": "W",
-        "role": "Rim Attacker"
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1626204,
+        "player_name": "Larry Nance Jr.",
+        "similarity_score": 51.1,
+        "career_span": "2015-16 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
       }
     ],
     "raw_stats": {
@@ -5874,36 +5874,36 @@
     "pick": 57,
     "similar_nba_players": [
       {
-        "player_id": 185,
-        "player_name": "Chris Webber",
-        "similarity_score": 39.1,
-        "career_span": "1996-97 to 2007-08",
+        "player_id": 1628386,
+        "player_name": "Jarrett Allen",
+        "similarity_score": 46.5,
+        "career_span": "2017-18 to 2025-26",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Rim Attacker"
       },
       {
-        "player_id": 1495,
-        "player_name": "Tim Duncan",
-        "similarity_score": 40.0,
-        "career_span": "1997-98 to 2015-16",
+        "player_id": 101161,
+        "player_name": "Amir Johnson",
+        "similarity_score": 46.5,
+        "career_span": "2005-06 to 2018-19",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Defensive Specialist"
       },
       {
-        "player_id": 1882,
-        "player_name": "Elton Brand",
-        "similarity_score": 44.1,
-        "career_span": "1999-00 to 2015-16",
+        "player_id": 203124,
+        "player_name": "Kyle O'Quinn",
+        "similarity_score": 49.1,
+        "career_span": "2012-13 to 2019-20",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Interior Presence"
       },
       {
-        "player_id": 949,
-        "player_name": "Shareef Abdur-Rahim",
-        "similarity_score": 41.2,
-        "career_span": "1996-97 to 2007-08",
+        "player_id": 101142,
+        "player_name": "Ronny Turiaf",
+        "similarity_score": 49.8,
+        "career_span": "2005-06 to 2014-15",
         "position_group": "W",
-        "role": "Designated Scorer"
+        "role": "Defensive Specialist"
       }
     ],
     "raw_stats": {
