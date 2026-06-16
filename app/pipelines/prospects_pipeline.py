@@ -551,6 +551,66 @@ COMP_MAX_APPEARANCES = 2
 COMP_ESTABLISHMENT_FLOOR = 0.35
 COMP_ESTABLISHMENT_ALPHA = 1.0
 SIMILARITY_COMP_QUALITY_BUCKET = False
+# One-sided scoring-volume affinity (display selection only; never touches the
+# similarity matrix or the tuned recall metric). Demotes candidates who score
+# far LESS than the prospect, so a high-volume scorer (Edwards, Dybantsa) is not
+# comped to a same-shape role player. The penalty is one-sided: a low-volume
+# prospect's high-scoring comps are never penalized, so playmakers/defenders keep
+# their star comps. Factor = exp(-max(0, scoring_pctile_p - scoring_pctile_j) / TAU).
+COMP_SCORING_AFFINITY_TAU = 0.20
+
+# --- Versioned tuning -------------------------------------------------------
+# The constants above are the code defaults. The active tuning version (if any)
+# is overlaid on top at import; `prospect_tuning_cli.py` manages versions and
+# lets a one-off run apply any version via `apply_tuning`.
+from pipelines import prospect_tuning as _tuning
+
+# Maps the JSON param schema <-> module globals, plus the encode/decode needed
+# for the one field (weights) that is a numpy array rather than a JSON scalar.
+_TUNING_GLOBALS = {
+    "features": "SIMILARITY_COMP_FEATURES",
+    "weights": "SIMILARITY_COMP_WEIGHTS",
+    "bandwidth": "SIMILARITY_COMP_BANDWIDTH",
+    "smooth_lambda": "SIMILARITY_COMP_SMOOTH_LAMBDA",
+    "smooth_topk": "SIMILARITY_COMP_SMOOTH_TOPK",
+    "similarity_gamma": "PROSPECT_SIMILARITY_GAMMA",
+    "popularity_penalty": "COMP_POPULARITY_PENALTY",
+    "max_appearances": "COMP_MAX_APPEARANCES",
+    "establishment_floor": "COMP_ESTABLISHMENT_FLOOR",
+    "establishment_alpha": "COMP_ESTABLISHMENT_ALPHA",
+    "quality_bucket": "SIMILARITY_COMP_QUALITY_BUCKET",
+    "scoring_affinity_tau": "COMP_SCORING_AFFINITY_TAU",
+}
+
+
+def current_tuning() -> dict:
+    """Snapshot the live tuning constants as a JSON-serializable param dict."""
+    g = globals()
+    out = {}
+    for key, name in _TUNING_GLOBALS.items():
+        val = g[name]
+        if key == "weights":
+            val = [float(x) for x in val]
+        elif key == "features":
+            val = list(val)
+        out[key] = val
+    return out
+
+
+def apply_tuning(params: dict) -> None:
+    """Overwrite the live tuning constants from a param dict (partial allowed)."""
+    g = globals()
+    for key, name in _TUNING_GLOBALS.items():
+        if key not in params:
+            continue
+        val = params[key]
+        if key == "weights":
+            val = np.asarray(val, dtype=float)
+        g[name] = val
+
+
+# Overlay the active version on the code defaults at import time.
+apply_tuning(_tuning.resolve_active(current_tuning()))
 
 
 def build_nba_neighbor_index(nba: pd.DataFrame, top_k: int | None = None) -> np.ndarray | None:
@@ -834,12 +894,27 @@ class ProspectsPipeline:
             * (1.0 - COMP_POPULARITY_PENALTY * popularity[None, :])
             * estab_prior[None, :]
         )
+
+        # One-sided scoring-volume affinity: scoring percentile of each side
+        # within its own pool (prospects within this board, NBA within the comp
+        # pool), the same normalization the engine uses elsewhere.
+        def _ppg(df: pd.DataFrame) -> np.ndarray:
+            pts = pd.to_numeric(df["pts_per36"], errors="coerce").fillna(0.0)
+            mpg = pd.to_numeric(df["mpg"], errors="coerce").fillna(0.0)
+            return (pts * mpg / 36.0).to_numpy(dtype=float)
+        nba_scoring_pct = pd.Series(_ppg(nba)).rank(pct=True).to_numpy()
+        prospect_scoring_pct = pd.Series(_ppg(prospects)).rank(pct=True).to_numpy()
+
         comp_usage: dict[int, int] = {}
 
         from tqdm import tqdm
         for i in tqdm(range(len(prospects)), desc="Calculating similar NBA players for prospects", unit="prospect"):
             composite = playstyle_scores[i].copy()
             ranking = rank_scores[i].copy()
+
+            if COMP_SCORING_AFFINITY_TAU > 0:
+                deficit = np.maximum(0.0, prospect_scoring_pct[i] - nba_scoring_pct)
+                ranking = ranking * np.exp(-deficit / COMP_SCORING_AFFINITY_TAU)
 
             prospect_name_raw = str(prospects.iloc[i].get("Player") or prospects.iloc[i].get("player_name", ""))
             prospect_name_clean = clean_name(prospect_name_raw)
@@ -1182,4 +1257,25 @@ class ProspectsPipeline:
         n_prospects = len(prospects)
         print(f"✓ Prospects completed: {n_prospects}/{n_prospects} prospects processed.")
 
+        return prospects
+
+    def recompute_comps_from_cache(self) -> pd.DataFrame:
+        """Recompute the current board's comps from the already-stored prospect
+        dataset and rewrite outputs — no scraping. Uses the live tuning (see
+        `apply_tuning`), so it is the current-board half of a tuning change."""
+        logger.info("Recomputing current-board comps from %s", self.parquet_output_path)
+        if not self.parquet_output_path.exists():
+            raise FileNotFoundError(
+                f"Stored prospect dataset not found: {self.parquet_output_path}. "
+                "Run the prospects pipeline (scrape) at least once first."
+            )
+        prospects = self.read_parquet_compat(self.parquet_output_path)
+        if "gp" not in prospects.columns and "GP" in prospects.columns:
+            prospects["gp"] = prospects["GP"]
+        career = self.read_parquet_compat(self.career_features_path)
+
+        prospects = self.add_similar_nba_players(prospects, career)
+        prospects = self.add_prospect_roles(prospects)
+        self.write_outputs(prospects)
+        print(f"✓ Current board recomputed: {len(prospects)} prospects.")
         return prospects

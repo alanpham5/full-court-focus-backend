@@ -27,7 +27,12 @@ _load_env_defaults()
 
 from config import DATA_STATIC_DIR, PLAYER_CAREER_FEATURES_PATH
 from analytics.prospect_apfv import normalize_global_prospect_apfv_files
-from pipelines.historical_prospects_pipeline import HistoricalProspectsPipeline, fetch_html_with_retry
+from pipelines.historical_prospects_pipeline import (
+    HistoricalProspectsPipeline,
+    fetch_html_with_retry,
+    process_draft_classes,
+    upload_prospect_outputs_to_gcs,
+)
 
 logger = logging.getLogger("historical_prospects_runner")
 
@@ -109,52 +114,17 @@ def main() -> int:
             logger.error("Draft year must be >= 2007.")
             return 1
 
-    pipeline = None
-    success_count = 0
-    failure_count = 0
-
-    for year in years:
-        json_path = static_draft_dir / f"prospects_{year}.json"
-        parquet_path = static_draft_dir / f"prospects_{year}.parquet"
-        
-        if json_path.exists() and parquet_path.exists() and not args.force and not args.recompute:
-            logger.info("Draft year %d has already been fully processed. Skipping. (Use --force or --recompute to override)", year)
-            success_count += 1
-            continue
-            
-        if pipeline is None:
-            pipeline = HistoricalProspectsPipeline(
-                career_features_path=PLAYER_CAREER_FEATURES_PATH,
-                json_output_path=json_path,
-                parquet_output_path=parquet_path,
-                similar_count=4
-            )
-        else:
-            pipeline.json_output_path = json_path
-            pipeline.parquet_output_path = parquet_path
-
-        try:
-            force_scrape = args.force and not args.recompute
-            pipeline.process_draft_class(year, force=force_scrape, sleep_time=args.sleep)
-            success_count += 1
-        except Exception as e:
-            logger.exception("Failed to process draft class %d: %s", year, e)
-            failure_count += 1
+    result = process_draft_classes(
+        years, force=args.force, recompute=args.recompute, sleep=args.sleep,
+    )
+    pipeline = result["pipeline"]
+    success_count = result["success"]
+    failure_count = result["failure"]
 
     if failure_count == 0:
         stats = normalize_global_prospect_apfv_files(DATA_STATIC_DIR / "prospects.json", static_draft_dir)
         logger.info("Global prospect APFV normalization complete: %s", stats)
-
-        import os
-        gcs_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
-        if gcs_uri and gcs_uri.startswith("gs://"):
-            uploader = pipeline or HistoricalProspectsPipeline(career_features_path=PLAYER_CAREER_FEATURES_PATH)
-            for path in [DATA_STATIC_DIR / "prospects.json", *(static_draft_dir.glob("prospects_*.json"))]:
-                if path.exists():
-                    uploader.upload_file_to_gcs(path, gcs_uri)
-                    parquet_path = path.with_suffix(".parquet")
-                    if parquet_path.exists():
-                        uploader.upload_file_to_gcs(parquet_path, gcs_uri)
+        upload_prospect_outputs_to_gcs(include_current=True, include_historical=True)
 
     logger.info("Pipeline execution finished: %d years completed, %d failed.", success_count, failure_count)
     return 0 if failure_count == 0 else 1

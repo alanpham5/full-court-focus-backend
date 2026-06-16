@@ -488,3 +488,97 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
                 logger.info("✓ Uploaded %s to gs://%s/%s", local_path.name, bucket_name, blob_name)
             except Exception as e:
                 logger.error("Failed to upload %s to gs://%s/%s: %s", local_path.name, bucket_name, blob_name, e)
+
+
+def draft_class_paths(year: int) -> tuple[Path, Path]:
+    d = DATA_STATIC_DIR / "draft"
+    return d / f"prospects_{year}.json", d / f"prospects_{year}.parquet"
+
+
+def existing_draft_years() -> list[int]:
+    """Years that already have a stored historical dataset (recompute targets)."""
+    d = DATA_STATIC_DIR / "draft"
+    years = []
+    for p in d.glob("prospects_*.parquet"):
+        m = re.match(r"prospects_(\d{4})$", p.stem)
+        if m:
+            years.append(int(m.group(1)))
+    return sorted(set(years))
+
+
+def upload_prospect_outputs_to_gcs(
+    *, include_current: bool = True, include_historical: bool = True
+) -> int:
+    """Push the prospect outputs to GCS if `PLAYER_PROFILES_STORAGE_URI` is a
+    `gs://` URI, mirroring the layout used by the standalone builder (prospect
+    files live under the `draft/` prefix). Returns the number of files uploaded;
+    a no-op (returns 0) when no GCS URI is configured. Call this AFTER APFV
+    normalization so the uploaded files reflect the final on-disk state."""
+    import os
+
+    gcs_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
+    if not gcs_uri or not gcs_uri.startswith("gs://"):
+        return 0
+
+    uploader = HistoricalProspectsPipeline(career_features_path=PLAYER_CAREER_FEATURES_PATH)
+    paths: list[Path] = []
+    if include_current:
+        paths.append(DATA_STATIC_DIR / "prospects.json")
+    if include_historical:
+        paths.extend(sorted((DATA_STATIC_DIR / "draft").glob("prospects_*.json")))
+
+    count = 0
+    for path in paths:
+        if not path.exists():
+            continue
+        uploader.upload_file_to_gcs(path, gcs_uri)
+        count += 1
+        parquet_path = path.with_suffix(".parquet")
+        if parquet_path.exists():
+            uploader.upload_file_to_gcs(parquet_path, gcs_uri)
+            count += 1
+    logger.info("Uploaded %d prospect output files to %s", count, gcs_uri)
+    return count
+
+
+def process_draft_classes(
+    years: list[int],
+    *,
+    force: bool = False,
+    recompute: bool = False,
+    sleep: float = 1.5,
+) -> dict:
+    """Build or recompute the given historical draft classes with one shared
+    pipeline instance (the loop reused by both the standalone builder and the
+    tuning CLI). `recompute=True` rewrites comps from cached raw data without
+    re-fetching; `force=True` re-scrapes. Returns counts and the pipeline used.
+    Normalization and GCS upload are left to the caller."""
+    (DATA_STATIC_DIR / "draft").mkdir(parents=True, exist_ok=True)
+    pipeline = None
+    success = 0
+    failure = 0
+    for year in years:
+        json_path, parquet_path = draft_class_paths(year)
+        if json_path.exists() and parquet_path.exists() and not force and not recompute:
+            logger.info(
+                "Draft year %d already processed. Skipping (use force/recompute).", year
+            )
+            success += 1
+            continue
+        if pipeline is None:
+            pipeline = HistoricalProspectsPipeline(
+                career_features_path=PLAYER_CAREER_FEATURES_PATH,
+                json_output_path=json_path,
+                parquet_output_path=parquet_path,
+                similar_count=4,
+            )
+        else:
+            pipeline.json_output_path = json_path
+            pipeline.parquet_output_path = parquet_path
+        try:
+            pipeline.process_draft_class(year, force=force and not recompute, sleep_time=sleep)
+            success += 1
+        except Exception as e:
+            logger.exception("Failed to process draft class %d: %s", year, e)
+            failure += 1
+    return {"success": success, "failure": failure, "pipeline": pipeline}

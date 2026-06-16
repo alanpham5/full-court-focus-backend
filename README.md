@@ -77,6 +77,42 @@ For specific tasks, you can run the following standalone utility scripts:
     python app/scripts/build_historical_prospects.py --year 2023 --force
     ```
 
+#### 3. `prospect_tuning_cli.py`
+- **What it does**: Manages **versioned tunings** of the prospect → NBA comp model. Every tunable parameter (feature weights, bandwidth, smoothing, and the display-selection knobs including the one-sided scoring-volume affinity `τ`) is stored as a named JSON version under `app/data/tuning/versions/`, with `app/data/tuning/active.json` naming the live one. `ProspectsPipeline` overlays the active version on the code defaults at import, so **reverting a tuning is a pointer change, not a code edit**. See `ALGORITHMS.md` §3.6 and §3.8 for the math.
+- **Shipped versions**: `v1_baseline` (no scoring affinity, `τ=0`) → `v2_scoring_affinity` (active; `τ=0.20`, gives high-volume scorers like Edwards/Dybantsa scorer comps without changing the tuned recall metric).
+- **How to run**:
+  - List versions (the active one is marked `*`):
+    ```bash
+    python app/scripts/prospect_tuning_cli.py list
+    ```
+  - Inspect or compare parameter sets:
+    ```bash
+    python app/scripts/prospect_tuning_cli.py show v2_scoring_affinity
+    python app/scripts/prospect_tuning_cli.py diff v1_baseline v2_scoring_affinity
+    ```
+  - **Revert** to the previous tuning and rewrite the board comps:
+    ```bash
+    python app/scripts/prospect_tuning_cli.py activate v1_baseline
+    python app/scripts/prospect_tuning_cli.py regenerate
+    ```
+  - **Run a specific version for one run only** (without moving the active pointer) to compare outputs:
+    ```bash
+    python app/scripts/prospect_tuning_cli.py regenerate --version v1_baseline
+    ```
+  - **Create a new tuning** from the active one with overridden parameters (e.g. a tighter affinity), then activate it:
+    ```bash
+    python app/scripts/prospect_tuning_cli.py snapshot v3_tau15 \
+      --set scoring_affinity_tau=0.15 --description "tighter one-sided affinity" --activate
+    python app/scripts/prospect_tuning_cli.py regenerate
+    ```
+- **What `regenerate` covers**: by default it recomputes **both** the current 2026 board (`prospects.json`/`.parquet`) **and every stored historical draft class** (`app/data/static/draft/`), then renormalizes prospect APFV across the combined population and **uploads the results to GCS** (if `PLAYER_PROFILES_STORAGE_URI` is a `gs://` URI). It recomputes from the already-stored prospect data — **no scraping** — so it is the single command to apply a tuning change everywhere. Flags:
+  - `--scope current|historical|all` (default `all`) — limit to one base.
+  - `--years 2020,2021` — restrict the historical classes recomputed.
+  - `--force-scrape` — re-fetch historical raw data instead of using the local cache.
+  - `--no-upload` — skip the GCS upload; `--upload` — force it and warn if no `gs://` URI is configured.
+
+  The GCS upload runs **after** recompute + APFV normalization so the pushed files reflect the final on-disk state (prospect files live under the `draft/` prefix). The historical loop and the uploader are shared with `build_historical_prospects.py` (which still handles initial scraping and `--recompute`); `regenerate` is the tuning-driven, cache-only entry point.
+
 ---
 
 ## API Endpoints Reference

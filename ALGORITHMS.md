@@ -245,14 +245,15 @@ Optimization is random search followed by coordinate descent, with the height/we
 
 ### 3.6 Display selection
 
-Exactly four comps are stored per prospect. The displayed *score* is the raw composite $s(p, j)$; the display *ranking* applies three multiplicative, selection-stage-only adjustments (they never touch the similarity matrix or the tuning metric):
+Exactly four comps are stored per prospect. The displayed *score* is the raw composite $s(p, j)$; the display *ranking* applies multiplicative, selection-stage-only adjustments (they never touch the similarity matrix or the tuning metric):
 
-$$R(p, j) = s(p, j) \cdot \underbrace{\left(1 - \bar{s}_j\right)}_{\text{popularity penalty}} \cdot \underbrace{\left(0.35 + 0.65\, E_j\right)}_{\text{establishment prior}}$$
+$$R(p, j) = s(p, j) \cdot \underbrace{\left(1 - \bar{s}_j\right)}_{\text{popularity penalty}} \cdot \underbrace{\left(0.35 + 0.65\, E_j\right)}_{\text{establishment prior}} \cdot \underbrace{\exp\!\left(-\frac{\max(0,\, \sigma_p - \sigma_j)}{\tau}\right)}_{\text{scoring-volume affinity}}$$
 
 where
 
 - $\bar{s}_j = \frac{1}{n_p}\sum_p s(p, j)$ is candidate $j$'s mean similarity across every prospect in the run. Subtracting it multiplicatively demotes "universal attractor" players who score well against everyone; because the factor is bounded in $(0, 1]$, a dissimilar player can never outrank a similar one.
 - $E_j = \frac{1}{2}\left(\mathrm{pctile}(\text{career minutes}_j) + \mathrm{pctile}(\mathrm{APFV}_j)\right)$ is a career-establishment percentile. Among similarly shaped candidates this prefers the player with the more substantial career, correcting systematic pessimism without using draft position or any prospect-side post-draft data.
+- $\sigma_p, \sigma_j$ are points-per-game percentiles (prospect within its board, NBA within the comp pool). The factor is **one-sided** ($\tau = 0.20$): it fires only when a prospect outscores a candidate, demoting same-shape role-player comps for high-volume scorers (Edwards, Dybantsa) while leaving a low-volume prospect's high-scoring comps untouched, so playmakers and defenders keep their star comps. Because the box-score/efficiency features carry near-zero tuned weight (§3.3 — scoring volume does not transfer across the college→NBA gap and hurts counterpart recall), this is the layer that restores scoring face-validity without disturbing the tuned metric. Setting $\tau = 0$ disables it. The full parameter set is versioned (§3.8).
 
 Selection then walks the ranking $R(p, \cdot)$ in descending order over the top $4 \times 10 = 40$ candidates subject to:
 
@@ -273,6 +274,12 @@ Composites are far below 1.0 on the $\exp(-d/0.08)$ scale, so the shared cosine-
 $$\text{display} = 100 \cdot \left[\mathrm{clip}(s,\, 0,\, 1)\right]^{0.2},$$
 
 which maps the stored-comp distribution to approximately 55–79 with a median near 69.
+
+### 3.8 Versioned tuning
+
+Every tunable parameter of the comp engine — the feature weights and bandwidth/smoothing of §3.3–3.4, plus the display-selection knobs of §3.6 (popularity penalty, establishment floor/exponent, usage cap, and the scoring-affinity $\tau$) — is stored as a named JSON version under `app/data/tuning/versions/`, with `active.json` naming the live one. `prospects_pipeline` overlays the active version on the code defaults at import, so reverting is a pointer change, not a code edit. The constants in the module are the fallback default when no store is present.
+
+Manage versions with `app/scripts/prospect_tuning_cli.py` (`list`, `show`, `diff`, `activate`, `snapshot --set key=value`, and `regenerate [--version NAME]`). `regenerate` recomputes the current board's comps from the stored prospect dataset without re-scraping and rewrites `prospects.json`/`.parquet`, so two tunings can be compared on the same board; `--version` applies a tuning for that run only without moving the active pointer. The shipped lineage: `v1_baseline` (no scoring affinity, $\tau = 0$) → `v2_scoring_affinity` (active, $\tau = 0.20$).
 
 ---
 

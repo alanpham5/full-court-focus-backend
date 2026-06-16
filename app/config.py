@@ -15,3 +15,7 @@ PLAYER_CAREER_FEATURES_PATH = DATA_STATIC_DIR / "player_career_features.parquet"
 PROSPECTS_JSON_PATH = DATA_STATIC_DIR / "prospects.json"
 PLAYER_SEASON_FEATURES_PATH = DATA_STATIC_DIR / "player_season_features.parquet"
 
+# Versioned prospect-comp tuning store (weights, bandwidth, smoothing, display
+# knobs). See pipelines/prospect_tuning.py and scripts/prospect_tuning_cli.py.
+PROSPECT_TUNING_DIR = BASE_DIR / "data" / "tuning"
+
