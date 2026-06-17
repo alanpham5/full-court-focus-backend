@@ -125,17 +125,22 @@ def estimate_paint_fga(row: pd.Series) -> float:
         
     return max(0.0, non_3pa * ratio)
 
-def compute_defense_score(row: pd.Series, role: str) -> float:
+def compute_defense_score(row: pd.Series, roles: Any) -> float:
     min_val = float(row.get("MIN", 0.0) or 0.0)
     if min_val <= 0.0:
         return 0.0
     stl_per36 = float(row.get("STL", 0.0) or 0.0) / min_val * 36.0
     blk_per36 = float(row.get("BLK", 0.0) or 0.0) / min_val * 36.0
     
+    if isinstance(roles, str):
+        roles = [roles]
+    roles = roles or []
+    primary_role = roles[0] if roles else ""
+    
     role_bonus = 0.0
-    if role == "Defensive Specialist":
+    if primary_role == "Defensive Specialist":
         role_bonus = 1.5
-    elif role == "Interior Presence":
+    elif primary_role == "Interior Presence":
         role_bonus = 1.0
         
     return stl_per36 + 1.2 * blk_per36 + role_bonus
@@ -197,7 +202,6 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
         p_min = float(r.get("MIN", 0.0) or 0.0)
         p_id = int(r["PLAYER_ID"])
         roles = player_roles.get(p_id, ["Secondary Creator"])
-        primary_role = roles[0] if roles else "Secondary Creator"
         
         if p_min > 0:
             fg3a_per36_sum += float(r.get("FG3A", 0.0) or 0.0) / p_min * 36.0
@@ -206,7 +210,7 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
             fgm_per36_sum += float(r.get("FGM", 0.0) or 0.0) / p_min * 36.0
             reb_per36_sum += float(r.get("REB", 0.0) or 0.0) / p_min * 36.0
             blk_per36_sum += float(r.get("BLK", 0.0) or 0.0) / p_min * 36.0
-            def_score_sum += compute_defense_score(r, primary_role)
+            def_score_sum += compute_defense_score(r, roles)
             
     fg3a_proj = fg3a_per36_sum * 1.3333
     paint_fga_proj = paint_fga_per36_sum * 1.3333
@@ -459,7 +463,7 @@ def calculate_lineup_synergy(
         rating = 0.30 * pts_p + 0.15 * ast_p + 0.15 * reb_p + 0.10 * stl_p + 0.10 * blk_p + 0.20 * ts_p
         player_ratings.append(rating)
         
-    baseline_talent = 0.85 * np.mean(player_ratings) + 0.15 * np.min(player_ratings)
+    baseline_talent = 0.88 * np.mean(player_ratings) + 0.12 * np.min(player_ratings)
     
     playmakers_count = sum(1 for pid in player_ids if "Playmaker" in player_roles.get(pid, []))
     creators_count = sum(1 for pid in player_ids if "Secondary Creator" in player_roles.get(pid, []) or "Designated Scorer" in player_roles.get(pid, []))
@@ -477,30 +481,31 @@ def calculate_lineup_synergy(
     defenders_count = 0
     for _, r in lineup_rows.iterrows():
         pid = int(r["PLAYER_ID"])
-        is_def_spec = "Defensive Specialist" in player_roles.get(pid, [])
+        roles = player_roles.get(pid, [])
+        is_def_spec = "Defensive Specialist" in roles
         stl_pctile = float(r.get("stl_per36_pctile", 0.0) or 0.0)
         blk_pctile = float(r.get("blk_per36_pctile", 0.0) or 0.0)
-        if is_def_spec or stl_pctile > 80.0 or blk_pctile > 80.0:
+        if is_def_spec or stl_pctile > 60.0 or blk_pctile > 65.0:
             defenders_count += 1
             
     playmaker_score = playmakers_count + 0.5 * creators_count
     if playmaker_score == 0:
         playmaking_adj = -15.0
+    elif playmakers_count >= 3:
+        playmaking_adj = -1.0
     elif playmaker_score <= 1.0:
-        playmaking_adj = 0.0
-    elif playmaker_score <= 2.5:
-        playmaking_adj = 5.0
+        playmaking_adj = 2.0
     else:
-        playmaking_adj = -10.0
+        playmaking_adj = 7.0
         
     if shooters_count == 0:
         spacing_adj = -20.0
     elif shooters_count == 1:
         spacing_adj = -10.0
     elif shooters_count == 2:
-        spacing_adj = 2.5
+        spacing_adj = 4.0
     else:
-        spacing_adj = 6.0
+        spacing_adj = 8.0
         
     reb_ratio = custom_stats["reb"] / mean_starting_reb if mean_starting_reb > 0 else 1.0
     blk_ratio = custom_stats["blk"] / mean_starting_blk if mean_starting_blk > 0 else 1.0
@@ -515,35 +520,44 @@ def calculate_lineup_synergy(
         interior_adj = 2.0
         
     if defenders_count == 0:
-        defense_adj = -10.0
+        defense_adj = -8.0
     elif defenders_count == 1:
-        defense_adj = 0.0
+        defense_adj = 2.0
     else:
-        defense_adj = 4.0
+        defense_adj = 6.0
 
     if playmaking_pct >= 60.0:
         if playmaking_adj < 0:
-            playmaking_adj = 2.5 if playmaker_score > 2.5 else max(playmaking_adj, -3.0)
+            playmaking_adj = 4.0 if playmakers_count >= 3 else max(playmaking_adj, -2.0)
         else:
-            playmaking_adj = max(3.0, playmaking_adj)
+            playmaking_adj = max(4.0, playmaking_adj)
     elif playmaking_pct >= 45.0:
-        if playmaking_adj < 0 and playmaker_score > 2.5:
-            playmaking_adj = 0.0
+        if playmaking_adj < 0 and playmakers_count >= 3:
+            playmaking_adj = 1.0
         elif playmaking_adj > 0:
-            playmaking_adj = max(0.0, playmaking_adj)
+            playmaking_adj = max(1.0, playmaking_adj)
     else:
-        playmaking_adj = min(-5.0, playmaking_adj)
+        playmaking_adj = min(-3.0, playmaking_adj)
 
     if fg3a_pct < 45.0:
-        spacing_adj = min(-5.0, spacing_adj)
+        spacing_adj = min(-3.0, spacing_adj)
 
     if rebounding_pct < 45.0 or paint_pct < 45.0:
-        interior_adj = min(-5.0, interior_adj)
+        interior_adj = min(-3.0, interior_adj)
 
     if defense_pct < 45.0:
-        defense_adj = min(-5.0, defense_adj)
+        if defenders_count >= 3:
+            defense_adj = max(defense_adj, 4.0)
+            defense_pct = max(defense_pct, 68.0)
+        elif defenders_count >= 2:
+            defense_adj = max(defense_adj, 1.0)
+            defense_pct = max(defense_pct, 62.0)
+        else:
+            defense_adj = min(-3.0, defense_adj)
     elif defense_pct >= 60.0 and defense_adj >= 0.0:
-        defense_adj = max(3.0, defense_adj)
+        defense_adj = max(4.0, defense_adj)
+
+    style_vector["defense"] = round(min(100.0, max(0.0, defense_pct)), 1)
         
     primary_roles = [player_roles.get(pid)[0] for pid in player_ids if player_roles.get(pid)]
     overlap_adj = 0.0
@@ -563,7 +577,7 @@ def calculate_lineup_synergy(
     sum_stl = sum(float(r.get("stl_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_pts = sum(float(r.get("pts_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     
-    if playmaking_pct >= 60.0 and playmaking_adj >= 5.0:
+    if playmaking_pct >= 60.0 and playmaking_adj >= 4.0:
         if playmakers_count >= 2 and sum_ast >= 25.0:
             strengths.append(
                 "Multiple Initiators - Two or more primary creators drive above-average assist volume, keeping the offense fluid and generating open looks."
@@ -583,7 +597,7 @@ def calculate_lineup_synergy(
             weaknesses.append(
                 "Missing Initiator - No clear primary playmaker leaves the offense dependent on isolation and scripted sets."
             )
-        elif playmaker_score > 2.5 and playmaking_pct < 45.0:
+        elif playmakers_count >= 3 and playmaking_pct < 45.0:
             weaknesses.append(
                 "Crowded Creation - Several ball-dominant players overlap, and collective assist rates trail comparable NBA units."
             )

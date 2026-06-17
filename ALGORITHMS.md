@@ -334,7 +334,7 @@ $$\text{paint FGA} = (\mathrm{FGA} - \mathrm{3PA}) \cdot
 A per-player defense score (summed over the lineup) is
 
 $$D = \text{stl}_{36} + 1.2\,\text{blk}_{36} +
-\begin{cases} 1.5 & \text{Defensive Specialist} \\ 1.0 & \text{Interior Presence} \\ 0 & \text{otherwise.} \end{cases}$$
+\begin{cases} 1.5 & \text{primary role Defensive Specialist} \\ 1.0 & \text{primary role Interior Presence} \\ 0 & \text{otherwise.} \end{cases}$$
 
 The same statistics are computed for every actual starting lineup of the chosen season; their means ($\overline{\mathrm{REB}}$, $\overline{D}$, $\overline{\text{paint}}$, $\overline{\mathrm{BLK}}$) serve as league baselines.
 
@@ -346,7 +346,7 @@ Six percentiles, each ranked against the season's real teams (or real starting l
 - **Three-point volume**: projected lineup 3PA ranked against team 3PA.
 - **Paint**: estimated team paint FGA, $\;\widehat{\text{PFGA}} = \overline{\text{PFGA}}_{\text{teams}} + 15\,\frac{\text{paint\_score} - \overline{\text{paint}}}{\overline{\text{paint}}}$, clipped to $[25, 70]$, then ranked.
 - **Rebounding**: estimated REB%, $\;\widehat{\mathrm{REB\%}} = \overline{\mathrm{REB\%}}_{\text{teams}} + 10\,\frac{\mathrm{REB}_{\text{proj}} - \overline{\mathrm{REB}}}{\overline{\mathrm{REB}}}$, clipped to $[40, 60]$, then ranked.
-- **Defense**: estimated defensive rating $\;\widehat{\mathrm{DRtg}} = \overline{\mathrm{DRtg}}_{\text{teams}} - 15\,\frac{D - \overline{D}}{\overline{D}}$, ranked and inverted (lower rating = higher percentile).
+- **Defense**: estimated defensive rating $\;\widehat{\mathrm{DRtg}} = \overline{\mathrm{DRtg}}_{\text{teams}} - 15\,\frac{D - \overline{D}}{\overline{D}}$, ranked and inverted (lower rating = higher percentile). Because this box-score measure (steals + blocks) understates point-of-attack and scheme defense, the displayed percentile is lifted when it falls below $45$ but the roster carries multiple identified defenders (see §4.4): to at least $68$ for $\ge 3$ defenders and at least $62$ for $\ge 2$. The displayed style axis and the strength/weakness narratives use this reconciled percentile.
 - **Playmaking**: $0.55 \cdot \mathrm{pctile}(\mathrm{AST}_{\text{proj}} \mid \text{starting lineups}) + 0.45 \cdot \mathrm{pctile}(\text{ast\%}_{\text{proj}} \mid \text{starting lineups})$.
 
 ### 4.4 Synergy score
@@ -357,19 +357,19 @@ $$r_i = 0.30\,P_{\text{pts}} + 0.15\,P_{\text{ast}} + 0.15\,P_{\text{reb}} + 0.1
 
 and the lineup baseline penalizes weak links:
 
-$$B = 0.85\,\overline{r} + 0.15\,\min_i r_i.$$
+$$B = 0.88\,\overline{r} + 0.12\,\min_i r_i.$$
 
-**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted by role or $\text{3PM}_{36} \ge 1.5$ or 3PA-rate percentile $> 65$, and defenders by role or steal/block percentile $> 80$:
+**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted by role or $\text{3PM}_{36} \ge 1.5$ or 3PA-rate percentile $> 65$, and defenders by primary role Defensive Specialist or steal percentile $> 60$ or block percentile $> 65$:
 
 | Factor | Values |
 |---|---|
-| Playmaking | $-15$ if $m = 0$; $0$ if $m \le 1$; $+5$ if $m \le 2.5$; $-10$ if $m > 2.5$ (crowding) |
-| Spacing | $-20 / -10 / +2.5 / +6$ for $0 / 1 / 2 / 3{+}$ shooters |
+| Playmaking | with $n_p = \#\text{Playmakers}$: $-15$ if $m = 0$; $-1$ if $n_p \ge 3$ (mild crowding, true playmakers only); $+2$ if $m \le 1$; else $+7$ |
+| Spacing | $-20 / -10 / +4 / +8$ for $0 / 1 / 2 / 3{+}$ shooters |
 | Interior | with $\rho_r = \mathrm{REB}_{\text{proj}}/\overline{\mathrm{REB}}$, $\rho_b = \mathrm{BLK}_{\text{proj}}/\overline{\mathrm{BLK}}$: $-15$ if $\rho_r < 0.88$ or $\rho_b < 0.70$; $-10$ if $\rho_r > 1.25$ and $\rho_b > 1.60$ (congestion); $+5$ if $\rho_r \ge 1.05$ and $\rho_b \ge 1.15$; else $+2$ |
-| Defense | $-10 / 0 / +4$ for $0 / 1 / 2{+}$ defenders |
+| Defense | $-8 / +2 / +6$ for $0 / 1 / 2{+}$ defenders |
 | Role overlap | $-6$ if any of {Designated Scorer, Interior Presence, Playmaker} appears as a primary role $\ge 3$ times |
 
-Each role-based adjustment is then reconciled against the corresponding measured style-vector percentile (for example, a negative playmaking adjustment is softened when the measured playmaking percentile is $\ge 60$, and forced to at most $-5$ when it is below $45$; spacing, interior, and defense adjustments are clamped negative when their percentiles fall below $45$).
+Each role-based adjustment is then reconciled against the corresponding measured style-vector percentile (for example, a negative playmaking adjustment is softened when the measured playmaking percentile is $\ge 60$, and forced to at most $-3$ when it is below $45$; spacing and interior adjustments are clamped to at most $-3$ when their percentiles fall below $45$). The defense axis is reconciled asymmetrically: when its percentile is below $45$ — where the box-score steal/block measure structurally understates point-of-attack and scheme defense — a lineup carrying $\ge 3$ identified defenders is lifted to at least $+4$ (and its displayed percentile to $\ge 68$) and one with $\ge 2$ to at least $+1$ (percentile $\ge 62$), and only lineups with fewer identified defenders are floored to $-3$. Narratives key off these reconciled percentiles, so the displayed style vector, the factor adjustments, and the strengths/weaknesses stay mutually consistent.
 
 $$\text{synergy} = \mathrm{clip}\left(B + \Delta_{\text{play}} + \Delta_{\text{space}} + \Delta_{\text{interior}} + \Delta_{\text{def}} + \Delta_{\text{overlap}},\; 0,\; 100\right).$$
 
