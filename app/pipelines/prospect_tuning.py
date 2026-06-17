@@ -1,20 +1,15 @@
 """Versioned tuning store for the prospect -> NBA comp model.
 
-All tunable parameters of the comp engine (feature weights, bandwidth,
-smoothing, and the display-selection knobs including the one-sided scoring
-affinity) live here as named JSON versions so a tuning can be saved, diffed,
-reverted, and re-run.
+A version is a named JSON parameter set under config.PROSPECT_TUNING_DIR. It
+captures both the algorithmic foundation (feature_norm, kernel) and the
+coefficients (weights, bandwidth, smoothing, display-selection knobs), so two
+versions may differ in the engine itself, not only in tuned numbers. See
+ALGORITHMS.md sections 3 and 3.9.
 
-Layout (under config.PROSPECT_TUNING_DIR):
-    versions/<name>.json   one frozen parameter set per file
-    active.json            {"active": "<name>"}
+Layout: versions/<name>.json holds one frozen set; active.json names the live
+one. Files predating the foundation fields resolve to LEGACY_PARAM_DEFAULTS.
 
-`prospects_pipeline` calls `resolve_active(defaults)` at import to overlay the
-active version on the code defaults, and exposes `apply_tuning` so a one-off run
-can use any version without changing the active pointer.
-
-This module is pure-JSON (no numpy / pipeline imports) so it is safe to import
-from anywhere, including the CLI.
+The module is pure-JSON so it is safe to import anywhere, including the CLI.
 """
 from __future__ import annotations
 
@@ -24,9 +19,9 @@ from typing import Any
 
 from config import PROSPECT_TUNING_DIR
 
-# Parameter keys that make up a tuning version. Anything outside this set is
-# ignored on load (and dropped on save) so the schema stays explicit.
 PARAM_KEYS = (
+    "feature_norm",
+    "kernel",
     "features",
     "weights",
     "bandwidth",
@@ -40,6 +35,11 @@ PARAM_KEYS = (
     "quality_bucket",
     "scoring_affinity_tau",
 )
+
+LEGACY_PARAM_DEFAULTS = {
+    "feature_norm": "percentile",
+    "kernel": "laplacian",
+}
 
 
 def _versions_dir() -> Path:
@@ -79,7 +79,10 @@ def load_version(name: str) -> dict[str, Any]:
             f"Available: {', '.join(list_versions()) or '(none)'}"
         )
     raw = json.loads(p.read_text(encoding="utf-8"))
-    return {k: raw[k] for k in PARAM_KEYS if k in raw}
+    params = {k: raw[k] for k in PARAM_KEYS if k in raw}
+    for key, default in LEGACY_PARAM_DEFAULTS.items():
+        params.setdefault(key, default)
+    return params
 
 
 def save_version(name: str, params: dict[str, Any], *,

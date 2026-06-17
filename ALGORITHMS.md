@@ -171,15 +171,9 @@ Built in `pipelines/prospects_pipeline.py::compute_similarity_matrix` (scoring) 
   $$w_h^2 + w_m^2 \le 0.25 \left( w_h^2 + w_m^2 + \textstyle\sum_f w_f^2 \right),$$
   preventing the optimizer from collapsing to a trivial size-identity match.
 
-### 3.2 Peer-percentile feature space
+### 3.2 Peer-relative feature space (versioned foundation)
 
-The central normalization idea: a prospect and an NBA player are compared by *where each ranks among their own peers*, the unit that transfers across the college-to-NBA gap.
-
-- **NBA side**: percentile of the career value within the NBA comp pool (players with $\ge 200$ career games), using precomputed `*_career_pctile` columns where available, divided by 100.
-- **Prospect side**: percentile within the prospect's own draft class (the full board of roughly 60 players),
-  $$p_{if} = \frac{\#\{j \in \text{class} : v_{jf} \le v_{if}\}}{|\text{class}|}.$$
-
-Both sides therefore live in $[0,1]^d$ and answer the same question.
+The central normalization idea: a prospect and an NBA player are compared by *where each stands among their own peers*, the unit that transfers across the college-to-NBA gap. **How** that standing is encoded is a versioned choice (the `feature_norm` field, §3.8). Three foundations are implemented; both sides of the comparison always use the same encoding.
 
 Thirteen features are used (ten base, two engineered playstyle, one caliber, computed identically on both pools):
 
@@ -188,60 +182,69 @@ pts_per36, reb_per36, ast_per36, blk_per36, stl_per36,
 fg3a_rate, fta_rate, ts_pct, ast_pct, mpg,
 stocks        = stl_per36 + blk_per36,
 scoring_load  = pts_per36 * (1 - clip(ast_pct, 0, 1)),
-quality       = APFV percentile of the player within their own pool
+quality       = APFV of the player within their own pool
 ```
 
-The **quality** axis is the absolute-caliber rank (Section 1, ranked across the
-whole pool rather than within a height bucket, so it preserves absolute rather
-than position-relative caliber). It is the unit that prevents an elite,
-balanced prospect from collapsing onto generic same-shape journeymen: without
-it the matcher saw only a prospect's secondary shape (a do-everything wing
-reduced to "moderate rebounding/stocks/3-rate of his size") and returned
-role-player comps regardless of star quality.
+The **quality** axis is the absolute-caliber rank (Section 1, ranked across the whole pool rather than within a height bucket, so it preserves absolute rather than position-relative caliber). It is the unit that prevents an elite, balanced prospect from collapsing onto generic same-shape journeymen.
 
-Height and weight are standardized against the pooled prospect-plus-NBA distribution:
+The NBA pool is players with $\ge 200$ career games; the prospect pool is the prospect's own draft class (the full board of roughly 60 players). For each feature $f$ with raw value $v$:
+
+- **`percentile`** — empirical rank within the pool, $p = \#\{j : v_j \le v\} / |\text{pool}|$ (NBA side uses precomputed `*_global_pctile/100` where available). Robust to skew and small samples; output in $[0,1]$.
+- **`zscore`** — parametric standardization within the pool, $z = (v - \mu_{\text{pool}}) / \sigma_{\text{pool}}$, using the pool mean and standard deviation. Output centered at 0 with unit spread.
+- **`hybrid`** *(active, `v4_hybrid`)* — the feature vector is the **concatenation** of the percentile block and the z-score block, the latter scaled by a fixed $\zeta = 0.25$ (`HYBRID_Z_SCALE`) so the two blocks sit on a comparable spread under one shared bandwidth:
+  $$x = \big[\, p_1,\dots,p_d,\; \zeta z_1,\dots,\zeta z_d \,\big] \in \mathbb{R}^{2d}.$$
+  The $2d$ per-feature weights (§3.3) let the tuner decide how much each representation of each feature contributes; zeroing the z-block recovers the pure percentile engine exactly, so the hybrid subsumes it and was tuned upward from that anchor.
+
+Height and weight are standardized against the pooled prospect-plus-NBA distribution under every foundation (they transfer in absolute terms, so they are never rank- or pool-relative):
 
 $$\tilde h = \frac{h - \mu_h}{\sigma_h}, \qquad \tilde m = \frac{m - \mu_m}{\sigma_m}.$$
 
 ### 3.3 Weighted distance and base score
 
-With the tuned weight vector (order matching the feature list, then height, weight)
+Let $x_p, x_j$ be the feature vectors of the chosen foundation (§3.2), augmented with the two standardized size dimensions, and $w$ the tuned weight vector (one weight per feature dimension, then height, weight — so length $d+2$ for `percentile`/`zscore`, $2d+2$ for `hybrid`). The base similarity is a kernel on weighted Euclidean distance:
 
-$$w = (0.02,\, 0.310,\, 0.054,\, 0.417,\, 0.234,\, 0.178,\, 0.197,\, 0.0,\, 0.347,\, 0.051,\, 0.127,\, 0.062,\, 0.122,\, 0.290,\, 0.319)$$
+$$d(p, j) = \lVert w \odot (x_p - x_j) \rVert_2, \qquad
+s_0(p, j) = \begin{cases}
+\exp\!\left(-\dfrac{d^2}{2\beta^2}\right) & \text{kernel} = \texttt{gaussian} \\[2mm]
+\exp\!\left(-\dfrac{d}{\beta}\right) & \text{kernel} = \texttt{laplacian.}
+\end{cases}$$
 
-the base similarity between prospect $p$ and NBA player $j$ is a Laplacian kernel on weighted Euclidean distance:
+The kernel is a versioned field (§3.8). The **active `v4_hybrid`** foundation uses the Gaussian kernel with $\beta = 0.055$ and the $2d + 2 = 28$ tuned weights (percentile block, then z-score block, then height, weight):
 
-$$d(p, j) = \lVert w \odot (z_p - z_j) \rVert_2, \qquad
-s_0(p, j) = \exp\!\left(-\frac{d(p, j)}{\beta}\right), \quad \beta = 0.0442.$$
+$$\begin{aligned}
+w_{\text{pct}} &= (0.0,\, 0.26,\, 0.0,\, 0.417,\, 0.184,\, 0.178,\, 0.197,\, 0.1,\, 0.347,\, 0.051,\, 0.077,\, 0.062,\, 0.122) \\
+w_{\text{z}}   &= (0.1,\, 0.0,\, 0.0,\, 0.15,\, 0.1,\, 0.0,\, 0.1,\, 0.0,\, 0.0,\, 0.05,\, 0.0,\, 0.0,\, 0.0) \\
+w_{\text{hw}}  &= (0.290,\, 0.319).
+\end{aligned}$$
 
-The height/weight weights satisfy the 25 percent budget cap: $0.290^2 + 0.319^2 = 0.186$ against a playstyle-plus-caliber sum of squares of $0.657$ ($0.186 / 0.843 = 0.22 \le 0.25$).
+The z-block adds rim-protection, scoring, stocks, free-throw-pressure and minutes signal on top of the percentile core. The height/weight weights satisfy the budget cap (§3.1) at ratio $0.249 \le 0.25$ of the total squared weight.
 
 ### 3.4 Graph smoothing (second-order similarity)
 
 Let $N_7(j)$ be the first seven entries of NBA player $j$'s `similar_players` list (Section 2). The final score blends each candidate's own similarity with the best similarity in its NBA-NBA neighborhood:
 
-$$s(p, j) = (1 - \lambda)\, s_0(p, j) + \lambda \max_{k \in N_7(j)} s_0(p, k), \qquad \lambda = 0.494.$$
+$$s(p, j) = (1 - \lambda)\, s_0(p, j) + \lambda \max_{k \in N_7(j)} s_0(p, k), \qquad \lambda = 0.35 \;\text{(active)}.$$
 
 Candidates whose *neighborhoods* resemble the prospect rank higher, so the player the prospect actually becomes tends to sit at most one hop from the displayed comps. This uses NBA-side information only.
 
 ### 3.5 Tuning objective
 
-Parameters (feature set, weights, bandwidth, smoothing) maximize an **augmented** points metric over the 2007–2023 draft classes ($n = 490$ prospects with an NBA counterpart in the pool), evaluated on the raw engine output *before* exact-name filtering. The objective has two parts:
-
-$$\text{score}(p) = \underbrace{\text{recall}(p)}_{\le 9} + \gamma \cdot \underbrace{\text{caliber\_align}(p)}_{\in [0,1]}.$$
-
-**Recall** (the legacy metric, max 9 per prospect):
+The full foundation — `feature_norm`, `kernel`, the feature set, weights, bandwidth, and smoothing $\lambda$ — maximizes a **points** metric over the 2007–2023 draft classes ($n = 490$ prospects with an NBA counterpart in the pool), evaluated on the raw engine output *before* exact-name filtering and through the literal production scoring path (`tune_points.py` calls `compute_similarity_matrix`). Per prospect (max 9):
 
 - **+2** if the prospect's NBA counterpart (same player, matched by normalized name) ranks in the top 7 of $s(p, \cdot)$;
-- **+1** for each NBA player in that top 7 whose own top-7 NBA-NBA similars contain the counterpart.
+- **+1** for each NBA player in that top 7 whose own top-7 NBA-NBA similars contain the counterpart (the second-order, neighborhood term that §3.4 smoothing optimizes).
 
-**Caliber alignment** rewards the top 7's mean caliber sitting near the prospect's own caliber, so the optimizer is no longer indifferent to a star prospect drawing bench comps (the legacy objective was caliber-blind, which is what drove the scoring/efficiency weights to zero and shipped implausible comps):
+The tuner maximizes total points, breaking ties by counterpart top-7 recall and then by mean counterpart rank. Optimization is random search followed by coordinate descent; the height/weight budget (§3.1, cap $0.25$) is enforced at every step, and classes 2024+ are excluded (insufficient NBA sample). For the `hybrid` foundation the weight vector has $2d$ feature dimensions and the search is seeded from the percentile solution (z-block at zero), so it provably starts at the percentile engine's score and climbs from there.
 
-$$\text{caliber\_align}(p) = 1 - \left| q_p - \tfrac{1}{7}\textstyle\sum_{j \in \text{top7}} q_j \right|,$$
+**Foundation comparison** (production code path, identical eval):
 
-where $q$ is the whole-pool APFV rank (the same axis as the `quality` feature). It is defined for *every* prospect, including those without an NBA counterpart, so it shapes comps for current-board prospects too.
+| Foundation (`feature_norm`, kernel) | Points | Counterpart top-7 | Median rank |
+|---|---|---|---|
+| `percentile`, laplacian (`v3_tau067`) | 1164 (26.4%) | 56.3% | 6 |
+| `zscore`, gaussian (best, not shipped) | 541 (12.3%) | 26.9% | 38 |
+| **`hybrid`, gaussian (`v4_hybrid`, active)** | **1208 (27.4%)** | **57.8%** | **4** |
 
-Optimization is random search followed by coordinate descent, with the height/weight budget constraint enforced at every step. Classes 2024 and later are excluded (insufficient NBA sample). Adding the caliber axis and re-tuning the bandwidth ($0.08 \to 0.044$) and smoothing ($\lambda: 0.8 \to 0.49$) lifted the counterpart-in-top-7 rate from roughly 41 percent to roughly 58 percent while improving comp caliber — the prior bandwidth/smoothing were over-broad and were localizing the counterpart only indirectly.
+A pure z-score foundation roughly halves counterpart recall: standardization is sensitive to the skewed, small-sample distributions of college box scores, where empirical rank is robust. The hybrid keeps the percentile core and adds a z-score block, which strictly improves all three metrics over the percentile engine. Re-running the tuner with `--norm` reproduces each row.
 
 ### 3.6 Display selection
 
@@ -269,17 +272,26 @@ where each per-game rate is derived from career rates as $\mathrm{XPG}_j = \text
 
 ### 3.7 Displayed percentage
 
-Composites are far below 1.0 on the $\exp(-d/0.08)$ scale, so the shared cosine-calibrated transform does not apply. Prospect comps use
+Composites are well below 1.0 on the kernel scale, so the shared cosine-calibrated transform does not apply. Prospect comps use a concave map with the versioned exponent $\gamma$ (`similarity_gamma`, default $0.2$):
 
-$$\text{display} = 100 \cdot \left[\mathrm{clip}(s,\, 0,\, 1)\right]^{0.2},$$
+$$\text{display} = 100 \cdot \left[\mathrm{clip}(s,\, 0,\, 1)\right]^{\gamma}.$$
 
-which maps the stored-comp distribution to approximately 55–79 with a median near 69.
+This is a cosmetic transform applied after ranking and selection; it never affects which comps are chosen. The displayed range recalibrates with the foundation — under the active `v4_hybrid` engine stored comps span roughly the high-30s to high-70s, widening as the Gaussian kernel separates strong from weak matches more sharply than the prior Laplacian.
 
-### 3.8 Versioned tuning
+### 3.8 Versioned foundation and tuning
 
-Every tunable parameter of the comp engine — the feature weights and bandwidth/smoothing of §3.3–3.4, plus the display-selection knobs of §3.6 (popularity penalty, establishment floor/exponent, usage cap, and the scoring-affinity $\tau$) — is stored as a named JSON version under `app/data/tuning/versions/`, with `active.json` naming the live one. `prospects_pipeline` overlays the active version on the code defaults at import, so reverting is a pointer change, not a code edit. The constants in the module are the fallback default when no store is present.
+A version is a named JSON parameter set under `app/data/tuning/versions/`, with `active.json` naming the live one. Crucially, a version captures the **algorithmic foundation**, not just coefficients:
 
-Manage versions with `app/scripts/prospect_tuning_cli.py` (`list`, `show`, `diff`, `activate`, `snapshot --set key=value`, and `regenerate [--version NAME]`). `regenerate` recomputes the current board's comps from the stored prospect dataset without re-scraping and rewrites `prospects.json`/`.parquet`, so two tunings can be compared on the same board; `--version` applies a tuning for that run only without moving the active pointer. The shipped lineage: `v1_baseline` (no scoring affinity, $\tau = 0$) → `v2_scoring_affinity` (active, $\tau = 0.20$).
+- `feature_norm` — `percentile`, `zscore`, or `hybrid` (§3.2);
+- `kernel` — `laplacian` or `gaussian` (§3.3);
+- `features`, `weights`, `bandwidth`, `smooth_lambda`, `smooth_topk` (§3.3–3.4);
+- the display-selection knobs of §3.6 — `similarity_gamma`, `popularity_penalty`, `max_appearances`, `establishment_floor`, `establishment_alpha`, `quality_bucket`, and the scoring-affinity `scoring_affinity_tau`.
+
+Because the foundation fields are versioned, switching from the percentile engine to the hybrid engine — a change in the distance metric itself — is the same pointer flip as any weight tweak, not a code edit. `prospects_pipeline` overlays the active version on the code-default constants at import (`apply_tuning`/`current_tuning`); the constants are the fallback when no store is present, and `prospect_tuning.LEGACY_PARAM_DEFAULTS` supplies `feature_norm=percentile`/`kernel=laplacian` for version files written before the foundation fields existed, so older versions keep their original behavior.
+
+Manage versions with `app/scripts/prospect_tuning_cli.py` (`list`, `show`, `diff`, `activate`, `snapshot --set key=value`, `regenerate [--version NAME]`). `regenerate` recomputes comps from the stored prospect datasets without re-scraping and rewrites the outputs, so two foundations can be compared on the same board. The tuner `scratch/tune_points.py --search --norm {percentile|zscore|hybrid} [--kernel ...]` re-derives a foundation's optimum.
+
+Shipped lineage (all percentile/laplacian except where noted): `v1_baseline` ($\tau = 0$) → `v2_scoring_affinity` ($\tau = 0.20$) → `v3_tau067` ($\tau = 0.067$) → **`v4_hybrid`** (active; `feature_norm=hybrid`, `kernel=gaussian`, the first foundation change — see §3.5 for the gain over `v3`). Reverting to any percentile engine is `activate v3_tau067 && regenerate`.
 
 ---
 

@@ -526,24 +526,15 @@ SIMILARITY_COMP_FEATURES = [
     "quality",
 ]
 SIMILARITY_COMP_WEIGHTS = np.array([
-    0.02,
-    0.3098,
-    0.0537,
-    0.4172,
-    0.2344,
-    0.1784,
-    0.1973,
-    0.0,
-    0.3473,
-    0.0513,
-    0.1267,
-    0.0622,
-    0.1224,
-    0.2903,
-    0.3185,
+    0.0, 0.26, 0.0, 0.4172, 0.184, 0.1784, 0.1973, 0.1, 0.3473, 0.0513, 0.077, 0.0622, 0.1224,
+    0.1, 0.0, 0.0, 0.15, 0.1, 0.0, 0.1, 0.0, 0.0, 0.05, 0.0, 0.0, 0.0,
+    0.2903, 0.3185,
 ])
-SIMILARITY_COMP_BANDWIDTH = 0.0442
-SIMILARITY_COMP_SMOOTH_LAMBDA = 0.494
+SIMILARITY_COMP_FEATURE_NORM = "hybrid"
+SIMILARITY_COMP_KERNEL = "gaussian"
+HYBRID_Z_SCALE = 0.25
+SIMILARITY_COMP_BANDWIDTH = 0.055
+SIMILARITY_COMP_SMOOTH_LAMBDA = 0.35
 SIMILARITY_COMP_SMOOTH_TOPK = 7
 PROSPECT_SIMILARITY_GAMMA = 0.2
 COMP_POPULARITY_PENALTY = 1.0
@@ -551,23 +542,13 @@ COMP_MAX_APPEARANCES = 2
 COMP_ESTABLISHMENT_FLOOR = 0.35
 COMP_ESTABLISHMENT_ALPHA = 1.0
 SIMILARITY_COMP_QUALITY_BUCKET = False
-# One-sided scoring-volume affinity (display selection only; never touches the
-# similarity matrix or the tuned recall metric). Demotes candidates who score
-# far LESS than the prospect, so a high-volume scorer (Edwards, Dybantsa) is not
-# comped to a same-shape role player. The penalty is one-sided: a low-volume
-# prospect's high-scoring comps are never penalized, so playmakers/defenders keep
-# their star comps. Factor = exp(-max(0, scoring_pctile_p - scoring_pctile_j) / TAU).
 COMP_SCORING_AFFINITY_TAU = 0.20
 
-# --- Versioned tuning -------------------------------------------------------
-# The constants above are the code defaults. The active tuning version (if any)
-# is overlaid on top at import; `prospect_tuning_cli.py` manages versions and
-# lets a one-off run apply any version via `apply_tuning`.
 from pipelines import prospect_tuning as _tuning
 
-# Maps the JSON param schema <-> module globals, plus the encode/decode needed
-# for the one field (weights) that is a numpy array rather than a JSON scalar.
 _TUNING_GLOBALS = {
+    "feature_norm": "SIMILARITY_COMP_FEATURE_NORM",
+    "kernel": "SIMILARITY_COMP_KERNEL",
     "features": "SIMILARITY_COMP_FEATURES",
     "weights": "SIMILARITY_COMP_WEIGHTS",
     "bandwidth": "SIMILARITY_COMP_BANDWIDTH",
@@ -609,7 +590,6 @@ def apply_tuning(params: dict) -> None:
         g[name] = val
 
 
-# Overlay the active version on the code defaults at import time.
 apply_tuning(_tuning.resolve_active(current_tuning()))
 
 
@@ -688,6 +668,8 @@ class ProspectsPipeline:
         weights: np.ndarray | None = None,
         bandwidth: float | None = None,
         smooth_lambda: float | None = None,
+        feature_norm: str | None = None,
+        kernel: str | None = None,
         neighbor_idx: np.ndarray | None = None,
     ) -> np.ndarray:
         FEATURES = features if features is not None else SIMILARITY_COMP_FEATURES
@@ -696,6 +678,8 @@ class ProspectsPipeline:
         SMOOTH_LAMBDA = (
             smooth_lambda if smooth_lambda is not None else SIMILARITY_COMP_SMOOTH_LAMBDA
         )
+        NORM = feature_norm if feature_norm is not None else SIMILARITY_COMP_FEATURE_NORM
+        KERNEL = kernel if kernel is not None else SIMILARITY_COMP_KERNEL
 
         if "ast_pct" not in prospects.columns:
             with np.errstate(divide="ignore", invalid="ignore"):
@@ -753,19 +737,35 @@ class ProspectsPipeline:
         p_raw = prospects[FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0).to_numpy(dtype=float)
         n_raw = nba[FEATURES].apply(pd.to_numeric, errors="coerce").fillna(0.0).to_numpy(dtype=float)
 
-        n_feat = np.empty_like(n_raw, dtype=float)
-        for j, col in enumerate(FEATURES):
-            pct_col = f"{col}_global_pctile"
-            if pct_col in nba.columns:
-                n_feat[:, j] = nba[pct_col].to_numpy(dtype=float) / 100.0
-            else:
-                ref = np.sort(n_raw[:, j])
-                n_feat[:, j] = np.searchsorted(ref, n_raw[:, j], side="right") / max(len(ref), 1)
+        def _percentile_blocks() -> tuple[np.ndarray, np.ndarray]:
+            n_b = np.empty_like(n_raw, dtype=float)
+            for j, col in enumerate(FEATURES):
+                pct_col = f"{col}_global_pctile"
+                if pct_col in nba.columns:
+                    n_b[:, j] = nba[pct_col].to_numpy(dtype=float) / 100.0
+                else:
+                    ref = np.sort(n_raw[:, j])
+                    n_b[:, j] = np.searchsorted(ref, n_raw[:, j], side="right") / max(len(ref), 1)
+            p_b = np.empty_like(p_raw, dtype=float)
+            for j in range(p_raw.shape[1]):
+                ref = np.sort(p_raw[:, j])
+                p_b[:, j] = np.searchsorted(ref, p_raw[:, j], side="right") / max(len(ref), 1)
+            return p_b, n_b
 
-        p_feat = np.empty_like(p_raw, dtype=float)
-        for j in range(p_raw.shape[1]):
-            ref = np.sort(p_raw[:, j])
-            p_feat[:, j] = np.searchsorted(ref, p_raw[:, j], side="right") / max(len(ref), 1)
+        def _zscore_blocks() -> tuple[np.ndarray, np.ndarray]:
+            n_b = (n_raw - n_raw.mean(axis=0)) / np.maximum(n_raw.std(axis=0), 1e-9)
+            p_b = (p_raw - p_raw.mean(axis=0)) / np.maximum(p_raw.std(axis=0), 1e-9)
+            return p_b, n_b
+
+        if NORM == "zscore":
+            p_feat, n_feat = _zscore_blocks()
+        elif NORM == "hybrid":
+            p_pct, n_pct = _percentile_blocks()
+            p_z, n_z = _zscore_blocks()
+            p_feat = np.column_stack([p_pct, HYBRID_Z_SCALE * p_z])
+            n_feat = np.column_stack([n_pct, HYBRID_Z_SCALE * n_z])
+        else:
+            p_feat, n_feat = _percentile_blocks()
 
         all_h = np.concatenate([prospect_heights, nba_heights])
         all_w = np.concatenate([prospect_weights, nba_weights])
@@ -786,7 +786,10 @@ class ProspectsPipeline:
         )
         diff_sq = np.maximum(diff_sq, 0.0)
         dists = np.sqrt(diff_sq)
-        playstyle_scores = np.exp(-dists / BANDWIDTH)
+        if KERNEL == "gaussian":
+            playstyle_scores = np.exp(-(dists ** 2) / (2.0 * BANDWIDTH ** 2))
+        else:
+            playstyle_scores = np.exp(-dists / BANDWIDTH)
 
         if SMOOTH_LAMBDA > 0.0:
             if neighbor_idx is None:
@@ -895,9 +898,6 @@ class ProspectsPipeline:
             * estab_prior[None, :]
         )
 
-        # One-sided scoring-volume affinity: scoring percentile of each side
-        # within its own pool (prospects within this board, NBA within the comp
-        # pool), the same normalization the engine uses elsewhere.
         def _ppg(df: pd.DataFrame) -> np.ndarray:
             pts = pd.to_numeric(df["pts_per36"], errors="coerce").fillna(0.0)
             mpg = pd.to_numeric(df["mpg"], errors="coerce").fillna(0.0)

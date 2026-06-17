@@ -78,8 +78,8 @@ For specific tasks, you can run the following standalone utility scripts:
     ```
 
 #### 3. `prospect_tuning_cli.py`
-- **What it does**: Manages **versioned tunings** of the prospect → NBA comp model. Every tunable parameter (feature weights, bandwidth, smoothing, and the display-selection knobs including the one-sided scoring-volume affinity `τ`) is stored as a named JSON version under `app/data/tuning/versions/`, with `app/data/tuning/active.json` naming the live one. `ProspectsPipeline` overlays the active version on the code defaults at import, so **reverting a tuning is a pointer change, not a code edit**. See `ALGORITHMS.md` §3.6 and §3.8 for the math.
-- **Shipped versions**: `v1_baseline` (no scoring affinity, `τ=0`) → `v2_scoring_affinity` (active; `τ=0.20`, gives high-volume scorers like Edwards/Dybantsa scorer comps without changing the tuned recall metric).
+- **What it does**: Manages **versioned tunings** of the prospect → NBA comp model. A version stores not only coefficients (feature weights, bandwidth, smoothing, display-selection knobs including the one-sided scoring-volume affinity `τ`) but the **algorithmic foundation** itself — `feature_norm` (`percentile`/`zscore`/`hybrid`) and `kernel` (`laplacian`/`gaussian`). Versions live as named JSON under `app/data/tuning/versions/`, with `app/data/tuning/active.json` naming the live one. `ProspectsPipeline` overlays the active version on the code defaults at import, so **switching the entire foundation — not just weights — is a pointer change, not a code edit**. See `ALGORITHMS.md` §3.2, §3.5, and §3.8 for the math.
+- **Shipped versions**: `v1_baseline` → `v2_scoring_affinity` → `v3_tau067` (all percentile/laplacian) → `v4_hybrid` (**active**; `feature_norm=hybrid`, `kernel=gaussian` — concatenates percentile and z-score feature blocks into one Gaussian metric, strictly beating the percentile engine on counterpart recall, points, and median rank). Revert to the percentile engine with `activate v3_tau067 && regenerate`.
 - **How to run**:
   - List versions (the active one is marked `*`):
     ```bash
