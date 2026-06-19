@@ -450,6 +450,9 @@ class HistoricalProspectsPipeline(ProspectsPipeline):
 
     def upload_file_to_gcs(self, local_path: Path, gcs_uri: str) -> None:
         try:
+            from env_defaults import configure_gcloud_warnings
+
+            configure_gcloud_warnings()
             from google.cloud import storage as gcs_storage
         except ModuleNotFoundError:
             logger.warning("google-cloud-storage not installed; skipping GCS upload.")
@@ -496,7 +499,7 @@ def draft_class_paths(year: int) -> tuple[Path, Path]:
 
 
 def existing_draft_years() -> list[int]:
-    """Years that already have a stored historical dataset (recompute targets)."""
+                                                                                  
     d = DATA_STATIC_DIR / "draft"
     years = []
     for p in d.glob("prospects_*.parquet"):
@@ -509,11 +512,11 @@ def existing_draft_years() -> list[int]:
 def upload_prospect_outputs_to_gcs(
     *, include_current: bool = True, include_historical: bool = True
 ) -> int:
-    """Push the prospect outputs to GCS if `PLAYER_PROFILES_STORAGE_URI` is a
-    `gs://` URI, mirroring the layout used by the standalone builder (prospect
-    files live under the `draft/` prefix). Returns the number of files uploaded;
-    a no-op (returns 0) when no GCS URI is configured. Call this AFTER APFV
-    normalization so the uploaded files reflect the final on-disk state."""
+                                                                             
+                                                                              
+                                                                                
+                                                                           
+                                                                           
     import os
 
     gcs_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
@@ -548,11 +551,11 @@ def process_draft_classes(
     recompute: bool = False,
     sleep: float = 1.5,
 ) -> dict:
-    """Build or recompute the given historical draft classes with one shared
-    pipeline instance (the loop reused by both the standalone builder and the
-    tuning CLI). `recompute=True` rewrites comps from cached raw data without
-    re-fetching; `force=True` re-scrapes. Returns counts and the pipeline used.
-    Normalization and GCS upload are left to the caller."""
+                                                                            
+                                                                             
+                                                                             
+                                                                               
+                                                           
     (DATA_STATIC_DIR / "draft").mkdir(parents=True, exist_ok=True)
     pipeline = None
     success = 0

@@ -10,6 +10,11 @@ from typing import Any
 
 import pandas as pd
 
+from parquet_io import read_parquet, write_teams_parquet
+from env_defaults import configure_gcloud_warnings
+
+configure_gcloud_warnings()
+
 logger = logging.getLogger(__name__)
 
 
@@ -82,20 +87,24 @@ class ProfileStorage:
 
     def write_parquet(self, key: str, df: pd.DataFrame) -> None:
         if self._bucket is not None:
-            buf = BytesIO()
-            df.to_parquet(buf, index=False, engine="pyarrow", compression="snappy")
+            import tempfile
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                path = Path(tmpdir) / "data.parquet"
+                write_teams_parquet(df, path)
+                data = path.read_bytes()
             blob = self._bucket.blob(self._blob_name(key))
             blob.upload_from_string(
-                buf.getvalue(),
+                data,
                 content_type="application/vnd.apache.parquet",
             )
             return
         path = self._local_path(key)
         path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_parquet(path, index=False, engine="pyarrow", compression="snappy")
+        write_teams_parquet(df, path)
 
     def read_parquet(self, key: str) -> pd.DataFrame:
         if self._bucket is not None:
             data = self._bucket.blob(self._blob_name(key)).download_as_bytes()
-            return pd.read_parquet(BytesIO(data), engine="pyarrow")
-        return pd.read_parquet(self._local_path(key), engine="pyarrow")
+            return read_parquet(BytesIO(data))
+        return read_parquet(self._local_path(key))

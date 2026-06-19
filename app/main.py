@@ -1,4 +1,5 @@
 import json
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,6 +9,8 @@ from config import (
     BADGE_LEADERS_PATH,
     SEASON_INDEX_PATH,
     STARTING_LINEUPS_PATH,
+    LINEUP_SYNERGY_SCORES_PATH,
+    SEASON_LINEUP_BASELINES_PATH,
     PLAYER_METADATA_PATH,
     PLAYER_PROFILES_PATH,
     PROSPECTS_JSON_PATH,
@@ -17,8 +20,11 @@ from config import (
     PLAYER_SEASON_FEATURES_PATH,
 )
 from analytics.normalizer import normalize_by_season
+from env_defaults import load_env_defaults
 from parquet_io import read_teams_parquet
-from routers import badges, draft, players, search, team, lineups
+from routers import badges, draft, players, search, team, lineups, game, game, game
+
+load_env_defaults()
 
 
 @asynccontextmanager
@@ -78,6 +84,52 @@ async def lifespan(app: FastAPI):
             f"  [WARN] {STARTING_LINEUPS_PATH.name} missing — "
             "GET /team/{id}/{season}/lineup will 404"
         )
+
+    if LINEUP_SYNERGY_SCORES_PATH.exists():
+        with LINEUP_SYNERGY_SCORES_PATH.open() as f:
+            app.state.lineup_synergy_scores = json.load(f)
+        print(
+            f"  ✓ Lineup synergy scores ({len(app.state.lineup_synergy_scores)} keys) "
+            f"from {LINEUP_SYNERGY_SCORES_PATH.name}"
+        )
+    else:
+        app.state.lineup_synergy_scores = {}
+        print(
+            f"  [WARN] {LINEUP_SYNERGY_SCORES_PATH.name} missing — "
+            "Lineup IQ game will fall back to live percentile scoring"
+        )
+
+    app.state.season_lineup_baselines = {}
+    _baselines_loaded = False
+    _baselines_storage_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
+    if _baselines_storage_uri:
+        try:
+            from analytics.player_profiles.storage import ProfileStorage, StorageConfig
+            _storage = ProfileStorage(StorageConfig.from_uri(_baselines_storage_uri))
+            if _storage.exists("static/season_lineup_baselines.json"):
+                app.state.season_lineup_baselines = _storage.read_json(
+                    "static/season_lineup_baselines.json"
+                )
+                _baselines_loaded = True
+                print(
+                    f"  ✓ Season lineup baselines ({len(app.state.season_lineup_baselines)} seasons) "
+                    f"from storage: {_baselines_storage_uri}"
+                )
+        except Exception as e:
+            print(f"  [WARN] Failed to load season lineup baselines from storage: {e}")
+    if not _baselines_loaded:
+        if SEASON_LINEUP_BASELINES_PATH.exists():
+            with SEASON_LINEUP_BASELINES_PATH.open() as f:
+                app.state.season_lineup_baselines = json.load(f)
+            print(
+                f"  ✓ Season lineup baselines ({len(app.state.season_lineup_baselines)} seasons) "
+                f"from {SEASON_LINEUP_BASELINES_PATH.name}"
+            )
+        else:
+            print(
+                f"  [WARN] {SEASON_LINEUP_BASELINES_PATH.name} missing — "
+                "synergy will fall back to live per-season baseline computation"
+            )
 
     if TEAMS_PARQUET_PATH.exists():
         app.state.teams_df = read_teams_parquet(TEAMS_PARQUET_PATH)
@@ -184,7 +236,6 @@ async def lifespan(app: FastAPI):
         print(f"  [WARN] Failed to precompute global prospect APFV pool: {e}")
 
 
-    import os
     from analytics.player_profiles.storage import ProfileStorage, StorageConfig
 
     storage_uri = os.getenv("PLAYER_PROFILES_STORAGE_URI")
@@ -232,6 +283,9 @@ app.include_router(badges.router)
 app.include_router(players.router)
 app.include_router(draft.router)
 app.include_router(lineups.router)
+app.include_router(game.router)
+app.include_router(game.router)
+app.include_router(game.router)
 
 
 @app.get("/health")

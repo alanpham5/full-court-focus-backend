@@ -12,18 +12,9 @@ _APP_ROOT = Path(__file__).resolve().parents[1]
 if str(_APP_ROOT) not in sys.path:
     sys.path.insert(0, str(_APP_ROOT))
 
-def _load_env_defaults() -> None:
-    env_path = _APP_ROOT / ".env"
-    if env_path.exists():
-        for raw_line in env_path.read_text().splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            key, value = line.split("=", 1)
-            import os
-            os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+from env_defaults import load_env_defaults
 
-_load_env_defaults()
+load_env_defaults()
 
 from config import DATA_STATIC_DIR, PLAYER_CAREER_FEATURES_PATH
 from analytics.prospect_apfv import normalize_global_prospect_apfv_files

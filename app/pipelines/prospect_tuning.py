@@ -1,16 +1,16 @@
-"""Versioned tuning store for the prospect -> NBA comp model.
+                                                             
 
-A version is a named JSON parameter set under config.PROSPECT_TUNING_DIR. It
-captures both the algorithmic foundation (feature_norm, kernel) and the
-coefficients (weights, bandwidth, smoothing, display-selection knobs), so two
-versions may differ in the engine itself, not only in tuned numbers. See
-ALGORITHMS.md sections 3 and 3.9.
+                                                                            
+                                                                       
+                                                                             
+                                                                        
+                                 
 
-Layout: versions/<name>.json holds one frozen set; active.json names the live
-one. Files predating the foundation fields resolve to LEGACY_PARAM_DEFAULTS.
+                                                                             
+                                                                            
 
-The module is pure-JSON so it is safe to import anywhere, including the CLI.
-"""
+                                                                            
+   
 from __future__ import annotations
 
 import json
@@ -114,11 +114,11 @@ def set_active(name: str) -> None:
 
 
 def resolve_active(defaults: dict[str, Any]) -> dict[str, Any]:
-    """Return code `defaults` overlaid with the active version (if any).
+                                                                        
 
-    Falls back silently to `defaults` when no store / active pointer exists, so
-    the pipeline still runs on a fresh checkout before any version is written.
-    """
+                                                                               
+                                                                              
+       
     merged = {k: defaults[k] for k in PARAM_KEYS if k in defaults}
     name = active_name()
     if name:
