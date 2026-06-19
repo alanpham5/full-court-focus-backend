@@ -56,7 +56,9 @@ class EvaluateSwapResponse(BaseModel):
     new_synergy: float
     synergy_delta: float
     diagnosis_score: float
+    synergy_change_score: float
     final_score: float
+    optimization_score: float
     breakdown: Dict[str, Any]
 
 
@@ -317,9 +319,9 @@ def evaluate_diagnosis(body: EvaluateDiagnosisRequest, request: Request):
                                                                         
     total_true_traits = len(correct_picks) + len(missed_opportunities)
     if total_true_traits > 0:
-        score = max(0.0, (len(correct_picks) - len(wrong_picks)) / total_true_traits) * 100.0
+        score = max(0.0, (len(correct_picks) - len(wrong_picks)) / total_true_traits) * 50.0
     else:
-        score = 100.0 if len(wrong_picks) == 0 else 0.0
+        score = 50.0 if len(wrong_picks) == 0 else 0.0
     score = float(score)
 
     return EvaluateDiagnosisResponse(
@@ -385,19 +387,68 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
 
     synergy_delta = new_synergy - original_synergy
 
-    base_score = 0.2 * diagnosis_score + 0.8 * new_synergy
-    improvement_bonus = max(0.0, min(10.0, synergy_delta * 1.5))
-    final_score = 100.0 - (100.0 - base_score) * 0.60 + improvement_bonus
-    final_score = max(0.0, min(100.0, float(final_score)))
+    in_row = player_season_df[(player_season_df["PLAYER_ID"] == player_in_id) & (player_season_df["SEASON"] == player_in_season)]
+    if not in_row.empty:
+        swap_team_abbr = str(in_row.iloc[0]["TEAM_ABBREVIATION"])
+        swap_season = player_in_season
+    else:
+        swap_team_abbr = "ATL"
+        swap_season = "2025-26"
 
-                                     
+    roster_df = player_season_df[(player_season_df["SEASON"] == swap_season) & (player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr)]
+    if roster_df.empty:
+        roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr]
+        if roster_df.empty:
+            roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == "ATL"]
+        swap_season = roster_df.iloc[0]["SEASON"]
+
+    swap_roster_pids = list(roster_df["PLAYER_ID"].dropna().unique())
+
+    max_new_synergy = original_synergy
+    for out_pid in original_player_ids:
+        for in_pid in swap_roster_pids:
+            if in_pid in original_player_ids:
+                continue
+            candidate_pids = [pid if pid != out_pid else in_pid for pid in original_player_ids]
+            candidate_seasons = [original_season if pid != out_pid else swap_season for pid in original_player_ids]
+            try:
+                cand_res = calculate_lineup_synergy(
+                    player_ids=candidate_pids,
+                    season=original_season,
+                    player_season_df=player_season_df,
+                    teams_df=teams_df,
+                    starting_lineups=starting_lineups,
+                    team_profiles=team_profiles,
+                    team_metadata=team_metadata,
+                    player_profiles=player_profiles,
+                    player_seasons=candidate_seasons,
+                    compute_similar=False,
+                    season_baselines=getattr(request.app.state, "season_lineup_baselines", {})
+                )
+                cand_synergy = cand_res["synergy_score"]
+                if cand_synergy > max_new_synergy:
+                    max_new_synergy = cand_synergy
+            except Exception:
+                continue
+
+    max_delta = max_new_synergy - original_synergy
+    if max_delta > 0.1:
+        synergy_change_score = max(0.0, min(50.0, (synergy_delta / max_delta) * 50.0))
+    else:
+        if synergy_delta >= -0.1:
+            synergy_change_score = 50.0
+        else:
+            synergy_change_score = 0.0
+
+    optimization_score = float(diagnosis_score + synergy_change_score)
+    final_score = optimization_score
+
     out_row = player_season_df[(player_season_df["PLAYER_ID"] == player_out_id) & (player_season_df["SEASON"] == original_season)]
     player_out_name = str(out_row.iloc[0]["PLAYER_NAME"]) if not out_row.empty else "Removed Player"
 
     in_row = player_season_df[(player_season_df["PLAYER_ID"] == player_in_id) & (player_season_df["SEASON"] == player_in_season)]
     player_in_name = str(in_row.iloc[0]["PLAYER_NAME"]) if not in_row.empty else "Added Player"
 
-                                   
     spacing_change = new_res["synergy_breakdown"]["spacing"] - original_res["synergy_breakdown"]["spacing"]
     playmaking_change = new_res["synergy_breakdown"]["playmaking"] - original_res["synergy_breakdown"]["playmaking"]
     defense_change = new_res["synergy_breakdown"]["defense"] - original_res["synergy_breakdown"]["defense"]
@@ -435,7 +486,6 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
     else:
         explanation = f"Swapping out {player_out_name} for {player_in_name} " + ", ".join(reasons[:-1]) + (f" and {reasons[-1]}." if len(reasons) > 1 else f"{reasons[0]}.")
 
-                                                 
     try:
         traits = determine_lineup_traits(original_player_ids, original_season, request)
     except Exception:
@@ -458,7 +508,9 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
         new_synergy=new_synergy,
         synergy_delta=synergy_delta,
         diagnosis_score=diagnosis_score,
+        synergy_change_score=synergy_change_score,
         final_score=final_score,
+        optimization_score=optimization_score,
         breakdown={
             "correct": correct_picks,
             "missed": missed_opportunities,
