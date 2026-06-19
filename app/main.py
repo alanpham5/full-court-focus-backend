@@ -22,7 +22,7 @@ from config import (
 from analytics.normalizer import normalize_by_season
 from env_defaults import load_env_defaults
 from parquet_io import read_teams_parquet
-from routers import badges, draft, players, search, team, lineups, game, game, game
+from routers import badges, draft, players, search, team, lineups, game, auth
 
 load_env_defaults()
 
@@ -284,8 +284,7 @@ app.include_router(players.router)
 app.include_router(draft.router)
 app.include_router(lineups.router)
 app.include_router(game.router)
-app.include_router(game.router)
-app.include_router(game.router)
+app.include_router(auth.router)
 
 
 @app.get("/health")
