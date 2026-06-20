@@ -32,6 +32,9 @@ class ResetPasswordRequest(BaseModel):
     code: str
     password: str
 
+class DeleteAccountRequest(BaseModel):
+    idToken: str
+
 @router.post("/send-verification")
 def send_verification(body: SendVerificationRequest):
     email_clean = body.email.strip().lower()
@@ -149,6 +152,48 @@ def reset_password(body: ResetPasswordRequest):
         return {"status": "success"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/delete-account")
+def delete_account(body: DeleteAccountRequest):
+    try:
+        decoded = auth.verify_id_token(body.idToken)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired session. Please sign in again.")
+
+    uid = decoded.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid session.")
+
+    # Remove the user's community posts and saved drafts.
+    try:
+        posts = db.collection("lineup_iq_posts").where("ownerId", "==", uid).stream()
+        for post in posts:
+            post.reference.delete()
+    except Exception:
+        pass
+
+    try:
+        drafts = db.collection("lineup_iq_drafts").where("ownerId", "==", uid).stream()
+        for draft in drafts:
+            draft.reference.delete()
+    except Exception:
+        pass
+
+    # Remove the user's profile/bookmarks document.
+    try:
+        db.collection("users").document(uid).delete()
+    except Exception:
+        pass
+
+    # Finally remove the auth account itself.
+    try:
+        auth.delete_user(uid)
+    except UserNotFoundError:
+        pass
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"status": "deleted"}
 
 @router.get("/google/callback")
 def google_callback(code: str = None, state: str = None, error: str = None):

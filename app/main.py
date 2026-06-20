@@ -2,6 +2,13 @@ import json
 import os
 from contextlib import asynccontextmanager
 
+# Load .env before any first-party import that initializes an external SDK at
+# import time. routers -> routers.auth -> firebase_config initializes Firebase
+# on import and needs GOOGLE_CLOUD_PROJECT / FIREBASE_SERVICE_ACCOUNT_B64 set.
+from env_defaults import load_env_defaults
+
+load_env_defaults()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -20,11 +27,8 @@ from config import (
     PLAYER_SEASON_FEATURES_PATH,
 )
 from analytics.normalizer import normalize_by_season
-from env_defaults import load_env_defaults
 from parquet_io import read_teams_parquet
 from routers import badges, draft, players, search, team, lineups, game, auth
-
-load_env_defaults()
 
 
 @asynccontextmanager
