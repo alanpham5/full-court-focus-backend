@@ -1,42 +1,51 @@
 from __future__ import annotations
 
+from io import BytesIO
 from pathlib import Path
+from typing import BinaryIO
 
 import pandas as pd
 
+ParquetSource = Path | str | BytesIO | BinaryIO
 
-def read_teams_parquet(path: Path | str) -> pd.DataFrame:
-    path = Path(path)
+
+def read_parquet(source: ParquetSource) -> pd.DataFrame:
+    path = Path(source) if isinstance(source, (str, Path)) else None
     last_err: BaseException | None = None
 
     try:
-        return pd.read_parquet(path, engine="fastparquet")
+        return pd.read_parquet(source, engine="fastparquet")
     except ImportError:
         pass
     except Exception as e:
         last_err = e
 
     try:
-        return pd.read_parquet(path, engine="pyarrow")
+        return pd.read_parquet(source, engine="pyarrow")
     except ImportError as e:
         last_err = e
     except OSError as e:
         last_err = e
 
-    try:
-        import pyarrow.parquet as pq
+    if path is not None:
+        try:
+            import pyarrow.parquet as pq
 
-        return pq.ParquetFile(path).read().to_pandas()
-    except ImportError:
-        pass
-    except OSError as e:
-        last_err = e
+            return pq.ParquetFile(path).read().to_pandas()
+        except ImportError:
+            pass
+        except OSError as e:
+            last_err = e
 
     msg = (
-        "Could not read teams Parquet (fastparquet + PyArrow). "
+        "Could not read Parquet (fastparquet + PyArrow). "
         "Install dependencies from requirements.txt or re-export the dataset."
     )
     raise OSError(msg) from last_err
+
+
+def read_teams_parquet(path: Path | str) -> pd.DataFrame:
+    return read_parquet(path)
 
 
 def write_teams_parquet(df: pd.DataFrame, path: Path | str) -> None:

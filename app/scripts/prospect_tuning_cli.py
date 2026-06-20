@@ -1,25 +1,25 @@
-"""Manage and run versioned prospect-comp tunings.
+                                                  
 
-    python3 app/scripts/prospect_tuning_cli.py list
-    python3 app/scripts/prospect_tuning_cli.py show v2_scoring_affinity
-    python3 app/scripts/prospect_tuning_cli.py diff v1_baseline v2_scoring_affinity
-    python3 app/scripts/prospect_tuning_cli.py activate v1_baseline
-    python3 app/scripts/prospect_tuning_cli.py snapshot v3_tau15 --set scoring_affinity_tau=0.15 \
-        --description "one-sided affinity, tighter tau"
-    python3 app/scripts/prospect_tuning_cli.py regenerate                  # both bases, active version
-    python3 app/scripts/prospect_tuning_cli.py regenerate --scope current
-    python3 app/scripts/prospect_tuning_cli.py regenerate --version v1_baseline --scope all
+                                                   
+                                                                       
+                                                                                   
+                                                                   
+                                                                                                  
+                                                       
+                                                                                                       
+                                                                         
+                                                                                           
 
-`regenerate` recomputes comps from the already-stored prospect datasets (no
-scraping) and rewrites the outputs, so you can flip between tunings and compare.
-By default it covers BOTH bases — the current board (prospects.json/.parquet)
-and every stored historical draft class (data/static/draft/) — then renormalizes
-prospect APFV across the combined population. Scope it with --scope
-current|historical|all; restrict historical years with --years 2020,2021; pass
---force-scrape to re-fetch historical raw data instead of using cache. Pass
---version to run a specific tuning for this run only without moving the active
-pointer.
-"""
+                                                                           
+                                                                                
+                                                                             
+                                                                                
+                                                                   
+                                                                              
+                                                                           
+                                                                              
+        
+   
 from __future__ import annotations
 
 import argparse
@@ -29,6 +29,10 @@ from pathlib import Path
 _APP = Path(__file__).resolve().parents[1]
 if str(_APP) not in sys.path:
     sys.path.insert(0, str(_APP))
+
+from env_defaults import load_env_defaults
+
+load_env_defaults()
 
 from pipelines import prospect_tuning as t
 
@@ -170,9 +174,9 @@ def cmd_regenerate(args):
                 else:
                     print(f"  ⚠ historical: {res['success']} ok, {res['failure']} failed")
 
-        # Push the freshly recomputed (and normalized) outputs to GCS, if
-        # configured. Done last so uploaded files reflect the final on-disk
-        # state; historical files are skipped if any class failed.
+                                                                         
+                                                                           
+                                                                  
         if not args.no_upload:
             n = upload_prospect_outputs_to_gcs(
                 include_current=do_current,

@@ -565,7 +565,7 @@ _TUNING_GLOBALS = {
 
 
 def current_tuning() -> dict:
-    """Snapshot the live tuning constants as a JSON-serializable param dict."""
+                                                                               
     g = globals()
     out = {}
     for key, name in _TUNING_GLOBALS.items():
@@ -579,7 +579,7 @@ def current_tuning() -> dict:
 
 
 def apply_tuning(params: dict) -> None:
-    """Overwrite the live tuning constants from a param dict (partial allowed)."""
+                                                                                  
     g = globals()
     for key, name in _TUNING_GLOBALS.items():
         if key not in params:
@@ -1260,9 +1260,9 @@ class ProspectsPipeline:
         return prospects
 
     def recompute_comps_from_cache(self) -> pd.DataFrame:
-        """Recompute the current board's comps from the already-stored prospect
-        dataset and rewrite outputs — no scraping. Uses the live tuning (see
-        `apply_tuning`), so it is the current-board half of a tuning change."""
+                                                                               
+                                                                            
+                                                                               
         logger.info("Recomputing current-board comps from %s", self.parquet_output_path)
         if not self.parquet_output_path.exists():
             raise FileNotFoundError(

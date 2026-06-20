@@ -226,5 +226,7 @@ class LineupSynergyResponse(BaseModel):
     synergy_breakdown: LineupSynergyBreakdown
     strengths: list[str]
     weaknesses: list[str]
+    strength_traits: list[str] = []
+    weakness_traits: list[str] = []
     similar_teams: list[SimilarLineupTeam]
 

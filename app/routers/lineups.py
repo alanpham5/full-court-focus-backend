@@ -111,13 +111,14 @@ def get_lineup_synergy(
     team_profiles = getattr(request.app.state, "team_profiles", {})
     team_metadata = getattr(request.app.state, "team_metadata", {})
     player_profiles = getattr(request.app.state, "player_profiles", {})
-    
+    season_baselines = getattr(request.app.state, "season_lineup_baselines", {})
+
     if player_season_df is None or teams_df is None:
         raise HTTPException(
             status_code=503,
             detail="Player season features or teams historical data not loaded."
         )
-        
+
     try:
         res = calculate_lineup_synergy(
             player_ids=player_ids,
@@ -127,7 +128,8 @@ def get_lineup_synergy(
             starting_lineups=starting_lineups,
             team_profiles=team_profiles,
             team_metadata=team_metadata,
-            player_profiles=player_profiles
+            player_profiles=player_profiles,
+            season_baselines=season_baselines
         )
         return LineupSynergyResponse(**res)
     except ValueError as e:

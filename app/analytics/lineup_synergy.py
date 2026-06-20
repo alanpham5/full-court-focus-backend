@@ -17,6 +17,55 @@ ALL_ROLES = [
 
 STYLE_AXIS_WEIGHTS = np.array([0.75, 1.20, 1.00, 1.15, 1.20, 0.95], dtype=float)
 
+STYLE_W_DEFENSE = 0.296
+STYLE_W_REBOUNDING = 0.232
+STYLE_W_PAINT = 0.049
+STYLE_W_THREE = 0.132
+STYLE_W_PLAYMAKING = 0.122
+STYLE_W_PACE = -0.108
+ROLE_ADJ_WEIGHT = 0.35
+
+SOFT_CAP_KNEE = 84.0
+SOFT_CAP_CEIL = 103.0
+
+STRONG_TRAIT_PCT = 56.0
+WEAK_TRAIT_PCT = 44.0
+
+STRENGTH_TRAIT_LABELS = {
+    "playmaking": "Playmaking & Ball Movement",
+    "spacing": "Floor Spacing & Shooting",
+    "rebounding": "Rebounding & Interior Presence",
+    "paint_scoring": "Paint Scoring Pressure",
+    "defense": "Team Defense",
+    "scoring": "Scoring Firepower",
+}
+WEAKNESS_TRAIT_LABELS = {
+    "playmaking": "Limited Playmaking",
+    "spacing": "Poor Spacing",
+    "rebounding": "Frontcourt / Rebounding Vulnerability",
+    "paint_scoring": "Limited Paint Pressure",
+    "defense": "Defensive Limitations",
+    "scoring": "Scoring Depth Concerns",
+}
+
+
+def _soft_cap_score(raw: float) -> float:
+    if raw <= SOFT_CAP_KNEE:
+        return raw
+    span = SOFT_CAP_CEIL - SOFT_CAP_KNEE
+    return SOFT_CAP_KNEE + span * (1.0 - float(np.exp(-(raw - SOFT_CAP_KNEE) / span)))
+
+
+def _traits_from_items(items: List[tuple], labels: Dict[str, str]) -> List[str]:
+    out: List[str] = []
+    seen = set()
+    for cat, _text in items:
+        label = labels.get(cat)
+        if label and label not in seen:
+            out.append(label)
+            seen.add(label)
+    return out
+
 
 def style_affinity(a: np.ndarray, b: np.ndarray) -> float:
     diff = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
@@ -324,6 +373,27 @@ def compute_lineup_player_similarity(
             
     return (exact_matches * 1.0 + max_sim_sum) / 5.0
 
+def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, List[str]]) -> List[Dict[str, Any]]:
+    from analytics.player_profiles.archetypes import get_player_archetypes
+    players_payload = []
+    for _, r in lineup_rows.iterrows():
+        pid = int(r["PLAYER_ID"])
+        p_roles = player_roles.get(pid, ["Secondary Creator"])
+        players_payload.append({
+            "player_id": pid,
+            "name": str(r["PLAYER_NAME"]),
+            "role": p_roles[0] if p_roles else "Secondary Creator",
+            "archetypes": get_player_archetypes(r),
+            "pts_per36": round(float(r.get("pts_per36", 0.0) or 0.0), 1),
+            "ast_per36": round(float(r.get("ast_per36", 0.0) or 0.0), 1),
+            "reb_per36": round(float(r.get("reb_per36", 0.0) or 0.0), 1),
+            "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
+            "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
+            "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3),
+        })
+    return players_payload
+
+
 def calculate_lineup_synergy(
     player_ids: List[int],
     season: str,
@@ -333,115 +403,92 @@ def calculate_lineup_synergy(
     team_profiles: Dict[str, Any],
     team_metadata: Dict[str, Any],
     player_profiles: Dict[str, Any] = None,
+    player_seasons: List[str] = None,
+    compute_similar: bool = True,
+    season_baselines: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
     season_players = player_season_df[player_season_df["SEASON"] == season]
-    if season_players.empty:
-        raise ValueError(f"No player data found for season {season}")
-        
-    lineup_rows = season_players[season_players["PLAYER_ID"].isin(player_ids)]
-    found_ids = set(lineup_rows["PLAYER_ID"].unique())
-    missing_ids = [pid for pid in player_ids if pid not in found_ids]
-    if missing_ids:
-        raise ValueError(f"Player IDs {missing_ids} not found in season {season}")
-        
-    lineup_rows = lineup_rows.set_index("PLAYER_ID").loc[player_ids].reset_index()
-    
-    from analytics.player_profiles.archetypes import get_player_archetypes
+    if player_seasons:
+        rows = []
+        for pid, p_season in zip(player_ids, player_seasons):
+            row = player_season_df[(player_season_df["PLAYER_ID"] == pid) & (player_season_df["SEASON"] == p_season)]
+            if not row.empty:
+                rows.append(row.iloc[0])
+            else:
+                                                                                     
+                fallback_row = player_season_df[player_season_df["PLAYER_ID"] == pid]
+                if not fallback_row.empty:
+                    rows.append(fallback_row.iloc[0])
+                else:
+                    raise ValueError(f"Player ID {pid} not found in database")
+        lineup_rows = pd.DataFrame(rows)
+    else:
+        if season_players.empty:
+            raise ValueError(f"No player data found for season {season}")
+            
+        lineup_rows = season_players[season_players["PLAYER_ID"].isin(player_ids)]
+        found_ids = set(lineup_rows["PLAYER_ID"].unique())
+        missing_ids = [pid for pid in player_ids if pid not in found_ids]
+        if missing_ids:
+            raise ValueError(f"Player IDs {missing_ids} not found in season {season}")
+            
+        lineup_rows = lineup_rows.set_index("PLAYER_ID").loc[player_ids].reset_index()
+
     player_roles = assign_player_roles_absolute(lineup_rows)
     
     player_rows_list = [lineup_rows.iloc[i] for i in range(len(lineup_rows))]
     custom_stats = compute_lineup_collective_stats(player_rows_list, player_roles)
     
-    season_lineup_keys = [k for k in starting_lineups.keys() if k.endswith(f":{season}")]
-    starting_rebs = []
-    starting_defs = []
-    starting_paints = []
-    starting_blks = []
-    starting_asts = []
-    starting_ast_pcts = []
-    
-    for key in season_lineup_keys:
-        lineup = starting_lineups[key]
-        starter_ids = [s["player_id"] for s in lineup["starters"]]
-        s_rows = season_players[season_players["PLAYER_ID"].isin(starter_ids)]
-        if len(s_rows) >= 5:
-            s_roles = assign_player_roles_absolute(s_rows)
-            s_rows_list = [s_rows.iloc[i] for i in range(len(s_rows))]
-            s_stats = compute_lineup_collective_stats(s_rows_list, s_roles)
-            starting_rebs.append(s_stats["reb"])
-            starting_defs.append(s_stats["def_score"])
-            starting_paints.append(s_stats["paint_score"])
-            starting_blks.append(s_stats["blk"])
-            starting_asts.append(s_stats["ast"])
-            starting_ast_pcts.append(s_stats["ast_pct"])
-            
-    mean_starting_reb = np.mean(starting_rebs) if starting_rebs else 1.0
-    mean_starting_def = np.mean(starting_defs) if starting_defs else 1.0
-    mean_starting_paint = np.mean(starting_paints) if starting_paints else 1.0
-    mean_starting_blk = np.mean(starting_blks) if starting_blks else 1.0
-    
-    season_teams = teams_df[teams_df["SEASON"] == season]
-    if season_teams.empty:
-        raise ValueError(f"No team historical stats found for season {season}")
-        
     team_abbr_to_id = {v["abbreviation"]: int(k) for k, v in team_metadata.items()}
-    
-    custom_paces = []
-    custom_mpgs = []
+
+    from analytics.season_baselines import (
+        compute_lineup_metrics,
+        get_season_baseline,
+        percentile_in,
+    )
+
+    season_baseline = get_season_baseline(
+        season, season_baselines, player_season_df, teams_df, starting_lineups, team_abbr_to_id
+    )
+    custom_metrics = compute_lineup_metrics(
+        lineup_rows, player_roles, teams_df, team_abbr_to_id, season
+    )
+
+    if season_baseline and season_baseline.get("metrics"):
+        bm = season_baseline["metrics"]
+        pace_pct = percentile_in(bm["pace"], custom_metrics["pace"])
+        fg3a_pct = percentile_in(bm["fg3a"], custom_metrics["fg3a"])
+        paint_pct = percentile_in(bm["paint_fga"], custom_metrics["paint_fga"])
+        defense_pct = percentile_in(bm["def_score"], custom_metrics["def_score"])
+        ast_vol_pct = percentile_in(bm["ast"], custom_metrics["ast"])
+        ast_rate_pct = percentile_in(bm["ast_pct"], custom_metrics["ast_pct"])
+        playmaking_pct = 0.55 * ast_vol_pct + 0.45 * ast_rate_pct
+        rebounding_pct = percentile_in(bm["reb"], custom_metrics["reb"])
+        mean_starting_reb = bm["reb"]["mean"] or 1.0
+        mean_starting_blk = bm["blk"]["mean"] or 1.0
+    else:
+        pace_pct = fg3a_pct = paint_pct = defense_pct = playmaking_pct = rebounding_pct = 50.0
+        mean_starting_reb = custom_metrics["reb"] or 1.0
+        mean_starting_blk = custom_metrics["blk"] or 1.0
+
+    _t_axes = ["pace", "three_point_volume", "paint", "defense", "playmaking", "rebounding"]
+    _t_vals = {a: [] for a in _t_axes}
     for _, r in lineup_rows.iterrows():
         abbr = r.get("TEAM_ABBREVIATION", "")
-        mpg = float(r.get("MIN", 0.0) or 0.0) / float(r.get("GP", 1.0) or 1.0)
         p_team_id = team_abbr_to_id.get(abbr)
-        p_team_row = season_teams[season_teams["TEAM_ID"] == p_team_id] if p_team_id else pd.DataFrame()
-        
-        if not p_team_row.empty:
-            team_pace = float(p_team_row.iloc[0].get("PACE", 98.0))
-        else:
-            team_pace = 98.0
-        custom_paces.append(team_pace)
-        custom_mpgs.append(mpg)
-        
-    sum_mpg = sum(custom_mpgs)
-    custom_pace = sum(p * m for p, m in zip(custom_paces, custom_mpgs)) / sum_mpg if sum_mpg > 0 else 98.0
-    
-    avg_team_reb_pct = (season_teams["REB_PCT"].mean() or 0.50) * 100.0
-    estimated_reb_pct = avg_team_reb_pct + 10.0 * (custom_stats["reb"] - mean_starting_reb) / mean_starting_reb
-    estimated_reb_pct = min(60.0, max(40.0, estimated_reb_pct))
-    
-    avg_team_paint_fga = season_teams["PAINT_FGA"].mean()
-    if pd.isna(avg_team_paint_fga) or avg_team_paint_fga <= 0.0:
-        avg_team_paint_fga = 44.3
-    estimated_paint_fga = avg_team_paint_fga + 15.0 * (custom_stats["paint_score"] - mean_starting_paint) / mean_starting_paint
-    estimated_paint_fga = min(70.0, max(25.0, estimated_paint_fga))
-    
-    avg_team_def_rating = season_teams["DEF_RATING"].mean() or 110.0
-    estimated_def_rating = avg_team_def_rating - 15.0 * (custom_stats["def_score"] - mean_starting_def) / mean_starting_def
-    
-    pace_pct = percentileofscore(season_teams["PACE"].dropna().to_numpy(), custom_pace, kind="rank")
-    fg3a_pct = percentileofscore(season_teams["FG3A"].dropna().to_numpy(), custom_stats["fg3a"], kind="rank")
-    
-    paint_fga_series = season_teams["PAINT_FGA"].dropna()
-    if paint_fga_series.empty:
-        paint_fga_distribution = np.linspace(35.0, 53.5, 30)
-    else:
-        paint_fga_distribution = paint_fga_series.to_numpy()
-    paint_pct = percentileofscore(paint_fga_distribution, estimated_paint_fga, kind="rank")
-    
-    if starting_asts:
-        ast_vol_pct = percentileofscore(np.array(starting_asts), custom_stats["ast"], kind="rank")
-        ast_rate_pct = percentileofscore(np.array(starting_ast_pcts), custom_stats["ast_pct"], kind="rank")
-        playmaking_pct = 0.55 * ast_vol_pct + 0.45 * ast_rate_pct
-    else:
-        playmaking_pct = percentileofscore(
-            season_teams["AST_PCT"].dropna().to_numpy() * 100.0,
-            custom_stats["ast_pct"],
-            kind="rank",
-        )
-    rebounding_pct = percentileofscore(season_teams["REB_PCT"].dropna().to_numpy() * 100.0, estimated_reb_pct, kind="rank")
-    
-    defense_pct = percentileofscore(season_teams["DEF_RATING"].dropna().to_numpy(), estimated_def_rating, kind="rank")
-    defense_pct = 100.0 - defense_pct
-    
+        p_season = r.get("SEASON", season)
+        style = team_profiles.get(f"{p_team_id}:{p_season}", {}).get("style_vector", {})
+        for a in _t_axes:
+            _t_vals[a].append(float(style.get(a, 50.0)) if style else 50.0)
+    avg_t = {a: (float(np.mean(v)) if v else 50.0) for a, v in _t_vals.items()}
+
+    pace_pct = 0.40 * pace_pct + 0.60 * avg_t["pace"]
+    fg3a_pct = 0.40 * fg3a_pct + 0.60 * avg_t["three_point_volume"]
+    paint_pct = 0.40 * paint_pct + 0.60 * avg_t["paint"]
+    defense_pct = 0.30 * defense_pct + 0.70 * avg_t["defense"]
+    playmaking_pct = 0.40 * playmaking_pct + 0.60 * avg_t["playmaking"]
+    rebounding_pct = 0.40 * rebounding_pct + 0.60 * avg_t["rebounding"]
+
     style_vector = {
         "pace": round(min(100.0, max(0.0, pace_pct)), 1),
         "three_point_volume": round(min(100.0, max(0.0, fg3a_pct)), 1),
@@ -451,16 +498,39 @@ def calculate_lineup_synergy(
         "rebounding": round(min(100.0, max(0.0, rebounding_pct)), 1)
     }
     
+    season_cache = {}
+    def get_season_arrays(s_val):
+        if s_val not in season_cache:
+            s_players = player_season_df[player_season_df["SEASON"] == s_val]
+                                                                                               
+            pool = s_players[s_players["MIN"] >= 1000]
+            if pool.empty:
+                pool = s_players
+            season_cache[s_val] = {
+                "pts": pool["PTS"].dropna().to_numpy(),
+                "ast": pool["AST"].dropna().to_numpy(),
+                "reb": pool["REB"].dropna().to_numpy(),
+                "stl": pool["STL"].dropna().to_numpy(),
+                "blk": pool["BLK"].dropna().to_numpy(),
+                "ts": pool["ts_pct"].dropna().to_numpy(),
+                "mpg": pool["mpg"].dropna().to_numpy(),
+            }
+        return season_cache[s_val]
+
     player_ratings = []
     for _, r in lineup_rows.iterrows():
-        pts_p = float(r.get("pts_per36_pctile", 50.0) or 50.0)
-        ast_p = float(r.get("ast_per36_pctile", 50.0) or 50.0)
-        reb_p = float(r.get("reb_per36_pctile", 50.0) or 50.0)
-        stl_p = float(r.get("stl_per36_pctile", 50.0) or 50.0)
-        blk_p = float(r.get("blk_per36_pctile", 50.0) or 50.0)
-        ts_p = float(r.get("ts_pct_pctile", 50.0) or 50.0)
+        p_season = r.get("SEASON", season)
+        arrays = get_season_arrays(p_season)
         
-        rating = 0.30 * pts_p + 0.15 * ast_p + 0.15 * reb_p + 0.10 * stl_p + 0.10 * blk_p + 0.20 * ts_p
+        pts_tot_p = percentileofscore(arrays["pts"], float(r.get("PTS", 0.0) or 0.0), kind="rank")
+        ast_tot_p = percentileofscore(arrays["ast"], float(r.get("AST", 0.0) or 0.0), kind="rank")
+        reb_tot_p = percentileofscore(arrays["reb"], float(r.get("REB", 0.0) or 0.0), kind="rank")
+        stl_tot_p = percentileofscore(arrays["stl"], float(r.get("STL", 0.0) or 0.0), kind="rank")
+        blk_tot_p = percentileofscore(arrays["blk"], float(r.get("BLK", 0.0) or 0.0), kind="rank")
+        ts_p = percentileofscore(arrays["ts"], float(r.get("ts_pct", 0.0) or 0.0), kind="rank")
+        mpg_p = percentileofscore(arrays["mpg"], float(r.get("mpg", 0.0) or 0.0), kind="rank")
+        
+        rating = 0.25 * pts_tot_p + 0.15 * ast_tot_p + 0.10 * reb_tot_p + 0.05 * stl_tot_p + 0.05 * blk_tot_p + 0.15 * ts_p + 0.25 * mpg_p
         player_ratings.append(rating)
         
     baseline_talent = 0.88 * np.mean(player_ratings) + 0.12 * np.min(player_ratings)
@@ -487,7 +557,24 @@ def calculate_lineup_synergy(
         blk_pctile = float(r.get("blk_per36_pctile", 0.0) or 0.0)
         if is_def_spec or stl_pctile > 60.0 or blk_pctile > 65.0:
             defenders_count += 1
-            
+
+    strong_rebounders = 0
+    rim_protectors = 0
+    elite_passers = 0
+    for _, r in lineup_rows.iterrows():
+        gp = float(r.get("GP", 1.0) or 1.0) or 1.0
+        rpg = float(r.get("REB", 0.0) or 0.0) / gp
+        bpg = float(r.get("BLK", 0.0) or 0.0) / gp
+        apg = float(r.get("AST", 0.0) or 0.0) / gp
+        reb36 = float(r.get("reb_per36", 0.0) or 0.0)
+        blk36 = float(r.get("blk_per36", 0.0) or 0.0)
+        if rpg >= 9.5 or reb36 >= 11.5:
+            strong_rebounders += 1
+        if bpg >= 1.2 or blk36 >= 1.6:
+            rim_protectors += 1
+        if apg >= 6.0:
+            elite_passers += 1
+
     playmaker_score = playmakers_count + 0.5 * creators_count
     if playmaker_score == 0:
         playmaking_adj = -15.0
@@ -509,13 +596,15 @@ def calculate_lineup_synergy(
         
     reb_ratio = custom_stats["reb"] / mean_starting_reb if mean_starting_reb > 0 else 1.0
     blk_ratio = custom_stats["blk"] / mean_starting_blk if mean_starting_blk > 0 else 1.0
-    
-    if reb_ratio < 0.88 or blk_ratio < 0.70:
-        interior_adj = -15.0
+
+    if strong_rebounders >= 2 or (reb_ratio >= 1.05 and blk_ratio >= 1.15):
+        interior_adj = 5.0
+    elif (strong_rebounders >= 1 and reb_ratio >= 0.95) or rim_protectors >= 2:
+        interior_adj = 2.0
     elif reb_ratio > 1.25 and blk_ratio > 1.60:
         interior_adj = -10.0
-    elif reb_ratio >= 1.05 and blk_ratio >= 1.15:
-        interior_adj = 5.0
+    elif (reb_ratio < 0.88 or blk_ratio < 0.70) and strong_rebounders == 0 and rim_protectors == 0:
+        interior_adj = -15.0
     else:
         interior_adj = 2.0
         
@@ -542,7 +631,7 @@ def calculate_lineup_synergy(
     if fg3a_pct < 45.0:
         spacing_adj = min(-3.0, spacing_adj)
 
-    if rebounding_pct < 45.0 or paint_pct < 45.0:
+    if (rebounding_pct < 45.0 or paint_pct < 45.0) and strong_rebounders < 2 and rim_protectors < 2:
         interior_adj = min(-3.0, interior_adj)
 
     if defense_pct < 45.0:
@@ -567,149 +656,179 @@ def calculate_lineup_synergy(
                 overlap_adj = -6.0
                 break
             
-    synergy_score = baseline_talent + playmaking_adj + spacing_adj + interior_adj + defense_adj + overlap_adj
-    synergy_score = round(min(100.0, max(0.0, synergy_score)), 1)
-    
-    strengths = []
-    weaknesses = []
+    defense_chan = ROLE_ADJ_WEIGHT * defense_adj + STYLE_W_DEFENSE * (style_vector["defense"] - 50.0)
+    interior_chan = (ROLE_ADJ_WEIGHT * interior_adj
+                     + STYLE_W_REBOUNDING * (style_vector["rebounding"] - 50.0)
+                     + STYLE_W_PAINT * (style_vector["paint"] - 50.0))
+    spacing_chan = ROLE_ADJ_WEIGHT * spacing_adj + STYLE_W_THREE * (style_vector["three_point_volume"] - 50.0)
+    playmaking_chan = ROLE_ADJ_WEIGHT * playmaking_adj + STYLE_W_PLAYMAKING * (style_vector["playmaking"] - 50.0)
+    overlap_chan = ROLE_ADJ_WEIGHT * overlap_adj + STYLE_W_PACE * (style_vector["pace"] - 50.0)
+
+    synergy_raw = baseline_talent + defense_chan + interior_chan + spacing_chan + playmaking_chan + overlap_chan
+    synergy_score = round(min(100.0, max(0.0, _soft_cap_score(synergy_raw))), 1)
+
+    synergy_breakdown = {
+        "playmaking": round(playmaking_chan, 1),
+        "spacing": round(spacing_chan, 1),
+        "interior": round(interior_chan, 1),
+        "defense": round(defense_chan, 1),
+        "overlap": round(overlap_chan, 1),
+    }
+
+    strength_items: List[tuple] = []
+    weakness_items: List[tuple] = []
+
+    def add_strength(cat: str, text: str) -> None:
+        strength_items.append((cat, text))
+
+    def add_weakness(cat: str, text: str) -> None:
+        weakness_items.append((cat, text))
+
     custom_fg3a = custom_stats["fg3a"]
     sum_ast = sum(float(r.get("ast_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_stl = sum(float(r.get("stl_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_pts = sum(float(r.get("pts_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     
-    if playmaking_pct >= 60.0 and playmaking_adj >= 4.0:
+    if playmaking_pct >= STRONG_TRAIT_PCT:
         if playmakers_count >= 2 and sum_ast >= 25.0:
-            strengths.append(
+            add_strength("playmaking",
                 "Multiple Initiators - Two or more primary creators drive above-average assist volume, keeping the offense fluid and generating open looks."
             )
         else:
-            strengths.append(
+            add_strength("playmaking",
                 "Fluid Offense - Assist volume and creation rate both rank above comparable NBA starting units."
             )
-    elif playmaking_pct >= 50.0 and playmaking_adj >= 0.0:
-        strengths.append(
-            "Balanced Creation - Solid assist output supports workable ball movement without over-relying on a single handler."
-        )
-
-    playmaking_weak = playmaking_pct < 40.0 or (playmaking_adj <= -5.0 and playmaking_pct < 50.0)
-    if playmaking_weak:
-        if playmakers_count == 0 and playmaker_score <= 1.0:
-            weaknesses.append(
+    elif playmaking_pct < WEAK_TRAIT_PCT:
+        if playmakers_count == 0 and playmaker_score <= 1.0 and elite_passers == 0:
+            add_weakness("playmaking",
                 "Missing Initiator - No clear primary playmaker leaves the offense dependent on isolation and scripted sets."
             )
-        elif playmakers_count >= 3 and playmaking_pct < 45.0:
-            weaknesses.append(
+        elif playmakers_count >= 3:
+            add_weakness("playmaking",
                 "Crowded Creation - Several ball-dominant players overlap, and collective assist rates trail comparable NBA units."
             )
         else:
-            weaknesses.append(
+            add_weakness("playmaking",
                 "Limited Ball Movement - Assist volume and rates rank below average, raising the risk of stagnant half-court possessions."
             )
 
-    if spacing_adj < 0 and fg3a_pct < 45.0:
-        if shooters_count == 0 or custom_fg3a < 22.0:
-            weaknesses.append(
-                "Clogged Driving Lanes - Fewer than two credible perimeter threats lets defenses shrink the floor and wall off the rim."
-            )
-        elif shooters_count == 1:
-            weaknesses.append(
-                "Limited Floor Spacing - Only one reliable outside threat makes it easier for help defenders to sit in the paint."
-            )
-        else:
-            weaknesses.append(
-                "Low 3PT Volume - Three-point attempt rate ranks below average, reducing the space available for drivers and post touches."
-            )
-    elif spacing_adj > 0 and fg3a_pct >= 60.0:
+    if fg3a_pct >= STRONG_TRAIT_PCT:
         if shooters_count >= 3 and custom_fg3a >= 32.0:
-            strengths.append(
+            add_strength("spacing",
                 "Elite Floor Spacing - Multiple perimeter threats pull help defenders out and keep driving lanes open."
             )
         else:
-            strengths.append(
+            add_strength("spacing",
                 "Stretch-the-Floor Shooting - Above-average three-point volume forces defenses to extend, opening up the interior."
             )
+    elif fg3a_pct < WEAK_TRAIT_PCT:
+        if shooters_count == 0 or custom_fg3a < 22.0:
+            add_weakness("spacing",
+                "Clogged Driving Lanes - Fewer than two credible perimeter threats lets defenses shrink the floor and wall off the rim."
+            )
+        elif shooters_count == 1:
+            add_weakness("spacing",
+                "Limited Floor Spacing - Only one reliable outside threat makes it easier for help defenders to sit in the paint."
+            )
+        else:
+            add_weakness("spacing",
+                "Low 3PT Volume - Three-point attempt rate ranks below average, reducing the space available for drivers and post touches."
+            )
 
-    if interior_adj < 0:
-        if interior_adj == -15.0 and (rebounding_pct < 45.0 or paint_pct < 45.0):
-            weaknesses.append(
+    if rebounding_pct >= STRONG_TRAIT_PCT or strong_rebounders >= 2:
+        if (strong_rebounders >= 2 and rim_protectors >= 1) or (reb_ratio >= 1.12 and blk_ratio >= 1.20):
+            add_strength("rebounding",
+                "Elite Interior Presence - Strong rebounding and rim protection give this unit control of the paint on both ends."
+            )
+        else:
+            add_strength("rebounding",
+                "Glass Control - Above-average rebounding helps this group finish possessions and limit extra opponent looks."
+            )
+    elif rebounding_pct < WEAK_TRAIT_PCT and strong_rebounders < 2:
+        if rebounding_pct < WEAK_TRAIT_PCT - 6.0 and rim_protectors == 0:
+            add_weakness("rebounding",
                 "Frontcourt Vulnerability - Below-average size and interior metrics leave this group exposed in the paint and on the glass."
             )
-        elif interior_adj == -10.0 and paint_pct >= 55.0:
-            weaknesses.append(
-                "Paint Congestion - Heavy frontcourt usage can crowd the lane and limit driving paths for perimeter creators."
-            )
-
-        if rebounding_pct < 45.0 and reb_ratio < 0.92:
-            weaknesses.append(
+        else:
+            add_weakness("rebounding",
                 "Rebounding Vulnerability - Rebounding profile ranks below average, increasing second-chance opportunities for opponents."
             )
 
-        if paint_pct < 40.0:
-            weaknesses.append(
-                "Limited Paint Pressure - Low interior scoring volume makes the offense easier to defend with a compact shell."
-            )
-    elif interior_adj > 0:
-        if reb_ratio >= 1.05 and rebounding_pct >= 55.0:
-            if reb_ratio >= 1.12 and blk_ratio >= 1.20:
-                strengths.append(
-                    "Elite Interior Presence - Strong rebounding and rim protection give this unit control of the paint on both ends."
-                )
-            elif rebounding_pct >= 60.0:
-                strengths.append(
-                    "Glass Control - Above-average rebounding helps this group finish possessions and limit extra opponent looks."
-                )
-        if paint_pct >= 60.0:
-            strengths.append(
-                "Paint Scoring Pressure - High interior shot volume keeps rim protectors honest and generates efficient looks at the basket."
-            )
+    if paint_pct >= STRONG_TRAIT_PCT + 2.0:
+        add_strength("paint_scoring",
+            "Paint Scoring Pressure - High interior shot volume keeps rim protectors honest and generates efficient looks at the basket."
+        )
+    elif paint_pct < WEAK_TRAIT_PCT - 2.0:
+        add_weakness("paint_scoring",
+            "Limited Paint Pressure - Low interior scoring volume makes the offense easier to defend with a compact shell."
+        )
 
-    if defense_adj < 0 and defense_pct < 45.0:
-        if blk_ratio < 0.70 and defenders_count == 0:
-            weaknesses.append(
-                "Weak Rim Protection - Without a credible shot-blocking anchor, opponents can finish more comfortably at the basket."
-            )
-        elif sum_stl < 4.0 and defenders_count <= 1:
-            weaknesses.append(
-                "Passive Perimeter Defense - Limited steal and disruption activity makes it harder to blow up opposing actions."
-            )
-        else:
-            weaknesses.append(
-                "Defensive Limitations - Projected defensive profile ranks below average for a five-man unit."
-            )
-    elif defense_adj > 0 and defense_pct >= 60.0:
+    if defense_pct >= STRONG_TRAIT_PCT:
         if blk_ratio >= 1.25:
-            strengths.append(
+            add_strength("defense",
                 "Rim Protection - Shot-blocking presence deters attempts at the basket and protects the back line."
             )
         elif sum_stl >= 7.5 and defenders_count >= 2:
-            strengths.append(
+            add_strength("defense",
                 "Perimeter Disruption - Active hands and rotations create turnovers and transition opportunities."
             )
         else:
-            strengths.append(
+            add_strength("defense",
                 "Solid Defensive Foundation - Above-average defensive projection supports consistent half-court stops."
             )
+    elif defense_pct < WEAK_TRAIT_PCT:
+        if blk_ratio < 0.70 and defenders_count == 0 and rim_protectors == 0:
+            add_weakness("defense",
+                "Weak Rim Protection - Without a credible shot-blocking anchor, opponents can finish more comfortably at the basket."
+            )
+        elif sum_stl < 4.0 and defenders_count <= 1:
+            add_weakness("defense",
+                "Passive Perimeter Defense - Limited steal and disruption activity makes it harder to blow up opposing actions."
+            )
+        else:
+            add_weakness("defense",
+                "Defensive Limitations - Projected defensive profile ranks below average for a five-man unit."
+            )
 
-    if sum_pts >= 95.0 and baseline_talent >= 72.0:
-        strengths.append(
+    if baseline_talent >= 70.0 and sum_pts >= 90.0:
+        add_strength("scoring",
             "High-End Scoring - Elite individual scoring profiles give this lineup multiple ways to generate points against set defenses."
         )
-    elif (sum_pts < 65.0 or baseline_talent < 40.0) and baseline_talent < 50.0:
-        weaknesses.append(
+    elif baseline_talent < 46.0 or sum_pts < 70.0:
+        add_weakness("scoring",
             "Scoring Depth Concerns - Limited high-volume scoring options increase the risk of cold stretches against disciplined defenses."
         )
         
     total_allowed = 7
-    if len(strengths) + len(weaknesses) > total_allowed:
+    if len(strength_items) + len(weakness_items) > total_allowed:
         max_each = total_allowed // 2
-        if len(strengths) > max_each and len(weaknesses) > max_each:
-            strengths = strengths[:4]
-            weaknesses = weaknesses[:3]
-        elif len(strengths) <= max_each:
-            weaknesses = weaknesses[:(total_allowed - len(strengths))]
+        if len(strength_items) > max_each and len(weakness_items) > max_each:
+            strength_items = strength_items[:4]
+            weakness_items = weakness_items[:3]
+        elif len(strength_items) <= max_each:
+            weakness_items = weakness_items[:(total_allowed - len(strength_items))]
         else:
-            strengths = strengths[:(total_allowed - len(weaknesses))]
-        
+            strength_items = strength_items[:(total_allowed - len(weakness_items))]
+
+    strengths = [text for _cat, text in strength_items]
+    weaknesses = [text for _cat, text in weakness_items]
+    strength_traits = _traits_from_items(strength_items, STRENGTH_TRAIT_LABELS)
+    weakness_traits = _traits_from_items(weakness_items, WEAKNESS_TRAIT_LABELS)
+
+    if not compute_similar:
+        return {
+            "season": season,
+            "players": _build_players_payload(lineup_rows, player_roles),
+            "style_vector": style_vector,
+            "synergy_score": synergy_score,
+            "synergy_breakdown": synergy_breakdown,
+            "strengths": strengths,
+            "weaknesses": weaknesses,
+            "strength_traits": strength_traits,
+            "weakness_traits": weakness_traits,
+            "similar_teams": [],
+        }
+
     custom_role_vector = np.zeros(len(ALL_ROLES))
     for pid in player_ids:
         for role in player_roles.get(pid, []):
@@ -818,42 +937,15 @@ def calculate_lineup_synergy(
             "starters": starters_out
         })
         
-    players_payload = []
-    for _, r in lineup_rows.iterrows():
-        pid = int(r["PLAYER_ID"])
-        p_roles = player_roles.get(pid, ["Secondary Creator"])
-        p_name = str(r["PLAYER_NAME"])
-        
-        p_min = float(r.get("MIN", 0.0) or 0.0)
-        p_gp = float(r.get("GP", 1.0) or 1.0)
-        p_mpg = p_min / p_gp if p_gp > 0 else 0.0
-        
-        players_payload.append({
-            "player_id": pid,
-            "name": p_name,
-            "role": p_roles[0] if p_roles else "Secondary Creator",
-            "archetypes": get_player_archetypes(r),
-            "pts_per36": round(float(r.get("pts_per36", 0.0) or 0.0), 1),
-            "ast_per36": round(float(r.get("ast_per36", 0.0) or 0.0), 1),
-            "reb_per36": round(float(r.get("reb_per36", 0.0) or 0.0), 1),
-            "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
-            "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
-            "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3)
-        })
-        
     return {
         "season": season,
-        "players": players_payload,
+        "players": _build_players_payload(lineup_rows, player_roles),
         "style_vector": style_vector,
         "synergy_score": synergy_score,
-        "synergy_breakdown": {
-            "playmaking": playmaking_adj,
-            "spacing": spacing_adj,
-            "interior": interior_adj,
-            "defense": defense_adj,
-            "overlap": overlap_adj
-        },
+        "synergy_breakdown": synergy_breakdown,
         "strengths": strengths,
         "weaknesses": weaknesses,
-        "similar_teams": top_similar
+        "strength_traits": strength_traits,
+        "weakness_traits": weakness_traits,
+        "similar_teams": top_similar,
     }

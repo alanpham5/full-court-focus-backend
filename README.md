@@ -113,6 +113,30 @@ For specific tasks, you can run the following standalone utility scripts:
 
   The GCS upload runs **after** recompute + APFV normalization so the pushed files reflect the final on-disk state (prospect files live under the `draft/` prefix). The historical loop and the uploader are shared with `build_historical_prospects.py` (which still handles initial scraping and `--recompute`); `regenerate` is the tuning-driven, cache-only entry point.
 
+#### 4. `build_season_lineup_baselines.py`
+- **What it does**: Builds the **per-season starting-lineup baselines** that calibrate the lineup synergy engine. For every season it summarises each team's starting lineup into collective metrics (`pace`, `fg3a`, `paint_fga`, `def_score`, `ast`, `ast_pct`, `reb`, `blk`) and stores the season-wide distribution of each metric (`mean`, `std`, `min`, `max`, sorted `values`). A lineup's **style vector, synergy breakdown, and strengths/weaknesses** are graded by where its metrics fall (percentile / z-score) within its season's distribution, so both the synergy page and the Lineup IQ game share one calibration. Output is written to `app/data/static/season_lineup_baselines.json` locally and, when `PLAYER_PROFILES_STORAGE_URI` is a `gs://` URI, mirrored to GCS at `static/season_lineup_baselines.json`. The same metric function is used to build the baselines and to grade a live lineup, so they can never drift.
+- **How to run**:
+  - Rebuild every season:
+    ```bash
+    python app/scripts/build_season_lineup_baselines.py --all
+    ```
+  - Update only the most recent season (merges into the existing artifact):
+    ```bash
+    python app/scripts/build_season_lineup_baselines.py --latest
+    ```
+  - Update a single season:
+    ```bash
+    python app/scripts/build_season_lineup_baselines.py --season 2025-26
+    ```
+- **When to run**: after a fresh data scrape adds games to the current season (pair with `--latest`), or after retuning the synergy engine (`--all`).
+
+#### 5. `build_lineup_synergy_scores.py`
+- **What it does**: Precomputes the synergy score of every stored starting lineup into `app/data/static/lineup_synergy_scores.json`. The Lineup IQ game draws its challenge lineups from the **lower 40th percentile** of these scores, so this artifact lets `/game/start` select a genuinely flawed unit without scoring the whole pool on every request. Rebuild it after retuning the synergy engine or rebuilding the season baselines.
+- **How to run**:
+  ```bash
+  python app/scripts/build_lineup_synergy_scores.py
+  ```
+
 ---
 
 ## API Endpoints Reference
@@ -357,7 +381,7 @@ uvicorn main:app --reload
 
 #### `POST /lineup/synergy`
 
-- **Description**: Measures the strengths, weaknesses, projected style vector percentiles, and synergy score for a 5-player lineup within a specific season. Also returns matching similar historical team lineups.
+- **Description**: Measures the strengths, weaknesses, projected style vector percentiles, and synergy score for a 5-player lineup within a specific season. Also returns matching similar historical team lineups. The style vector, synergy breakdown, and strengths/weaknesses are graded against that season's **starting-lineup baselines** (see `build_season_lineup_baselines.py`): each axis is the percentile of the lineup's collective metric within the season distribution, blended with the players' teams' real style attributes. A trait reads as a strength when its axis lands in the upper tail of the distribution and a weakness when it lands in the lower tail, so high-record lineups skew strength-heavy and low-record lineups weakness-heavy. The response also includes `strength_traits` and `weakness_traits` — the canonical trait labels (the same taxonomy the Lineup IQ game's diagnosis checklist uses).
 - **Request Body**:
   - `season` (string): The NBA season, e.g. `2023-24`.
   - `player_ids` (array of 5 integers): Exactly 5 player IDs.
@@ -506,6 +530,70 @@ uvicorn main:app --reload
         ]
       }
     ]
+  }
+  ```
+
+### Lineup IQ Game Endpoints
+
+#### `GET /game/start`
+- **Description**: Initializes a new Lineup IQ game session. Selects a challenge starting lineup from the **lower 40th percentile** of synergy scores (a genuinely flawed unit worth optimising), using the precomputed `lineup_synergy_scores.json` artifact, and extracts the target swap team's roster. Each starter in `original_lineup` carries its per-36 stats (`pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `fg3a_rate`) so the client can render full stat cards.
+- **Query Parameters**: `mode` (string, optional, default `"current"`): Either `"current"` or `"all_time"`.
+- **Sample Response**:
+  ```json
+  {
+    "mode": "current",
+    "original_team_id": 1610612762,
+    "original_team_name": "Utah Jazz",
+    "original_season": "2025-26",
+    "original_lineup": [],
+    "original_synergy": 44.2,
+    "swap_team_name": "2025-26 New Orleans Pelicans",
+    "swap_team_abbreviation": "NOP",
+    "swap_season": "2025-26",
+    "swap_roster": []
+  }
+  ```
+
+#### `POST /game/evaluate-diagnosis`
+- **Description**: Evaluates the user's checklist selections. Scores them where every incorrect pick cancels out a correct pick (floored at 0).
+- **Request Body**:
+  - `player_ids` (array of integers)
+  - `season` (string)
+  - `selected_traits` (array of strings)
+- **Sample Response**:
+  ```json
+  {
+    "diagnosis_score": 83.3,
+    "correct_picks": ["Playmaking & Ball Movement", "Team Defense"],
+    "wrong_picks": ["Scoring Firepower"],
+    "missed_opportunities": ["Floor Spacing & Shooting"]
+  }
+  ```
+
+#### `POST /game/evaluate-swap`
+- **Description**: Evaluates the substitution, computes new synergy, and calculates the final Manager IQ Rating (weighing swap synergy 80% and diagnosis 20%).
+- **Request Body**:
+  - `original_player_ids` (array of integers)
+  - `original_season` (string)
+  - `player_out_id` (integer)
+  - `player_in_id` (integer)
+  - `player_in_season` (string)
+  - `diagnosis_score` (float)
+  - `selected_traits` (array of strings)
+- **Sample Response**:
+  ```json
+  {
+    "original_synergy": 44.2,
+    "new_synergy": 45.7,
+    "synergy_delta": 1.5,
+    "diagnosis_score": 83.3,
+    "final_score": 53.22,
+    "breakdown": {
+      "correct": ["Playmaking & Ball Movement", "Team Defense"],
+      "missed": ["Floor Spacing & Shooting"],
+      "wrong": ["Scoring Firepower"],
+      "explanation": "Swapping out Jusuf Nurkić for Trey Murphy III improved team spacing but created role redundancies (-6.0)."
+    }
   }
   ```
 
