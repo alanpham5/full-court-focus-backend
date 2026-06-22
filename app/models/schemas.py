@@ -166,6 +166,29 @@ class PlayerSearchSuggestion(BaseModel):
     archetypes: list[str]
 
 
+class PlayerLeaderItem(BaseModel):
+    player_id: int
+    player_name: str
+    height: Optional[str] = None
+    weight: Optional[Union[str, int, float]] = None
+    role: Optional[str] = None
+    archetypes: list[str]
+    apfv: Optional[float] = None
+    skill_percentiles: dict[str, float]
+
+
+class PlayerLeadersResponse(BaseModel):
+    players: list[PlayerLeaderItem]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+    seasons: list[str]
+    roles: list[str]
+    sort: str
+    order: str
+
+
 class LineupSearchPlayer(BaseModel):
     player_id: int
     name: str
