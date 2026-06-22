@@ -220,6 +220,39 @@ def normalize_traditional_totals(frame: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def assist_percentage(df: pd.DataFrame) -> pd.Series:
+    """Standard NBA assist percentage as a 0-1 fraction.
+
+    AST% is the share of *teammates'* made field goals a player assisted while on
+    the floor (Basketball-Reference formula), estimated from season totals:
+
+        AST% = AST / ((MIN / (TeamMIN / 5)) * TeamFGM - FGM)
+
+    Team totals are summed per (SEASON, TEAM_ABBREVIATION). The denominator is the
+    estimated teammate FGM made while the player was on the court. The earlier
+    AST/FGM ratio (assists per *own* made FG) was unbounded and exceeded 100% for
+    pass-first guards; this metric is bounded and clamped to [0, 1].
+    """
+    ast = _col(df, "AST")
+    fgm = _col(df, "FGM")
+    minutes = _col(df, "MIN")
+
+    group_cols = [c for c in ("SEASON", "TEAM_ABBREVIATION") if c in df.columns]
+    if group_cols:
+        grouped = df.groupby(group_cols)
+        team_fgm = grouped["FGM"].transform("sum")
+        team_min = grouped["MIN"].transform("sum")
+    else:
+        team_fgm = pd.Series(fgm.sum(), index=df.index)
+        team_min = pd.Series(minutes.sum(), index=df.index)
+    team_fgm = pd.to_numeric(team_fgm, errors="coerce").fillna(0.0)
+    team_min = pd.to_numeric(team_min, errors="coerce").fillna(0.0)
+
+    teammate_fgm = (minutes / (team_min / 5.0).replace(0, np.nan)) * team_fgm - fgm
+    pct = ast / teammate_fgm.where(teammate_fgm > 0, np.nan)
+    return pct.replace([np.inf, -np.inf], np.nan).fillna(0.0).clip(0.0, 1.0)
+
+
 def _add_rate_features(df: pd.DataFrame) -> None:
     fga = _col(df, "FGA")
     fta = _col(df, "FTA")
@@ -244,7 +277,7 @@ def _add_rate_features(df: pd.DataFrame) -> None:
     df["fta_rate"] = fta / fga.replace(0, np.nan)
     df["ts_pct"] = _col(df, "PTS") / (2.0 * (fga + 0.44 * fta).replace(0, np.nan))
     df["efg_pct"] = (fgm + 0.5 * fg3m) / fga.replace(0, np.nan)
-    df["ast_pct"] = _col(df, "AST") / fgm.replace(0, np.nan)
+    df["ast_pct"] = assist_percentage(df)
     df["mpg"] = minutes / gp
 
     rate_cols = [
