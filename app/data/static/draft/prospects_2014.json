@@ -308,7 +308,7 @@
       "spg": 0.9,
       "bpg": 2.6,
       "pfv": 0.5945,
-      "apfv": 0.7993
+      "apfv": 0.8206
     }
   },
   {
@@ -724,7 +724,7 @@
       "spg": 0.5,
       "bpg": 0.8,
       "pfv": 0.4071,
-      "apfv": 0.3779
+      "apfv": 0.3655
     }
   },
   {
@@ -932,7 +932,7 @@
       "spg": 0.9,
       "bpg": 1.4,
       "pfv": 0.4534,
-      "apfv": 0.5558
+      "apfv": 0.5441
     }
   },
   {
@@ -1244,7 +1244,7 @@
       "spg": 1.1,
       "bpg": 1.0,
       "pfv": 0.5602,
-      "apfv": 0.7597
+      "apfv": 0.7538
     }
   },
   {
@@ -1556,7 +1556,7 @@
       "spg": 0.5,
       "bpg": 0.9,
       "pfv": 0.5692,
-      "apfv": 0.8167
+      "apfv": 0.809
     }
   },
   {
@@ -1660,7 +1660,7 @@
       "spg": 0.9,
       "bpg": 1.0,
       "pfv": 0.6402,
-      "apfv": 0.3379
+      "apfv": 0.3244
     }
   },
   {
@@ -2076,7 +2076,7 @@
       "spg": 0.3,
       "bpg": 0.7,
       "pfv": 0.4238,
-      "apfv": 0.0458
+      "apfv": 0.0375
     }
   },
   {
@@ -2180,7 +2180,7 @@
       "spg": 1.9,
       "bpg": 0.8,
       "pfv": 0.4458,
-      "apfv": 0.1115
+      "apfv": 0.1065
     }
   },
   {
@@ -2596,7 +2596,7 @@
       "spg": 0.7,
       "bpg": 1.4,
       "pfv": 0.5037,
-      "apfv": 0.4822
+      "apfv": 0.4668
     }
   },
   {
@@ -3602,18 +3602,18 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 238,
-        "player_name": "Tyrone Hill",
-        "similarity_score": 56.0,
-        "career_span": "1996-97 to 2003-04",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 202684,
         "player_name": "Tristan Thompson",
         "similarity_score": 61.0,
         "career_span": "2011-12 to 2024-25",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 136,
+        "player_name": "P.J. Brown",
+        "similarity_score": 53.9,
+        "career_span": "1996-97 to 2007-08",
         "position_group": "W",
         "role": "Interior Presence"
       }
@@ -3636,7 +3636,7 @@
       "spg": 0.7,
       "bpg": 0.9,
       "pfv": 0.4184,
-      "apfv": 0.4356
+      "apfv": 0.4185
     }
   },
   {
@@ -3698,6 +3698,14 @@
         "role": "Interior Presence"
       },
       {
+        "player_id": 238,
+        "player_name": "Tyrone Hill",
+        "similarity_score": 63.5,
+        "career_span": "1996-97 to 2003-04",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
         "player_id": 136,
         "player_name": "P.J. Brown",
         "similarity_score": 62.3,
@@ -3708,14 +3716,6 @@
       {
         "player_id": 201581,
         "player_name": "JJ Hickson",
-        "similarity_score": 62.4,
-        "career_span": "2008-09 to 2015-16",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
-        "player_id": 201574,
-        "player_name": "Jason Thompson",
         "similarity_score": 62.4,
         "career_span": "2008-09 to 2015-16",
         "position_group": "W",
@@ -3740,7 +3740,7 @@
       "spg": 0.5,
       "bpg": 0.9,
       "pfv": 0.3404,
-      "apfv": 0.1858
+      "apfv": 0.1813
     }
   },
   {
@@ -3844,7 +3844,7 @@
       "spg": 0.7,
       "bpg": 1.4,
       "pfv": 0.3609,
-      "apfv": 0.2636
+      "apfv": 0.2575
     }
   },
   {
@@ -4260,7 +4260,7 @@
       "spg": 0.8,
       "bpg": 0.8,
       "pfv": 0.544,
-      "apfv": 0.7572
+      "apfv": 0.7505
     }
   },
   {
@@ -4468,7 +4468,7 @@
       "spg": 0.5,
       "bpg": 1.6,
       "pfv": 0.3472,
-      "apfv": 0.1716
+      "apfv": 0.1909
     }
   },
   {
@@ -4676,7 +4676,7 @@
       "spg": 1.3,
       "bpg": 0.8,
       "pfv": 0.3774,
-      "apfv": 0.2586
+      "apfv": 0.2514
     }
   },
   {
@@ -5092,7 +5092,7 @@
       "spg": 0.6,
       "bpg": 1.5,
       "pfv": 0.53,
-      "apfv": 0.7251
+      "apfv": 0.715
     }
   },
   {
@@ -5154,20 +5154,20 @@
         "role": "Perimeter Specialist"
       },
       {
+        "player_id": 1628964,
+        "player_name": "Mo Bamba",
+        "similarity_score": 41.2,
+        "career_span": "2018-19 to 2025-26",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
         "player_id": 201160,
         "player_name": "Jason Smith",
         "similarity_score": 46.4,
         "career_span": "2007-08 to 2018-19",
         "position_group": "W",
         "role": "Interior Presence"
-      },
-      {
-        "player_id": 1628418,
-        "player_name": "Thomas Bryant",
-        "similarity_score": 33.4,
-        "career_span": "2017-18 to 2025-26",
-        "position_group": "W",
-        "role": "Rim Attacker"
       },
       {
         "player_id": 1628449,
@@ -5196,7 +5196,7 @@
       "spg": 0.5,
       "bpg": 3.1,
       "pfv": 0.4212,
-      "apfv": 0.4141
+      "apfv": 0.4771
     }
   },
   {
@@ -5612,7 +5612,7 @@
       "spg": 0.7,
       "bpg": 0.2,
       "pfv": 0.295,
-      "apfv": 0.1342
+      "apfv": 0.1302
     }
   },
   {
@@ -5924,7 +5924,7 @@
       "spg": 0.4,
       "bpg": 0.5,
       "pfv": 0.4843,
-      "apfv": 0.0685
+      "apfv": 0.0596
     }
   },
   {
@@ -6236,7 +6236,7 @@
       "spg": 0.4,
       "bpg": 1.3,
       "pfv": 0.3721,
-      "apfv": 0.277
+      "apfv": 0.2712
     }
   }
 ]

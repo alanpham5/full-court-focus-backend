@@ -450,8 +450,10 @@ def height_bucket(height_val: Any) -> str:
         return "guard"
     elif inches <= 80:
         return "wing"
-    else:
+    elif inches < 84:
         return "big"
+    else:
+        return "center"
 
 
 def calculate_apfv_batch_by_height(

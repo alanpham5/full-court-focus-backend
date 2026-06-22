@@ -828,7 +828,7 @@
       "spg": 0.6,
       "bpg": 2.2,
       "pfv": 0.4157,
-      "apfv": 0.4019
+      "apfv": 0.4572
     }
   },
   {
@@ -1210,18 +1210,18 @@
         "role": "Defensive Specialist"
       },
       {
-        "player_id": 901,
-        "player_name": "Otis Thorpe",
-        "similarity_score": 57.0,
-        "career_span": "1996-97 to 2000-01",
-        "position_group": "W",
-        "role": "Defensive Specialist"
-      },
-      {
         "player_id": 270,
         "player_name": "Horace Grant",
         "similarity_score": 57.0,
         "career_span": "1996-97 to 2003-04",
+        "position_group": "W",
+        "role": "Defensive Specialist"
+      },
+      {
+        "player_id": 1548,
+        "player_name": "Mark Blount",
+        "similarity_score": 57.0,
+        "career_span": "2000-01 to 2008-09",
         "position_group": "W",
         "role": "Defensive Specialist"
       }
@@ -1868,7 +1868,7 @@
       "spg": 0.5,
       "bpg": 1.9,
       "pfv": 0.6397,
-      "apfv": 0.9093
+      "apfv": 0.9007
     }
   },
   {
@@ -1972,7 +1972,7 @@
       "spg": 0.5,
       "bpg": 0.4,
       "pfv": 0.4092,
-      "apfv": 0.1421
+      "apfv": 0.1358
     }
   },
   {
@@ -2804,7 +2804,7 @@
       "spg": 0.6,
       "bpg": 1.5,
       "pfv": 0.5643,
-      "apfv": 0.6406
+      "apfv": 0.6391
     }
   },
   {
@@ -3220,7 +3220,7 @@
       "spg": 1.1,
       "bpg": 2.5,
       "pfv": 0.3916,
-      "apfv": 0.2949
+      "apfv": 0.2888
     }
   },
   {
@@ -3532,7 +3532,7 @@
       "spg": 0.6,
       "bpg": 1.9,
       "pfv": 0.511,
-      "apfv": 0.6785
+      "apfv": 0.6732
     }
   },
   {
@@ -3948,7 +3948,7 @@
       "spg": 0.9,
       "bpg": 2.0,
       "pfv": 0.6025,
-      "apfv": 0.8917
+      "apfv": 0.881
     }
   },
   {
@@ -4052,7 +4052,7 @@
       "spg": 0.9,
       "bpg": 0.9,
       "pfv": 0.5076,
-      "apfv": 0.1877
+      "apfv": 0.1837
     }
   },
   {
@@ -4572,7 +4572,7 @@
       "spg": 0.8,
       "bpg": 2.7,
       "pfv": 0.6632,
-      "apfv": 0.3994
+      "apfv": 0.4477
     }
   },
   {
@@ -5404,7 +5404,7 @@
       "spg": 1.1,
       "bpg": 0.5,
       "pfv": 0.4009,
-      "apfv": 0.2902
+      "apfv": 0.2855
     }
   },
   {

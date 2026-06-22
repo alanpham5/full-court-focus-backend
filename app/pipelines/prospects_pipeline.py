@@ -743,7 +743,9 @@ class ProspectsPipeline:
             for j, col in enumerate(FEATURES):
                 pct_col = f"{col}_global_pctile"
                 if pct_col in nba.columns:
-                    n_b[:, j] = nba[pct_col].to_numpy(dtype=float) / 100.0
+                    n_b[:, j] = np.nan_to_num(
+                        nba[pct_col].to_numpy(dtype=float), nan=50.0
+                    ) / 100.0
                 else:
                     ref = np.sort(n_raw[:, j])
                     n_b[:, j] = np.searchsorted(ref, n_raw[:, j], side="right") / max(len(ref), 1)
@@ -777,8 +779,14 @@ class ProspectsPipeline:
         n_h_n = (nba_heights - h_mu) / h_sd
         n_w_n = (nba_weights - w_mu) / w_sd
 
-        p_mat = np.column_stack([p_feat, p_h_n, p_w_n]) * WEIGHTS
-        n_mat = np.column_stack([n_feat, n_h_n, n_w_n]) * WEIGHTS
+        p_mat = np.nan_to_num(
+            np.column_stack([p_feat, p_h_n, p_w_n]) * WEIGHTS,
+            nan=0.0, posinf=0.0, neginf=0.0,
+        )
+        n_mat = np.nan_to_num(
+            np.column_stack([n_feat, n_h_n, n_w_n]) * WEIGHTS,
+            nan=0.0, posinf=0.0, neginf=0.0,
+        )
 
         diff_sq = (
             (p_mat ** 2).sum(axis=1)[:, None]

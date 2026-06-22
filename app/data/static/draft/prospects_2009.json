@@ -100,7 +100,7 @@
       "spg": 1.1,
       "bpg": 1.2,
       "pfv": 0.6758,
-      "apfv": 0.9773
+      "apfv": 0.9767
     }
   },
   {
@@ -204,7 +204,7 @@
       "spg": 0.6,
       "bpg": 4.2,
       "pfv": 0.4311,
-      "apfv": 0.4796
+      "apfv": 0.5316
     }
   },
   {
@@ -786,14 +786,6 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 101162,
-        "player_name": "Marcin Gortat",
-        "similarity_score": 66.1,
-        "career_span": "2007-08 to 2018-19",
-        "position_group": "W",
-        "role": "Interior Presence"
-      },
-      {
         "player_id": 1628963,
         "player_name": "Marvin Bagley III",
         "similarity_score": 66.1,
@@ -806,6 +798,14 @@
         "player_name": "Serge Ibaka",
         "similarity_score": 61.4,
         "career_span": "2009-10 to 2022-23",
+        "position_group": "W",
+        "role": "Interior Presence"
+      },
+      {
+        "player_id": 761,
+        "player_name": "Matt Geiger",
+        "similarity_score": 70.6,
+        "career_span": "1996-97 to 2001-02",
         "position_group": "W",
         "role": "Interior Presence"
       }
@@ -828,7 +828,7 @@
       "spg": 0.9,
       "bpg": 1.7,
       "pfv": 0.4226,
-      "apfv": 0.4044
+      "apfv": 0.388
     }
   },
   {
@@ -1348,7 +1348,7 @@
       "spg": 1.2,
       "bpg": 0.4,
       "pfv": 0.5797,
-      "apfv": 0.8466
+      "apfv": 0.8384
     }
   },
   {
@@ -1452,7 +1452,7 @@
       "spg": 1.0,
       "bpg": 1.4,
       "pfv": 0.3682,
-      "apfv": 0.2254
+      "apfv": 0.2195
     }
   },
   {
@@ -1556,7 +1556,7 @@
       "spg": 0.7,
       "bpg": 2.1,
       "pfv": 0.4457,
-      "apfv": 0.4586
+      "apfv": 0.4437
     }
   },
   {
@@ -2284,7 +2284,7 @@
       "spg": 1.0,
       "bpg": 0.6,
       "pfv": 0.4155,
-      "apfv": 0.25
+      "apfv": 0.243
     }
   },
   {
@@ -2388,7 +2388,7 @@
       "spg": 0.8,
       "bpg": 0.2,
       "pfv": 0.4557,
-      "apfv": 0.1019
+      "apfv": 0.0967
     }
   },
   {
@@ -2458,18 +2458,18 @@
         "role": "Interior Presence"
       },
       {
-        "player_id": 1442,
-        "player_name": "Zeljko Rebraca",
-        "similarity_score": 83.6,
-        "career_span": "2001-02 to 2005-06",
+        "player_id": 1928,
+        "player_name": "Todd MacCulloch",
+        "similarity_score": 67.9,
+        "career_span": "1999-00 to 2002-03",
         "position_group": "W",
         "role": "Interior Presence"
       },
       {
-        "player_id": 202338,
-        "player_name": "Kevin Seraphin",
-        "similarity_score": 67.8,
-        "career_span": "2010-11 to 2016-17",
+        "player_id": 1442,
+        "player_name": "Zeljko Rebraca",
+        "similarity_score": 83.6,
+        "career_span": "2001-02 to 2005-06",
         "position_group": "W",
         "role": "Interior Presence"
       }
@@ -2492,7 +2492,7 @@
       "spg": 0.5,
       "bpg": 1.1,
       "pfv": 0.3972,
-      "apfv": 0.2176
+      "apfv": 0.2344
     }
   },
   {
@@ -2700,7 +2700,7 @@
       "spg": 1.0,
       "bpg": 2.9,
       "pfv": 0.4347,
-      "apfv": 0.4994
+      "apfv": 0.4887
     }
   },
   {
@@ -3220,7 +3220,7 @@
       "spg": 0.5,
       "bpg": 0.9,
       "pfv": 0.4108,
-      "apfv": 0.4379
+      "apfv": 0.4214
     }
   },
   {
@@ -4052,7 +4052,7 @@
       "spg": 1.2,
       "bpg": 0.4,
       "pfv": 0.3812,
-      "apfv": 0.3451
+      "apfv": 0.3282
     }
   },
   {
@@ -4884,7 +4884,7 @@
       "spg": 0.2,
       "bpg": 0.3,
       "pfv": 0.2624,
-      "apfv": 0.0173
+      "apfv": 0.0301
     }
   },
   {
@@ -5820,7 +5820,7 @@
       "spg": 0.8,
       "bpg": 1.8,
       "pfv": 0.4859,
-      "apfv": 0.6352
+      "apfv": 0.6321
     }
   },
   {
@@ -5924,7 +5924,7 @@
       "spg": 1.1,
       "bpg": 0.2,
       "pfv": 0.3284,
-      "apfv": 0.0655
+      "apfv": 0.0576
     }
   },
   {
@@ -6132,7 +6132,7 @@
       "spg": 0.3,
       "bpg": 1.6,
       "pfv": 0.3962,
-      "apfv": 0.3733
+      "apfv": 0.3597
     }
   },
   {
@@ -6236,7 +6236,7 @@
       "spg": 1.3,
       "bpg": 1.6,
       "pfv": 0.4747,
-      "apfv": 0.6183
+      "apfv": 0.6155
     }
   }
 ]

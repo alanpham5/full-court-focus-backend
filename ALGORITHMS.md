@@ -83,9 +83,13 @@ f_{\text{eff}} = \min\!\left(\tfrac{\mathrm{TS\%}}{0.60}, 1\right)$$
 
 ### 1.3 Displayed playstyle metrics
 
-The per-axis percentiles shown on the profile radar (`playstyle_metrics`, via `style_summary`) remain **position-relative** (height-bucketed) and MPG-adjusted for readability — "92nd percentile rebounding for a big." PFV/APFV are computed from the global percentiles of §1.1, not from these display values; the displayed radar describes a player's *shape within their position*, while PFV/APFV describe *absolute impact*.
+`playstyle_metrics` (via `style_summary`) carries, per axis, the raw per-36 value and a **position-relative** (height-bucketed), MPG-adjusted percentile — "92nd percentile rebounding for a big." These percentiles drive the per-stat tiles and progress bars verbatim. Season-scoped profiles (`season_profiles.py::build_season_bundle`) carry the same, ranked within the single season.
 
-Season-scoped profiles (`season_profiles.py::build_season_bundle`, used by the profile-page season selector) apply the **same** display convention, ranked within that single season: each radar axis is a within-season height-bucketed, MPG-adjusted percentile, so a season radar is directly comparable to the career radar for the same player. (An earlier version of the season bundle displayed raw within-season, all-position ranks, which made a big's season radar look far more spread out than his height-bucketed career radar even when the season was the weaker one.)
+**Fingerprint radar (skill ratings).** The six spokes of the radar are *not* plotted as these raw percentiles. An equal-area hexagon of raw percentiles cannot track an impact-weighted APFV (a pure scorer has two strong axes and an otherwise empty radar yet a high APFV), which made radar area and APFV visibly disagree. Instead the client (`PlayerProfile.jsx::radarData`) plots a **skill rating** that recenters the position-relative percentiles on the player's APFV while preserving shape. With raw axis percentiles $p_i$, their mean $\bar p$, the player's $\mathrm{APFV}\in[0,100]$, and a shape-contrast $k = 0.75$:
+
+$$\text{rating}_i = \mathrm{clip}\!\left(\mathrm{APFV} + k\,(p_i - \bar p),\; 0,\; 100\right).$$
+
+The six ratings average to APFV (exactly, absent clipping), so **two players with the same APFV cover the same area**; the *shape* still reflects relative strengths (which skills stand out among like-sized peers). The same transform runs for career and season radars (recentering on the respective APFV). Because the displayed value is no longer a percentile, the tooltip labels it a "skill rating," not a percentile.
 
 ### 1.4 Legacy polygon PFV (caliber axes)
 
@@ -112,7 +116,8 @@ f_{\text{eff}} = \min\!\left(\tfrac{\mathrm{TS\%}}{0.60}, 1\right)$$
 |---|---|
 | guard | under 6'4" (< 76 in) |
 | wing | 6'4" – 6'8" (76–80 in) |
-| big | over 6'8" (> 80 in) |
+| big | over 6'8" to under 7'0" (81–83 in) |
+| center | 7'0" and over (≥ 84 in) |
 
 ---
 
