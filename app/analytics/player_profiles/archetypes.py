@@ -127,17 +127,28 @@ def add_archetypes(career_df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def style_summary(row: pd.Series, *, adjust_for_mpg: bool = True) -> dict[str, dict[str, float]]:
-    mpg_pct = _v(row, "mpg_career_pctile")
+def display_percentile(key: str, global_pctile: float, credibility: float) -> float:
+    """Radar display percentile for one axis, on the same basis as PFV/APFV.
+
+    Uses the player's *global* (cross-position) percentile rather than a
+    height-bucketed one, so a skill a player is not known for reads low in
+    absolute terms (a small guard's blocks/rebounds no longer inflate to the
+    80s-90s by ranking only against other guards). Percentiles are shrunk toward
+    the median by the same sample-size `credibility` the impact PFV applies
+    (§1.1), keeping the radar in line with APFV; `tov_per36` is inverted so that
+    a high percentile always reads as "good" (fewer turnovers).
+    """
+    pct = 100.0 - float(global_pctile) if key == "tov_per36" else float(global_pctile)
+    shrunk = 50.0 + float(credibility) * (pct - 50.0)
+    return round(max(0.0, min(shrunk, 100.0)), 1)
+
+
+def style_summary(row: pd.Series) -> dict[str, dict[str, float]]:
+    credibility = player_credibility(row.get("career_minutes", 0.0))
     return {
         k: {
             "value": round(_v(row, k), 4),
-            "percentile": round(
-                adjust_percentile_for_mpg(k, _v(row, f"{k}_career_pctile"), mpg_pct)
-                if adjust_for_mpg
-                else _v(row, f"{k}_career_pctile"),
-                1,
-            ),
+            "percentile": display_percentile(k, _v(row, f"{k}_global_pctile"), credibility),
         }
         for k in PLAYSTYLE_METRIC_KEYS
     }

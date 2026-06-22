@@ -2,11 +2,12 @@
 player_profiles.json from the full pre-filter player population.
 
 Reconstructs career aggregates from `player_season_features.parquet` (the same
-normalized data the pipeline aggregates), recomputes height-bucketed display
-percentiles via `add_career_percentiles` + `style_summary`, and rewrites only
-`playstyle_metrics`. This reproduces the pipeline's computation exactly for
-unchanged height buckets and applies any height-bucket change (e.g. the new
-7-foot "center" bucket) without a scrape. pfv/apfv are left untouched
+normalized data the pipeline aggregates), recomputes the displayed percentiles
+via `add_career_percentiles` + `style_summary`, and rewrites only
+`playstyle_metrics`. Display percentiles are global (cross-position) and
+credibility-shrunk — the same basis as PFV/APFV (§1.1) — so a skill a player is
+not known for reads low in absolute terms rather than inflating against same-size
+peers. Reproduces the pipeline's computation exactly. pfv/apfv are left untouched
 (regenerate_player_pfv.py owns those). Run from the `app/` directory.
 """
 from __future__ import annotations

@@ -20,12 +20,11 @@ from typing import Any
 import pandas as pd
 
 from analytics.player_profiles.archetypes import (
-    adjust_percentile_for_mpg,
     assign_player_role,
     calculate_impact_apfv_batch,
     calculate_impact_pfv,
+    display_percentile,
     get_player_archetypes,
-    height_bucket,
 )
 from analytics.player_profiles.features import PLAYSTYLE_METRIC_KEYS, STYLE_FEATURES
 from analytics.player_profiles.similarity import build_similarity_index
@@ -143,14 +142,6 @@ def build_season_bundle(
         if src in frame.columns:
             frame[f"{key}_global_pctile"] = frame[src]
 
-    buckets = frame["height"].apply(height_bucket)
-    for key in PLAYSTYLE_METRIC_KEYS:
-        vals = pd.to_numeric(frame[key], errors="coerce").astype(float)
-        display_vals = -vals if key == "tov_per36" else vals
-        frame[f"{key}_disp_pctile"] = (
-            display_vals.groupby(buckets).rank(pct=True).fillna(0.5) * 100.0
-        )
-
     frame["role"] = frame.apply(assign_player_role, axis=1)
     frame["archetypes"] = frame.apply(get_player_archetypes, axis=1)
     frame["first_season"] = season
@@ -180,15 +171,14 @@ def build_season_bundle(
         pid = str(int(row["player_id"]))
         career = career_profiles.get(pid, {})
 
-        mpg_disp = float(row.get("mpg_disp_pctile", 50.0) or 50.0)
+        credibility = _season_credibility(row.get("MIN", 0.0))
         playstyle_metrics = {}
         for key in PLAYSTYLE_METRIC_KEYS:
-            pct = adjust_percentile_for_mpg(
-                key, float(row.get(f"{key}_disp_pctile", 50.0) or 50.0), mpg_disp
-            )
             playstyle_metrics[key] = {
                 "value": round(float(row.get(key, 0.0) or 0.0), 4),
-                "percentile": round(pct, 1),
+                "percentile": display_percentile(
+                    key, float(row.get(f"{key}_pctile", 50.0) or 50.0), credibility
+                ),
             }
 
         team = str(row.get("TEAM_ABBREVIATION", "") or "").strip()
