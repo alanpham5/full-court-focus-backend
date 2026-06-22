@@ -214,12 +214,12 @@ async def lifespan(app: FastAPI):
 
     try:
         from analytics.prospect_apfv import prospect_percentile_arrays, global_prospect_metrics
-        from analytics.player_profiles.archetypes import calculate_adjusted_pfv, height_bucket
-        
+        from analytics.player_profiles.archetypes import calculate_prospect_impact_adjusted_pfv, height_bucket
+
         population = app.state.prospect_population
         percentile_arrays = prospect_percentile_arrays(population)
         app.state.global_prospect_percentile_arrays = percentile_arrays
-        
+
         global_prospect_adjusted_pfvs = []
         global_prospect_height_buckets = []
         for prospect in population:
@@ -227,7 +227,7 @@ async def lifespan(app: FastAPI):
             gp_val = float(prospect.get("gp", prospect.get("raw_stats", {}).get("gp", 0)) or 0)
             metrics["gp"] = {"value": gp_val, "percentile": 0.0}
             metrics["team"] = str(prospect.get("team", "") or "")
-            global_prospect_adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
+            global_prospect_adjusted_pfvs.append(calculate_prospect_impact_adjusted_pfv(metrics))
             global_prospect_height_buckets.append(height_bucket(prospect.get("height", "")))
             
         app.state.global_prospect_adjusted_pfvs = global_prospect_adjusted_pfvs

@@ -12,9 +12,9 @@ from analytics.prospect_apfv import (
     percentile_of_score,
 )
 from analytics.player_profiles.archetypes import (
-    calculate_adjusted_pfv,
     calculate_apfv,
-    calculate_pfv,
+    calculate_impact_pfv,
+    calculate_prospect_impact_adjusted_pfv,
     height_bucket,
 )
 
@@ -94,7 +94,7 @@ def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
         gp_val = float(p.get("gp", p.get("raw_stats", {}).get("gp", 0)) or 0)
         pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
         pfv_metrics["team"] = str(p.get("team", "") or "")
-        adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
+        adjusted_pfvs.append(calculate_prospect_impact_adjusted_pfv(pfv_metrics))
     return adjusted_pfvs
 
 
@@ -127,13 +127,13 @@ def _ensure_pfv_apfv_in_raw_stats(prospect: dict, request: Request) -> dict:
                     pct = percentile_of_score(percentile_arrays.get(col, []), float(val))
                     pfv_metrics[col] = {"value": float(val), "percentile": pct}
 
-    pfv_val = calculate_pfv(pfv_metrics)
+    pfv_val = calculate_impact_pfv(pfv_metrics)
     raw["pfv"] = float(pfv_val)
 
     gp_val = float(prospect.get("gp", prospect.get("raw_stats", {}).get("gp", 0)) or 0)
     pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
     pfv_metrics["team"] = str(prospect.get("team", "") or "")
-    adjusted_pfv = calculate_adjusted_pfv(pfv_metrics, is_prospect=True)
+    adjusted_pfv = calculate_prospect_impact_adjusted_pfv(pfv_metrics)
     bucket = height_bucket(prospect.get("height", ""))
 
     global_adjusted_pfvs = getattr(request.app.state, "global_prospect_adjusted_pfvs", [])

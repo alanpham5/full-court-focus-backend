@@ -4,7 +4,11 @@ import re
 from fastapi import APIRouter, HTTPException, Query, Request
 from rapidfuzz import fuzz
 
-from config import PLAYER_METADATA_PATH, PLAYER_PROFILES_PATH
+from config import (
+    PLAYER_METADATA_PATH,
+    PLAYER_PROFILES_PATH,
+    PLAYER_SEASON_FEATURES_PATH,
+)
 from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, SimilarPlayer
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
@@ -13,6 +17,10 @@ from analytics.player_profiles.archetypes import (
     calculate_pfv,
     height_bucket,
     remove_mpg_adjustment_from_metrics,
+)
+from analytics.player_profiles.season_profiles import (
+    build_season_bundle,
+    normalize_season,
 )
 
 router = APIRouter(prefix="/players", tags=["players"])
@@ -89,7 +97,18 @@ def players_by_archetype(
 
 
 @router.get("/{player_id}", response_model=PlayerProfileResponse)
-def get_player_profile(player_id: int, request: Request):
+def get_player_profile(
+    player_id: int,
+    request: Request,
+    season: str | None = Query(
+        None,
+        description="Optional season (e.g. '2024-25' or '2024'). When provided, "
+        "returns the same response shape with metrics scoped to that season only.",
+    ),
+):
+    if season is not None:
+        return PlayerProfileResponse(**_season_profile_payload(player_id, season, request))
+
     pid_str = str(player_id)
     profile = _profiles(request).get(pid_str)
     if profile is None:
@@ -97,7 +116,7 @@ def get_player_profile(player_id: int, request: Request):
             status_code=404,
             detail=f"Player profile not found. Build {PLAYER_PROFILES_PATH.name} first.",
         )
-    
+
 
     has_missing_bio = (
         profile.get("height") is None
@@ -113,6 +132,28 @@ def get_player_profile(player_id: int, request: Request):
             profile = updated_profile
 
     return PlayerProfileResponse(**_profile_response_payload(profile, request))
+
+
+@router.get("/{player_id}/seasons")
+def get_player_seasons(player_id: int, request: Request):
+    """Return the seasons (most recent first) this player has stats for.
+
+    Used by the profile page to populate the season-selection dropdown so it
+    only offers seasons the player actually played.
+    """
+    df = _season_features(request)
+    if df.empty or "SEASON" not in df.columns or "PLAYER_ID" not in df.columns:
+        return {"seasons": []}
+
+    import pandas as pd
+
+    pids = pd.to_numeric(df["PLAYER_ID"], errors="coerce")
+    frame = df[pids == player_id]
+    seasons = sorted(
+        {s for s in frame["SEASON"].astype(str) if normalize_season(s) is not None},
+        reverse=True,
+    )
+    return {"seasons": seasons}
 
 
 @router.get("/{player_id}/similar", response_model=list[SimilarPlayer])
@@ -131,6 +172,69 @@ def _profiles(request: Request) -> dict:
         return {}
     with PLAYER_PROFILES_PATH.open() as f:
         return json.load(f)
+
+
+def _season_features(request: Request):
+    df = getattr(request.app.state, "player_season_features", None)
+    if df is not None:
+        return df
+    import pandas as pd
+
+    if not PLAYER_SEASON_FEATURES_PATH.exists():
+        df = pd.DataFrame()
+    else:
+        try:
+            df = pd.read_parquet(PLAYER_SEASON_FEATURES_PATH, engine="fastparquet")
+        except Exception:
+            df = pd.read_parquet(PLAYER_SEASON_FEATURES_PATH)
+    request.app.state.player_season_features = df
+    return df
+
+
+def _season_bundle(request: Request, season: str) -> dict:
+    """Return (and cache) the per-player payloads for a single season."""
+    cache = getattr(request.app.state, "season_bundles", None)
+    if cache is None:
+        cache = {}
+        request.app.state.season_bundles = cache
+    if season in cache:
+        return cache[season]
+
+    df = _season_features(request)
+    if df.empty or "SEASON" not in df.columns:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Season features unavailable. Build {PLAYER_SEASON_FEATURES_PATH.name} first.",
+        )
+    frame = df[df["SEASON"] == season]
+    if frame.empty:
+        seasons = sorted(df["SEASON"].astype(str).unique())
+        raise HTTPException(
+            status_code=404,
+            detail=f"No data for season '{season}'. Available: {seasons[0]} to {seasons[-1]}.",
+        )
+    bundle = build_season_bundle(frame, _profiles(request))
+    cache[season] = bundle
+    return bundle
+
+
+def _season_profile_payload(player_id: int, season: str, request: Request) -> dict:
+    normalized = normalize_season(season)
+    if normalized is None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid season '{season}'. Use 'YYYY-YY' (e.g. '2024-25') or 'YYYY'.",
+        )
+    bundle = _season_bundle(request, normalized)
+    payload = bundle.get(str(player_id))
+    if payload is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Player {player_id} has no data for season '{normalized}'.",
+        )
+    payload = dict(payload)
+    payload["playstyle_metrics"] = _normalize_playstyle_metrics(payload.get("playstyle_metrics", {}))
+    return payload
 
 
 def _profile_response_payload(profile: dict, request: Request = None) -> dict:
@@ -179,7 +283,7 @@ def _collapse_career_teams(career_teams: list) -> list[str]:
             abbreviation = str(item.get("abbreviation", "")).strip()
         else:
             abbreviation = str(item).strip()
-        if abbreviation and (not out or out[-1] != abbreviation):
+        if abbreviation and abbreviation not in out:
             out.append(abbreviation)
     return out
 

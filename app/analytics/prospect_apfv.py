@@ -8,9 +8,9 @@ from typing import Any
 import pandas as pd
 
 from analytics.player_profiles.archetypes import (
-    calculate_adjusted_pfv,
     calculate_apfv_batch_by_height,
-    calculate_pfv,
+    calculate_impact_pfv,
+    calculate_prospect_impact_adjusted_pfv,
     height_bucket,
 )
 
@@ -103,8 +103,8 @@ def calculate_global_prospect_pfv_apfv(population: list[dict]) -> dict[str, dict
             gp_val = float(prospect.get("raw_stats", {}).get("gp", 0) or 0)
         metrics["gp"] = {"value": float(gp_val or 0), "percentile": 0.0}
         metrics["team"] = str(prospect.get("team", "") or "")
-        pfvs.append(calculate_pfv(metrics))
-        adjusted_pfvs.append(calculate_adjusted_pfv(metrics, is_prospect=True))
+        pfvs.append(calculate_impact_pfv(metrics))
+        adjusted_pfvs.append(calculate_prospect_impact_adjusted_pfv(metrics))
         height_buckets.append(height_bucket(prospect.get("height", "")))
 
     apfvs = calculate_apfv_batch_by_height(

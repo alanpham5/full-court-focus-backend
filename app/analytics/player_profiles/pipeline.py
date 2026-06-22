@@ -10,11 +10,8 @@ import pandas as pd
 
 from analytics.player_profiles.archetypes import (
     add_archetypes,
-    calculate_adjusted_pfv,
-    calculate_apfv_batch_by_height,
-    height_bucket,
+    calculate_impact_apfv_batch,
     profile_payload,
-    style_summary,
 )
 from analytics.player_profiles.features import (
     CANONICAL_SEASON_PLAYER_COLUMNS,
@@ -28,6 +25,7 @@ from analytics.player_profiles.features import (
     normalize_traditional_totals,
 )
 from analytics.player_profiles.nba_client import EndpointResult, NbaStatsClient
+from analytics.player_profiles.season_profiles import career_apfv_from_seasons
 from analytics.player_profiles.seasons import current_season_start, seasons_since_1996
 from analytics.player_profiles.similarity import build_similarity_embeddings, build_similarity_index
 from analytics.player_profiles.storage import ProfileStorage, StorageConfig
@@ -281,7 +279,7 @@ class PlayerProfilePipeline:
         )
         self.storage.write_json("embeddings/player_similarity_index.json", similar)
 
-        profiles = self._build_profiles_json(career, similar)
+        profiles = self._build_profiles_json(career, similar, normalized)
         self.storage.write_json("processed/player_profiles.json", profiles)
         metadata = self._build_metadata(career)
         self.storage.write_json("processed/player_metadata.json", metadata)
@@ -352,21 +350,27 @@ class PlayerProfilePipeline:
         self,
         career: pd.DataFrame,
         similar: dict[str, list[dict[str, Any]]],
+        season_features: pd.DataFrame,
     ) -> dict[str, dict[str, Any]]:
         profiles = {}
-        adjusted_pfvs = []
-        height_buckets = []
+        pids: list[str] = []
+        pfvs: list[float] = []
+        mpg_pctiles: list[float] = []
+        career_minutes: list[float] = []
         for _, row in career.iterrows():
             pid = str(int(row["player_id"]))
-            profiles[pid] = profile_payload(row, similar.get(pid, []))
-            raw_metrics = style_summary(row, adjust_for_mpg=False)
-            adjusted_pfvs.append(calculate_adjusted_pfv(raw_metrics))
-            height_buckets.append(height_bucket(row.get("height")))
+            payload = profile_payload(row, similar.get(pid, []))
+            profiles[pid] = payload
+            pids.append(pid)
+            pfvs.append(float(payload["pfv"]))
+            mpg_pctiles.append(float(row.get("mpg_global_pctile", 0.0) or 0.0))
+            career_minutes.append(float(row.get("career_minutes", 0.0) or 0.0))
 
-        if adjusted_pfvs:
-            apfvs = calculate_apfv_batch_by_height(adjusted_pfvs, height_buckets)
-            for p, apfv_val in zip(profiles.values(), apfvs):
-                p["apfv"] = apfv_val
+        career_apfvs = career_apfv_from_seasons(season_features)
+        if pfvs:
+            fallback = dict(zip(pids, calculate_impact_apfv_batch(pfvs, mpg_pctiles, career_minutes)))
+            for pid in pids:
+                profiles[pid]["apfv"] = career_apfvs.get(pid, fallback[pid])
         return profiles
 
     def _build_metadata(self, career: pd.DataFrame) -> dict[str, dict[str, Any]]:

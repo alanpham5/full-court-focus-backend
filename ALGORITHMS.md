@@ -13,79 +13,106 @@ Sources of truth: `app/analytics/player_profiles/archetypes.py`, `app/analytics/
 
 ## 1. PFV and APFV
 
-### 1.1 PFV (Polygon Feature Value)
+PFV and APFV are a player's single-number quality scores. For established NBA players they measure **impact** and **versatility** (§1.1–1.2), engineered so the leaderboard correlates with plus-minus impact estimators (LEBRON, RAPTOR, RAPM). A legacy *polygon* PFV (§1.4) is retained for the prospect display and the two similarity caliber axes, which are tuned against it.
 
-PFV measures the area of a player's six-axis radar polygon relative to the maximum possible area. The six axes, in fixed clockwise order, are:
+### 1.1 PFV — impact and versatility
 
-```
-pts_per36, reb_per36, ast_per36, blk_per36, stl_per36, ts_pct
-```
+Built in `archetypes.py::calculate_impact_pfv`. The foundation is the **global** (cross-position) percentile of each playstyle axis, rescaled to $p \in [0,1]$. Global rather than position-relative percentiles preserve absolute caliber — a center is measured against the whole league, not only other centers.
 
-Each axis value is the player's percentile on that metric within the reference population, rescaled to a radius
+Each percentile is first shrunk toward the median by a sample-size credibility $c = \min\!\left(1,\sqrt{\text{career minutes}/2500}\right)$ (so roughly one full starter season earns full credibility, and an impactful rookie's rates are largely trusted while fractional-season samples regress):
 
-$$r_i = \frac{\text{percentile}_i}{100} \in [0, 1], \qquad i = 1, \dots, 6.$$
+$$\tilde p = 0.5 + c\,(p - 0.5),$$
 
-The polygon is drawn on $n = 6$ equally spaced spokes ($2\pi/6$ apart). Its area is the sum of the six triangles formed by adjacent radii:
+so gaudy per-36 lines on tiny samples regress to average.
 
-$$A = \frac{1}{2}\sin\!\left(\frac{2\pi}{n}\right)\sum_{i=1}^{n} r_i\, r_{(i \bmod n)+1}.$$
+From the shrunk percentiles, five intermediate skills are derived (efficiency-gating ensures volume only counts when it is efficient; the defense axis is an OR-gate so a player can be elite through steals *or* blocks):
 
-The maximum area occurs when every $r_i = 1$:
+$$\begin{aligned}
+\text{scoring} &= p_{\text{pts}}\,(0.55 + 0.45\,p_{\text{ts}}) & \text{(volume gated by efficiency)}\\
+\text{playmaking} &= 0.6\,p_{\text{ast}} + 0.4\,p_{\text{ast\%}}\\
+\text{spacing} &= p_{\text{3pa}}\,(0.4 + 0.6\,p_{\text{efg}}) & \text{(volume gated by accuracy)}\\
+\text{ball security} &= 1 - p_{\text{tov}}\\
+\text{defense} &= 1 - (1 - p_{\text{stl}})(1 - p_{\text{blk}}) & \text{(steals OR blocks)}
+\end{aligned}$$
 
-$$A_{\max} = \frac{n}{2}\sin\!\left(\frac{2\pi}{n}\right).$$
+**Impact** is a box-weighted sum whose loadings mirror box plus-minus structure — scoring and playmaking lead, and steals outweigh blocks (steals correlate more strongly with RAPM):
 
-$$\mathrm{PFV} = \frac{A}{A_{\max}} = \frac{\sum_{i=1}^{6} r_i\, r_{i+1}}{6} \in [0, 1].$$
+$$I = 0.32\,\text{scoring} + 0.18\,\text{playmaking} + 0.08\,p_{\text{ts}} + 0.09\,p_{\text{reb}} + 0.12\,p_{\text{stl}} + 0.07\,p_{\text{blk}} + 0.08\,\text{spacing} + 0.06\,\text{ball security}.$$
 
-Because adjacent axes multiply, PFV rewards *balanced* profiles: a player at the 80th percentile on all six axes ($\mathrm{PFV} = 0.64$) outscores a player at the 99th percentile on three alternating axes and the 10th on the others.
+**Versatility** is the geometric mean of five macro-skills — a *no-weakness* breadth measure (one weak axis drags the whole product down), where
 
-### 1.2 Adjusted PFV
+$$\text{creation} = 0.5\max(\text{scoring}, \text{playmaking}) + 0.5\,(0.6\,\text{scoring} + 0.4\,\text{playmaking}),$$
 
-PFV is adjusted for workload and translatability. The adjustment differs by population.
+$$V = \left(\text{creation}\cdot p_{\text{ts}}\cdot \text{defense}\cdot p_{\text{reb}}\cdot \text{spacing}\right)^{1/5}.$$
 
-**NBA players:**
+PFV blends the two, impact-dominant:
 
-$$\mathrm{APFV}_{\text{adj}} = \mathrm{PFV} \cdot \left(\frac{\text{mpg percentile}}{100}\right)^{1.5}.$$
+$$\mathrm{PFV} = I^{0.72}\,V^{0.28} \in [0, 1].$$
 
-Per-36 production on tiny minutes is discounted superlinearly.
+A balanced two-way star (Jokić, LeBron) scores high on both terms; a one-dimensional specialist scores on impact but is held back on versatility; a low-usage efficient role player scores on neither. The OR-gate defense and global percentiles together stop balanced bigs from out-scoring more impactful perimeter creators.
 
-**Prospects** (pre-draft statistics only) use three multiplicative dampers on raw values, not percentiles:
+### 1.2 APFV — workload and longevity
 
-$$\mathrm{APFV}_{\text{adj}} = \mathrm{PFV} \cdot f_{\text{mpg}} \cdot f_{\text{gp}} \cdot f_{\text{eff}}$$
+Built in `archetypes.py::calculate_impact_apfv_batch`. PFV is a rate-quality score; APFV layers on workload and longevity, then ranks across the **entire** pool. The adjusted value scales PFV by a factor that blends per-game role with a *saturating* career-volume term $\ell$ (`archetypes.py::longevity_factor`):
 
-with
+$$\text{adj} = \mathrm{PFV}\cdot\left(\frac{\text{mpg percentile}}{100}\right)^{0.50}\cdot \ell^{0.25}, \qquad
+\ell = \min\!\left(1,\; \sqrt{\frac{\text{career minutes}}{4000}}\right).$$
 
-$$f_{\text{mpg}} = \left[\min\!\left(\frac{\text{MPG}}{24},\, 1\right)\right]^{1.4}
-\qquad\text{(full credit at 24+ MPG; 10 MPG} \approx 0.31\text{)},$$
+The longevity term is a **light small-sample gate, not a compiler's reward**: $\ell$ saturates at $1$ after roughly a full starter season (4000 minutes) and enters with a small exponent ($0.25$), so it only damps fractional-season samples. Rate quality (PFV, now trusted after one full season via the §1.1 credibility) and per-game role (mpg) drive the ordering; a single impactful rookie season is therefore enough to earn a high APFV, while a top-PFV young star is no longer buried beneath a long-career compiler. (An earlier version ranked on raw career-minutes *percentile* raised to $0.60$, which scaled linearly with accumulation and pushed impactful rookies far down the board.) APFV is the global rank of $\text{adj}$ with a gentle top-end curve, capped at $0.99$:
 
-$$f_{\text{gp}} = \left[\min\!\left(\frac{\text{GP}}{25},\, 1\right)\right]^{0.5} \text{ if GP} > 0 \text{, else } 1
-\qquad\text{(16 GP} \approx 0.80\text{, 3 GP} \approx 0.35\text{)},$$
+$$\mathrm{APFV} = 0.99\left(\frac{\#\{j: \text{adj}_j \le \text{adj}\}}{n}\right)^{1.2}.$$
 
-$$f_{\text{eff}} = \min\!\left(\frac{\mathrm{TS\%}}{0.60},\, 1\right) \text{ if TS\%} > 0 \text{, else } 1
-\qquad\text{(linear ramp anchored at 0.60 true shooting)}.$$
+Ranking over a single pool (not by height bucket) preserves absolute, cross-position impact ordering, so the leaderboard reads like an impact-metric ranking rather than a best-per-position one. As with any box-derived metric, players whose value is mostly non-box (e.g., pure rim-protecting or screen-and-roll-gravity bigs) sit somewhat below their RAPM reputation — the known box-vs-RAPM gap.
 
-The absolute (non-percentile) floors prevent small-sample and low-minute stat-stuffing pathologies.
+**Per-season APFV** uses exactly this computation with the pool set to a single season's players (within-season percentiles, season credibility) — it is what the profile-page season selector shows (`season_profiles.py::build_season_bundle`).
 
-### 1.3 APFV normalization
+**Career APFV** (the number on the default career profile) is **not** a separate ranking of career-aggregate rates. It is the **minutes-weighted mean of the player's per-season APFVs** (`season_profiles.py::career_apfv_from_seasons`):
 
-The adjusted value $v$ is normalized against a population $V = \{v_1, \dots, v_n\}$:
+$$\mathrm{APFV}_{\text{career}} = \frac{\sum_s \mathrm{APFV}_s \cdot \mathrm{MIN}_s}{\sum_s \mathrm{MIN}_s}.$$
 
-$$\text{rank\_score} = \left(\frac{\#\{v_j \le v\}}{n}\right)^{c}, \qquad c = 1.5 \text{ (curve exponent)}.$$
+Because it is a weighted average of the season values, a player's career APFV always lies within the range of their actual seasons — **it can never exceed their best season** — and sits on the same scale as the season selector. Ranking career-aggregate rates against the all-career pool (the previous approach) inflated efficient, low-usage role players: their smoothed career per-36 line ranked elite globally even though no single season did, producing a career APFV above every individual season and disagreeing with both the season values and the position-relative radar (§1.3). The minutes weighting also keeps the metric impact- rather than longevity-centric — a player with one dominant season scores near that season, while many mediocre seasons average out low. Players with no season-feature rows fall back to the career-aggregate ranking above.
 
-If a raw anchor $a$ is supplied, a magnitude term prevents "best of a weak bucket" from reaching the ceiling:
+**Prospects.** Pre-draft players use the same impact + versatility PFV (§1.1), with percentiles taken within the combined current-plus-historical prospect population (`ast_pct` and `tov` are unavailable pre-draft and default to neutral). Longevity does not apply, so in place of the career-volume term the adjusted value applies three multiplicative translatability dampers on *raw* values — minutes, games played, and efficiency (`archetypes.py::calculate_prospect_impact_adjusted_pfv`):
 
-$$\text{raw\_score} = \mathrm{clip}\!\left(\frac{v}{a},\, 0,\, 1\right), \qquad
-\mathrm{APFV} = 0.99\sqrt{\text{rank\_score} \cdot \text{raw\_score}}.$$
+$$\text{adj} = \mathrm{PFV}\cdot f_{\text{mpg}}\cdot f_{\text{gp}}\cdot f_{\text{eff}}, \quad
+f_{\text{mpg}} = \left[\min\!\left(\tfrac{\text{MPG}}{24}, 1\right)\right]^{1.4},\;
+f_{\text{gp}} = \left[\min\!\left(\tfrac{\text{GP}}{25}, 1\right)\right]^{0.5},\;
+f_{\text{eff}} = \min\!\left(\tfrac{\mathrm{TS\%}}{0.60}, 1\right)$$
 
-With no anchor, $\mathrm{APFV} = 0.99 \cdot \text{rank\_score}$. The output is capped at $0.99$.
+($f_{\text{gp}}, f_{\text{eff}}$ default to 1 when GP or TS% is 0). Prospect APFV is then a height-bucketed rank with raw anchor (the normalization described in §1.4, curve exponent 2.2, anchor 0.50) across the combined prospect population. The prospect **similarity** quality axis (§3.2) still uses the legacy polygon metric, so swapping the display PFV/APFV to the impact model leaves prospect comps unchanged.
 
-**Height-bucket normalization.** The population is partitioned by listed height before ranking:
+### 1.3 Displayed playstyle metrics
+
+The per-axis percentiles shown on the profile radar (`playstyle_metrics`, via `style_summary`) remain **position-relative** (height-bucketed) and MPG-adjusted for readability — "92nd percentile rebounding for a big." PFV/APFV are computed from the global percentiles of §1.1, not from these display values; the displayed radar describes a player's *shape within their position*, while PFV/APFV describe *absolute impact*.
+
+Season-scoped profiles (`season_profiles.py::build_season_bundle`, used by the profile-page season selector) apply the **same** display convention, ranked within that single season: each radar axis is a within-season height-bucketed, MPG-adjusted percentile, so a season radar is directly comparable to the career radar for the same player. (An earlier version of the season bundle displayed raw within-season, all-position ranks, which made a big's season radar look far more spread out than his height-bucketed career radar even when the season was the weaker one.)
+
+### 1.4 Legacy polygon PFV (caliber axes)
+
+Retained in `archetypes.py::calculate_pfv` / `calculate_adjusted_pfv` / `calculate_apfv` / `calculate_apfv_batch[_by_height]`, and used only by the two similarity caliber axes — the prospect-to-NBA **quality** axis (§3.2) and the NBA-to-NBA **caliber** axis (§2.3) — which are tuned against this metric and intentionally left unchanged. (Both the NBA-player and prospect PFV/APFV *displays* now use the impact + versatility model of §1.1–1.2; only these similarity axes remain on the polygon. The `apfv` rank normalization below is also shared by the prospect display.)
+
+**Polygon PFV** measures the area of a player's six-axis radar polygon ($pts, reb, ast, blk, stl, ts$ as percentile radii $r_i$) relative to its maximum:
+
+$$\mathrm{PFV}_{\text{poly}} = \frac{\sum_{i=1}^{6} r_i\, r_{(i \bmod 6)+1}}{6} \in [0, 1].$$
+
+Because adjacent axes multiply, it rewards *balance* (the property the §1.1 model deliberately reweights toward impact for the headline score).
+
+**Adjusted polygon PFV** is workload-adjusted, by population. NBA players: $\mathrm{PFV}_{\text{poly}}\cdot(\text{mpg percentile}/100)^{1.5}$. Prospects (pre-draft statistics only) use three multiplicative dampers on raw values:
+
+$$\mathrm{PFV}_{\text{poly}} \cdot f_{\text{mpg}} \cdot f_{\text{gp}} \cdot f_{\text{eff}}, \quad
+f_{\text{mpg}} = \left[\min\!\left(\tfrac{\text{MPG}}{24}, 1\right)\right]^{1.4},\;
+f_{\text{gp}} = \left[\min\!\left(\tfrac{\text{GP}}{25}, 1\right)\right]^{0.5},\;
+f_{\text{eff}} = \min\!\left(\tfrac{\mathrm{TS\%}}{0.60}, 1\right)$$
+
+($f_{\text{gp}}, f_{\text{eff}}$ default to 1 when GP or TS% is 0). The absolute floors prevent small-sample stat-stuffing.
+
+**Normalization.** The adjusted value $v$ is ranked against a population: $\text{rank\_score} = (\#\{v_j \le v\}/n)^{c}$, $c = 1.5$. With a raw anchor $a$, $\mathrm{APFV} = 0.99\sqrt{\text{rank\_score}\cdot\mathrm{clip}(v/a, 0, 1)}$; otherwise $\mathrm{APFV} = 0.99\cdot\text{rank\_score}$, capped at $0.99$. Ranking is either global (`calculate_apfv_batch`) or partitioned by height bucket (`calculate_apfv_batch_by_height`):
 
 | Bucket | Height |
 |---|---|
 | guard | under 6'4" (< 76 in) |
 | wing | 6'4" – 6'8" (76–80 in) |
 | big | over 6'8" (> 80 in) |
-
-Each bucket is normalized independently, so the best guard and the best big both reach approximately $0.99$. This removes the structural bias of bigs accumulating inflated rebound/block percentiles.
 
 ---
 
@@ -128,7 +155,7 @@ A six-inch height mismatch costs roughly 12 percent.
 
 ### 2.3 Caliber affinity
 
-$q \in [0,1]$ is each player's APFV (Section 1). With $\sigma_q = 0.35$:
+$q \in [0,1]$ is each player's caliber, computed by `_caliber_array` as the **legacy** adjusted polygon PFV (§1.4) over seven core axes ($pts, reb, ast, blk, stl, ts, mpg$ in global-percentile space), normalized to a height-bucketed rank. This is a workload-aware caliber for matching, and is deliberately distinct from the headline impact APFV of §1.2 — keeping the tuned similarity behavior stable. With $\sigma_q = 0.35$:
 
 $$A_{\text{caliber}} = \exp\!\left(-\frac{(q_i - q_j)^2}{2\sigma_q^2}\right).$$
 
@@ -185,7 +212,7 @@ scoring_load  = pts_per36 * (1 - clip(ast_pct, 0, 1)),
 quality       = APFV of the player within their own pool
 ```
 
-The **quality** axis is the absolute-caliber rank (Section 1, ranked across the whole pool rather than within a height bucket, so it preserves absolute rather than position-relative caliber). It is the unit that prevents an elite, balanced prospect from collapsing onto generic same-shape journeymen.
+The **quality** axis is the absolute-caliber rank — the legacy adjusted polygon PFV/APFV of §1.4, ranked across the whole pool rather than within a height bucket (`SIMILARITY_COMP_QUALITY_BUCKET = False`), so it preserves absolute rather than position-relative caliber. (It uses the legacy metric, not the impact APFV of §1.2, so the tuned comp behavior is unchanged.) It is the unit that prevents an elite, balanced prospect from collapsing onto generic same-shape journeymen.
 
 The NBA pool is players with $\ge 200$ career games; the prospect pool is the prospect's own draft class (the full board of roughly 60 players). For each feature $f$ with raw value $v$:
 

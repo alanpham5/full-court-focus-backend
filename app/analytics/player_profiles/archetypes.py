@@ -241,6 +241,183 @@ def _metric_value(metrics: dict, key: str) -> float:
 
 
 
+
+PLAYER_IMPACT_WEIGHTS = {
+    "scoring": 0.32,
+    "playmaking": 0.18,
+    "efficiency": 0.08,
+    "rebounding": 0.09,
+    "steals": 0.12,
+    "blocks": 0.07,
+    "spacing": 0.08,
+    "ball_security": 0.06,
+}
+PLAYER_IMPACT_EXPONENT = 0.72
+PLAYER_VERSATILITY_EXPONENT = 0.28
+PLAYER_CREDIBILITY_MINUTES = 2500.0
+PLAYER_LONGEVITY_MPG_EXP = 0.50
+PLAYER_LONGEVITY_VOLUME_EXP = 0.25
+PLAYER_LONGEVITY_SATURATION_MINUTES = 4000.0
+PLAYER_LONGEVITY_VOLUME_CURVE = 0.5
+PLAYER_APFV_CURVE = 1.2
+
+_IMPACT_PCT_KEYS = {
+    "pts": "pts_per36",
+    "ts": "ts_pct",
+    "efg": "efg_pct",
+    "ast": "ast_per36",
+    "ast_pct": "ast_pct",
+    "reb": "reb_per36",
+    "stl": "stl_per36",
+    "blk": "blk_per36",
+    "fg3a": "fg3a_rate",
+    "tov": "tov_per36",
+}
+
+
+def player_credibility(career_minutes: float) -> float:
+    """Sample-size credibility in [0, 1]; small-minute per-36 lines regress to median."""
+    cm = max(float(career_minutes or 0.0), 0.0)
+    return min(1.0, (cm / PLAYER_CREDIBILITY_MINUTES) ** 0.5)
+
+
+def longevity_factor(career_minutes: float) -> float:
+    """Saturating career-volume credit in [0, 1] for the APFV workload term.
+
+    A raw career-minutes *rank* scaled linearly with accumulation, so a top-PFV
+    rookie or young star sat near the bottom and APFV read as career-length more
+    than impact. This curve instead saturates after roughly a full starter season
+    (~PLAYER_LONGEVITY_SATURATION_MINUTES) and is applied with a light exponent,
+    so it acts only as a small-sample gate: a single impactful rookie season can
+    still earn a high APFV, while fractional-season samples are damped.
+    """
+    cm = max(float(career_minutes or 0.0), 0.0)
+    return min(
+        1.0,
+        (cm / PLAYER_LONGEVITY_SATURATION_MINUTES) ** PLAYER_LONGEVITY_VOLUME_CURVE,
+    )
+
+
+def _skill_components(p: dict[str, float]) -> tuple[float, float, float, float, float]:
+    """Derive scoring, playmaking, spacing, ball-security, and defense from percentiles."""
+    scoring = p["pts"] * (0.55 + 0.45 * p["ts"])
+    playmaking = 0.6 * p["ast"] + 0.4 * p["ast_pct"]
+    spacing = p["fg3a"] * (0.4 + 0.6 * p["efg"])
+    ball_security = 1.0 - p["tov"]
+    defense = 1.0 - (1.0 - p["stl"]) * (1.0 - p["blk"])
+    return scoring, playmaking, spacing, ball_security, defense
+
+
+def player_impact_score(p: dict[str, float]) -> float:
+    """Box-weighted, efficiency-aware impact magnitude in [0, 1]."""
+    scoring, playmaking, spacing, ball_security, _defense = _skill_components(p)
+    w = PLAYER_IMPACT_WEIGHTS
+    return (
+        w["scoring"] * scoring
+        + w["playmaking"] * playmaking
+        + w["efficiency"] * p["ts"]
+        + w["rebounding"] * p["reb"]
+        + w["steals"] * p["stl"]
+        + w["blocks"] * p["blk"]
+        + w["spacing"] * spacing
+        + w["ball_security"] * ball_security
+    )
+
+
+def player_versatility_score(p: dict[str, float]) -> float:
+    """Breadth across macro-skills (geometric mean, no-weakness) in [0, 1].
+
+    Macro-skills are creation, efficiency, defense, rebounding, and spacing. The
+    defense axis is an OR-gate so a guard can be a versatile defender through
+    steals without being penalized for not blocking shots.
+    """
+    import math
+
+    scoring, playmaking, spacing, _bs, defense = _skill_components(p)
+    creation = 0.5 * max(scoring, playmaking) + 0.5 * (0.6 * scoring + 0.4 * playmaking)
+    macros = [max(m, 1e-3) for m in (creation, p["ts"], defense, p["reb"], spacing)]
+    return float(math.exp(sum(math.log(m) for m in macros) / len(macros)))
+
+
+def calculate_impact_pfv(metrics: dict, *, credibility: float = 1.0) -> float:
+    """Impact + versatility PFV from the global-percentile playstyle vector.
+
+    `metrics` must carry global (cross-position) percentiles. Missing axes are
+    treated as neutral (50th). Percentiles are shrunk toward the median by the
+    sample-size `credibility` before scoring.
+    """
+    p: dict[str, float] = {}
+    for short, key in _IMPACT_PCT_KEYS.items():
+        raw = _metric_percentile_default(metrics, key, 50.0) / 100.0
+        p[short] = 0.5 + credibility * (raw - 0.5)
+    impact = player_impact_score(p)
+    versatility = player_versatility_score(p)
+    pfv = (impact ** PLAYER_IMPACT_EXPONENT) * (versatility ** PLAYER_VERSATILITY_EXPONENT)
+    return round(pfv, 4)
+
+
+def calculate_prospect_impact_adjusted_pfv(metrics: dict) -> float:
+    """Prospect adjusted PFV on the impact+versatility base (§1.1).
+
+    Uses the impact PFV (`calculate_impact_pfv`) as the rate-quality base and
+    applies the prospect translatability dampers — minutes, games played, and
+    efficiency on *raw* values — identical in form to the legacy
+    `calculate_adjusted_pfv(is_prospect=True)`. Longevity does not apply to
+    pre-draft players, so the NBA career-volume term is not used here.
+
+    Legacy `calculate_adjusted_pfv` is left intact for the similarity quality
+    axis (`prospect_quality_scores` / `nba_quality_scores`).
+    """
+    pfv = calculate_impact_pfv(metrics)
+
+    mpg_val = float(_metric_value(metrics, "mpg"))
+    ts_val = float(_metric_value(metrics, "ts_pct"))
+    gp_val = float(_metric_value(metrics, "gp"))
+
+    mpg_factor = max(0.0, min(mpg_val / 24.0, 1.0)) ** 1.4
+    gp_factor = max(0.0, min(gp_val / 25.0, 1.0)) ** 0.5 if gp_val > 0 else 1.0
+    eff_factor = max(0.0, min(ts_val / 0.60, 1.0)) if ts_val > 0 else 1.0
+
+    return round(pfv * mpg_factor * gp_factor * eff_factor, 4)
+
+
+def calculate_impact_apfv_batch(
+    pfvs: list[float],
+    mpg_percentiles: list[float],
+    career_minutes: list[float],
+    *,
+    curve_exponent: float = PLAYER_APFV_CURVE,
+) -> list[float]:
+    """Workload/longevity-adjusted, globally ranked APFV in [0, 0.99].
+
+    Rate quality (PFV) is scaled by a workload factor that blends per-game role
+    (mpg percentile) with a *saturating* career-volume term (`longevity_factor`),
+    so sustained production is rewarded up to a credibility point but does not
+    keep compounding — an impactful young star is no longer buried beneath a
+    long-career compiler. The adjusted values are ranked across the entire pool
+    (not by height bucket), preserving absolute, cross-position impact ordering.
+    """
+    n = len(pfvs)
+    if n == 0:
+        return []
+
+    adjusted = []
+    for i in range(n):
+        mpg_frac = max(0.0, min(float(mpg_percentiles[i] or 0.0), 100.0)) / 100.0
+        longevity = longevity_factor(career_minutes[i])
+        workload = (mpg_frac ** PLAYER_LONGEVITY_MPG_EXP) * (
+            longevity ** PLAYER_LONGEVITY_VOLUME_EXP
+        )
+        adjusted.append(pfvs[i] * workload)
+
+    adj_order = sorted(range(n), key=lambda i: adjusted[i])
+    apfv = [0.0] * n
+    for rank, i in enumerate(adj_order):
+        pctile = (rank + 1) / n
+        apfv[i] = round(min((pctile ** float(curve_exponent)) * 0.99, 0.99), 4)
+    return apfv
+
+
 def calculate_apfv(
     adjusted_pfv: float,
     all_adjusted_pfvs: list[float],
@@ -304,7 +481,10 @@ def calculate_apfv_batch_by_height(
 
 def profile_payload(row: pd.Series, similar: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     metrics = style_summary(row)
-    pfv = calculate_pfv(style_summary(row, adjust_for_mpg=False))
+    pfv = calculate_impact_pfv(
+        global_scoring_metrics(row),
+        credibility=player_credibility(row.get("career_minutes", 0.0)),
+    )
     return {
         "player_id": int(row["player_id"]),
         "player_name": str(row["player_name"]),
@@ -344,3 +524,26 @@ def _metric_percentile(metrics: dict, key: str) -> float:
     if pct is None:
         return 0.0
     return float(pct)
+
+
+def _metric_percentile_default(metrics: dict, key: str, default: float) -> float:
+    """Like `_metric_percentile` but returns `default` for absent/empty axes."""
+    metric = metrics.get(key)
+    if isinstance(metric, dict):
+        pct = metric.get("percentile")
+    elif isinstance(metric, (int, float)):
+        pct = metric
+    else:
+        pct = None
+    return float(pct) if pct is not None else float(default)
+
+
+def global_scoring_metrics(row: pd.Series) -> dict[str, dict[str, float]]:
+    """Build a metrics dict of global (cross-position) percentiles for impact scoring."""
+    return {
+        key: {
+            "value": round(_v(row, key), 4),
+            "percentile": round(_v(row, f"{key}_global_pctile"), 1),
+        }
+        for key in PLAYSTYLE_METRIC_KEYS
+    }

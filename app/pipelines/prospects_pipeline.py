@@ -24,7 +24,8 @@ from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
     calculate_apfv_batch,
     calculate_apfv_batch_by_height,
-    calculate_pfv,
+    calculate_impact_pfv,
+    calculate_prospect_impact_adjusted_pfv,
     height_bucket,
 )
 
@@ -1093,7 +1094,7 @@ class ProspectsPipeline:
                             gp_val = float(record.get("gp", record.get("raw_stats", {}).get("gp", 0)) or 0)
                             pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
                             pfv_metrics["team"] = str(record.get("team", "") or "")
-                            adj_pfv = calculate_adjusted_pfv(pfv_metrics, is_prospect=True)
+                            adj_pfv = calculate_prospect_impact_adjusted_pfv(pfv_metrics)
                             global_adjusted_pfvs.append(adj_pfv)
                             global_height_buckets.append(height_bucket(record.get("height", "")))
                 except Exception as e:
@@ -1164,14 +1165,14 @@ class ProspectsPipeline:
                 for col in _PERCENTILE_COLS
                 if col in record and isinstance(record[col], dict)
             }
-            pfv_val = calculate_pfv(pfv_metrics)
+            pfv_val = calculate_impact_pfv(pfv_metrics)
             pfvs.append(pfv_val)
 
             record["pfv"] = pfv_val
             gp_val = float(record.get("gp", record["raw_stats"].get("gp", 0)) or 0)
             pfv_metrics["gp"] = {"value": gp_val, "percentile": 0.0}
             pfv_metrics["team"] = str(record.get("team", "") or "")
-            current_adjusted_pfvs.append(calculate_adjusted_pfv(pfv_metrics, is_prospect=True))
+            current_adjusted_pfvs.append(calculate_prospect_impact_adjusted_pfv(pfv_metrics))
             current_height_buckets.append(height_bucket(record.get("height", "")))
 
         prospects["pfv"] = pfvs

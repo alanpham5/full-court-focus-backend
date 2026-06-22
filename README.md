@@ -198,6 +198,7 @@ uvicorn main:app --reload
 #### `GET /players/{player_id}`
 
 - **Description**: Returns detailed biographical stats, player playstyle role, career playstyle metrics, each metric's percentile against all careers from 1996 through 2025, PFV/APFV scores, and similar-player lists.
+- **Optional `season` query parameter** (e.g. `?season=2024-25`, or `?season=2024`): returns the identical response shape but with every metric scoped to that single season — playstyle metrics and percentiles (ranked within that season), role, archetypes, PFV/APFV (ranked within the season pool), and a season-specific similar-player list. `career_span` is the season, `career_teams`/`career_games` reflect that season, and bio fields (height, weight, draft) are unchanged. Returns `400` for a malformed season, `404` if the season has no data or the player did not play that season.
 - **PFV**: Polygonal Feature Value, the normalized area of the six-axis radar chart using raw population percentiles for `pts_per36`, `reb_per36`, `ast_per36`, `blk_per36`, `stl_per36`, and `ts_pct`.
 - **APFV**: Adjusted PFV, a population-ranked version of PFV after applying the MPG adjustment once. Higher APFV means the player's radar shape holds up with stronger playing-time context.
 - **MPG adjustment**: For `pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `ts_pct`, `efg_pct`, `fg3a_rate`, and `fta_rate`, only the percentile is multiplied by `(mpg_percentile / 100) ^ 1.5`. The metric `value` remains the raw career value, and `mpg.percentile` remains unadjusted.
