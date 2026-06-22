@@ -260,6 +260,46 @@ uvicorn main:app --reload
   ]
   ```
 
+#### `GET /players/{player_id}/seasons`
+
+- **Description**: Returns the seasons (most recent first) a player has stats for. Powers the season selector on the player profile.
+- **Sample Response**: `{ "seasons": ["2024-25", "2023-24", "2022-23"] }`
+
+#### `GET /players/leaders`
+
+- **Description**: Paginated leaderboard of all players ranked by APFV (descending), used by the player table page. Returns each player's bio, role, archetypes, APFV, and the six fingerprint skill percentiles (`pts_per36`, `reb_per36`, `ast_per36`, `blk_per36`, `stl_per36`, `ts_pct`). The client converts those percentiles into the displayed skill ratings with the same recentering used by the radar (`computeSkillRatings`). Career figures by default; pass `season` for a single-season view.
+- **Query Params**:
+  - `season` (optional): `YYYY-YY` or `YYYY`; omit for career.
+  - `role` (optional): one of the assigned role labels (e.g. `Playmaker`, `Interior Presence`).
+  - `page` (default `1`), `page_size` (default `25`, max `100`).
+- **Sample Request**: `GET /players/leaders?season=2023-24&role=Playmaker&page=1&page_size=25`
+- **Sample Response**:
+  ```json
+  {
+    "players": [
+      {
+        "player_id": 2544,
+        "player_name": "LeBron James",
+        "height": "6-9",
+        "weight": 250,
+        "role": "Designated Scorer",
+        "archetypes": ["balanced scorer", "box-score defender"],
+        "apfv": 0.979,
+        "skill_percentiles": {
+          "pts_per36": 100, "reb_per36": 28, "ast_per36": 99,
+          "blk_per36": 33, "stl_per36": 88, "ts_pct": 87
+        }
+      }
+    ],
+    "page": 1,
+    "page_size": 25,
+    "total": 1950,
+    "total_pages": 78,
+    "seasons": ["2025-26", "2024-25"],
+    "roles": ["Defensive Specialist", "Designated Scorer", "Playmaker"]
+  }
+  ```
+
 ---
 
 ### Team Endpoints

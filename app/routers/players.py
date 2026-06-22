@@ -9,7 +9,13 @@ from config import (
     PLAYER_PROFILES_PATH,
     PLAYER_SEASON_FEATURES_PATH,
 )
-from models.schemas import PlayerProfileResponse, PlayerSearchSuggestion, SimilarPlayer
+from models.schemas import (
+    PlayerLeaderItem,
+    PlayerLeadersResponse,
+    PlayerProfileResponse,
+    PlayerSearchSuggestion,
+    SimilarPlayer,
+)
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
     calculate_apfv,
@@ -22,6 +28,7 @@ from analytics.player_profiles.season_profiles import (
     build_season_bundle,
     normalize_season,
 )
+from analytics.player_profiles.features import height_to_inches
 
 router = APIRouter(prefix="/players", tags=["players"])
 
@@ -94,6 +101,149 @@ def players_by_archetype(
                 )
             )
     return matches[:limit]
+
+
+LEADER_SKILL_KEYS = (
+    "pts_per36",
+    "reb_per36",
+    "ast_per36",
+    "blk_per36",
+    "stl_per36",
+    "ts_pct",
+)
+LEADER_SHAPE_CONTRAST = 0.75
+LEADER_SORTABLE_KEYS = {"apfv", "height", "weight", *LEADER_SKILL_KEYS}
+
+
+@router.get("/leaders", response_model=PlayerLeadersResponse)
+def get_player_leaders(
+    request: Request,
+    season: str | None = Query(None),
+    role: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(25, ge=1, le=100),
+    sort: str = Query("apfv"),
+    order: str = Query("desc"),
+):
+    if season is not None:
+        normalized = normalize_season(season)
+        if normalized is None:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid season '{season}'. Use 'YYYY-YY' (e.g. '2024-25') or 'YYYY'.",
+            )
+        source = _season_bundle(request, normalized).values()
+    else:
+        source = _profiles(request).values()
+
+    items = [_leader_item(p) for p in source]
+    roles = sorted({i.role for i in items if i.role})
+
+    if role:
+        items = [i for i in items if i.role == role]
+
+    sort_key = sort if sort in LEADER_SORTABLE_KEYS else "apfv"
+    descending = order != "asc"
+    if sort_key in LEADER_SKILL_KEYS:
+        ratings = {
+            i.player_id: _skill_rating(i.skill_percentiles, i.apfv, sort_key)
+            for i in items
+        }
+
+        def sort_value(item):
+            return ratings[item.player_id]
+    elif sort_key == "height":
+        def sort_value(item):
+            return height_to_inches(item.height) if item.height else 0.0
+    elif sort_key == "weight":
+        def sort_value(item):
+            return _weight_value(item.weight)
+    else:
+        def sort_value(item):
+            return item.apfv if item.apfv is not None else -1.0
+
+    items.sort(
+        key=lambda i: (sort_value(i), i.apfv if i.apfv is not None else -1.0),
+        reverse=descending,
+    )
+
+    total = len(items)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
+    start = (page - 1) * page_size
+    page_items = items[start : start + page_size]
+
+    return PlayerLeadersResponse(
+        players=page_items,
+        page=page,
+        page_size=page_size,
+        total=total,
+        total_pages=total_pages,
+        seasons=_all_player_seasons(request),
+        roles=roles,
+        sort=sort_key,
+        order="desc" if descending else "asc",
+    )
+
+
+def _weight_value(weight) -> float:
+    try:
+        return float(weight)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _skill_rating(percentiles: dict, apfv, key: str) -> float:
+    vals = [
+        max(0.0, min(100.0, float(percentiles.get(k, 0.0) or 0.0)))
+        for k in LEADER_SKILL_KEYS
+    ]
+    mean = sum(vals) / len(vals) if vals else 0.0
+    level = apfv * 100.0 if isinstance(apfv, (int, float)) else mean
+    value = vals[LEADER_SKILL_KEYS.index(key)]
+    return min(100.0, max(0.0, level + LEADER_SHAPE_CONTRAST * (value - mean)))
+
+
+def _leader_item(profile: dict) -> PlayerLeaderItem:
+    metrics = profile.get("playstyle_metrics", {}) or {}
+    return PlayerLeaderItem(
+        player_id=int(profile.get("player_id")),
+        player_name=str(profile.get("player_name", "")),
+        height=_clean_str(profile.get("height")),
+        weight=profile.get("weight"),
+        role=_clean_str(profile.get("role")),
+        archetypes=list(profile.get("archetypes", []) or []),
+        apfv=profile.get("apfv"),
+        skill_percentiles={
+            key: _metric_pctile(metrics.get(key)) for key in LEADER_SKILL_KEYS
+        },
+    )
+
+
+def _clean_str(value):
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _metric_pctile(metric) -> float:
+    if isinstance(metric, dict):
+        try:
+            return float(metric.get("percentile", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+    return 0.0
+
+
+def _all_player_seasons(request: Request) -> list[str]:
+    df = _season_features(request)
+    if df is None or df.empty or "SEASON" not in df.columns:
+        return []
+    seasons = {
+        s for s in df["SEASON"].astype(str) if normalize_season(s) is not None
+    }
+    return sorted(seasons, reverse=True)
 
 
 @router.get("/{player_id}", response_model=PlayerProfileResponse)
