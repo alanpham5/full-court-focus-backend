@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import threading
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import StringIO
 from pathlib import Path
@@ -19,6 +20,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import cosine_similarity
 
 from config import PROSPECTS_JSON_PATH, PLAYER_CAREER_FEATURES_PATH
+from analytics.draft_year import (
+    PROSPECTS_KEY,
+    current_draft_year_from_date,
+    extract_draft_year_from_html,
+    normalize_prospects_payload,
+)
 from analytics.similarity_scoring import similarity_pct
 from analytics.player_profiles.archetypes import (
     calculate_adjusted_pfv,
@@ -1110,7 +1117,42 @@ class ProspectsPipeline:
                     
         return global_adjusted_pfvs, global_height_buckets, current_slice
 
-    def write_outputs(self, prospects: pd.DataFrame) -> None:
+    def _read_existing_draft_class_year(self) -> int | None:
+        """Draft class year currently persisted in the prospects file, if any."""
+        if not self.json_output_path.exists():
+            return None
+        try:
+            data = json.loads(self.json_output_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None
+        _, meta = normalize_prospects_payload(data)
+        year = meta.get("draft_class_year")
+        try:
+            return int(year) if year is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _resolve_draft_class_year(self, scraped_year: int | None) -> int:
+        """Determine the class year to persist.
+
+        ``scraped_year`` is the year a fresh scrape resolved (detected from the
+        page, or the date estimate when detection fails). When it is ``None``
+        — e.g. a comp recompute from cache that did not re-scrape — the stored
+        year is preserved so it never drifts without a real scrape.
+
+        The result is monotonic: a fresh scrape only advances the stored year
+        when the scraped class is genuinely newer, never regressing it.
+        """
+        prev = self._read_existing_draft_class_year()
+        if scraped_year is None:
+            return prev if prev is not None else current_draft_year_from_date()
+        if prev is None:
+            return scraped_year
+        return max(prev, scraped_year)
+
+    def write_outputs(
+        self, prospects: pd.DataFrame, *, scraped_year: int | None = None
+    ) -> None:
         self.json_output_path.parent.mkdir(parents=True, exist_ok=True)
         self.parquet_output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1203,7 +1245,14 @@ class ProspectsPipeline:
             record["raw_stats"]["pfv"] = record.pop("pfv", 0.0)
             record["raw_stats"]["apfv"] = record.pop("apfv", 0.0)
 
-        self.json_output_path.write_text(json.dumps(records, indent=2), encoding="utf-8")
+        draft_class_year = self._resolve_draft_class_year(scraped_year)
+        payload = {
+            "draft_class_year": draft_class_year,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            PROSPECTS_KEY: records,
+        }
+        self.json_output_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        logger.info("Wrote %d prospects for the %d draft class.", len(records), draft_class_year)
 
         parquet_cols = [
             "prospect_id",
@@ -1246,6 +1295,17 @@ class ProspectsPipeline:
             logger.info("Fetching RealGM prospect stats from %s", self.source_url)
             html = fetch_html(self.source_url)
 
+        detected_year = extract_draft_year_from_html(html)
+        if detected_year is not None:
+            logger.info("Detected draft class year %d from scraped page.", detected_year)
+            scraped_year = detected_year
+        else:
+            scraped_year = current_draft_year_from_date()
+            logger.info(
+                "Could not detect draft class year from page; using date estimate %d.",
+                scraped_year,
+            )
+
         prospects = scrape_prospect_stats(html)
         prospects = fetch_heights_weights(prospects)
         prospects = add_prospect_features(prospects)
@@ -1260,7 +1320,7 @@ class ProspectsPipeline:
         prospects = self.add_similar_nba_players(prospects, career)
         prospects = self.add_prospect_roles(prospects)
 
-        self.write_outputs(prospects)
+        self.write_outputs(prospects, scraped_year=scraped_year)
         logger.info("Saved %s prospects datasets.", len(prospects))
 
         n_prospects = len(prospects)

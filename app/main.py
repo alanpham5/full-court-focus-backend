@@ -180,14 +180,28 @@ async def lifespan(app: FastAPI):
         print(f"  [WARN] {PLAYER_METADATA_PATH.name} missing — player search will return no rows")
 
     if PROSPECTS_JSON_PATH.exists():
+        from analytics.draft_year import (
+            current_draft_year_from_date,
+            normalize_prospects_payload,
+        )
+
         with PROSPECTS_JSON_PATH.open(encoding="utf-8") as f:
-            prospects_list = json.load(f)
+            prospects_list, prospects_meta = normalize_prospects_payload(json.load(f))
         app.state.prospects = prospects_list
         app.state.prospects_by_id = {p["prospect_id"]: p for p in prospects_list}
-        print(f"  ✓ Prospects ({len(prospects_list)} prospects) from {PROSPECTS_JSON_PATH.name}")
+        app.state.draft_class_year = (
+            prospects_meta.get("draft_class_year") or current_draft_year_from_date()
+        )
+        print(
+            f"  ✓ Prospects ({len(prospects_list)} prospects, "
+            f"{app.state.draft_class_year} class) from {PROSPECTS_JSON_PATH.name}"
+        )
     else:
+        from analytics.draft_year import current_draft_year_from_date
+
         app.state.prospects = []
         app.state.prospects_by_id = {}
+        app.state.draft_class_year = current_draft_year_from_date()
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
     app.state.historical_prospects_map = {}

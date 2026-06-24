@@ -28,6 +28,7 @@ from analytics.player_profiles.season_profiles import (
     build_season_bundle,
     normalize_season,
 )
+from analytics.skill_ratings import SKILL_AXES, compute_skill_ratings
 from analytics.player_profiles.features import height_to_inches
 
 router = APIRouter(prefix="/players", tags=["players"])
@@ -103,16 +104,36 @@ def players_by_archetype(
     return matches[:limit]
 
 
-LEADER_SKILL_KEYS = (
+PLAYER_BOX_KEYS = (
     "pts_per36",
     "reb_per36",
     "ast_per36",
-    "blk_per36",
     "stl_per36",
+    "blk_per36",
+    "tov_per36",
     "ts_pct",
+    "efg_pct",
+    "fg3a_rate",
+    "fta_rate",
+    "mpg",
 )
-LEADER_SHAPE_CONTRAST = 0.75
-LEADER_SORTABLE_KEYS = {"apfv", "height", "weight", *LEADER_SKILL_KEYS}
+LEADER_BOX_SORT_PREFIX = "box_"
+LEADER_SORTABLE_KEYS = {
+    "apfv",
+    "height",
+    "weight",
+    *SKILL_AXES,
+    *(f"{LEADER_BOX_SORT_PREFIX}{key}" for key in PLAYER_BOX_KEYS),
+}
+
+LEADER_MIN_QUALIFYING_MINUTES = 300.0
+
+
+def _is_qualified(profile: dict) -> bool:
+    games = float(profile.get("career_games", 0) or 0)
+    mpg = profile.get("playstyle_metrics", {}).get("mpg")
+    mpg_value = float(mpg.get("value", 0) or 0) if isinstance(mpg, dict) else 0.0
+    return games * mpg_value >= LEADER_MIN_QUALIFYING_MINUTES
 
 
 @router.get("/leaders", response_model=PlayerLeadersResponse)
@@ -136,7 +157,7 @@ def get_player_leaders(
     else:
         source = _profiles(request).values()
 
-    items = [_leader_item(p) for p in source]
+    items = [_leader_item(p) for p in source if _is_qualified(p)]
     roles = sorted({i.role for i in items if i.role})
 
     if role:
@@ -144,14 +165,15 @@ def get_player_leaders(
 
     sort_key = sort if sort in LEADER_SORTABLE_KEYS else "apfv"
     descending = order != "asc"
-    if sort_key in LEADER_SKILL_KEYS:
-        ratings = {
-            i.player_id: _skill_rating(i.skill_percentiles, i.apfv, sort_key)
-            for i in items
-        }
+    if sort_key in SKILL_AXES:
+        def sort_value(item):
+            return item.skill_ratings.get(sort_key, 0.0)
+    elif sort_key.startswith(LEADER_BOX_SORT_PREFIX):
+        box_key = sort_key[len(LEADER_BOX_SORT_PREFIX):]
 
         def sort_value(item):
-            return ratings[item.player_id]
+            metric = item.box_score.get(box_key)
+            return metric.value if metric is not None else 0.0
     elif sort_key == "height":
         def sort_value(item):
             return height_to_inches(item.height) if item.height else 0.0
@@ -193,19 +215,22 @@ def _weight_value(weight) -> float:
         return 0.0
 
 
-def _skill_rating(percentiles: dict, apfv, key: str) -> float:
-    vals = [
-        max(0.0, min(100.0, float(percentiles.get(k, 0.0) or 0.0)))
-        for k in LEADER_SKILL_KEYS
-    ]
-    mean = sum(vals) / len(vals) if vals else 0.0
-    level = apfv * 100.0 if isinstance(apfv, (int, float)) else mean
-    value = vals[LEADER_SKILL_KEYS.index(key)]
-    return min(100.0, max(0.0, level + LEADER_SHAPE_CONTRAST * (value - mean)))
+def _metric_value(metric) -> dict:
+    if isinstance(metric, dict):
+        try:
+            return {
+                "value": float(metric.get("value", 0.0) or 0.0),
+                "percentile": float(metric.get("percentile", 0.0) or 0.0),
+            }
+        except (TypeError, ValueError):
+            return {"value": 0.0, "percentile": 0.0}
+    return {"value": 0.0, "percentile": 0.0}
 
 
 def _leader_item(profile: dict) -> PlayerLeaderItem:
     metrics = profile.get("playstyle_metrics", {}) or {}
+    apfv = profile.get("apfv")
+    skill_percentiles = {axis: _metric_pctile(metrics.get(axis)) for axis in SKILL_AXES}
     return PlayerLeaderItem(
         player_id=int(profile.get("player_id")),
         player_name=str(profile.get("player_name", "")),
@@ -213,10 +238,9 @@ def _leader_item(profile: dict) -> PlayerLeaderItem:
         weight=profile.get("weight"),
         role=_clean_str(profile.get("role")),
         archetypes=list(profile.get("archetypes", []) or []),
-        apfv=profile.get("apfv"),
-        skill_percentiles={
-            key: _metric_pctile(metrics.get(key)) for key in LEADER_SKILL_KEYS
-        },
+        apfv=apfv,
+        box_score={key: _metric_value(metrics.get(key)) for key in PLAYER_BOX_KEYS},
+        skill_ratings=compute_skill_ratings(skill_percentiles, apfv),
     )
 
 
@@ -384,6 +408,10 @@ def _season_profile_payload(player_id: int, season: str, request: Request) -> di
         )
     payload = dict(payload)
     payload["playstyle_metrics"] = _normalize_playstyle_metrics(payload.get("playstyle_metrics", {}))
+    payload["skill_ratings"] = compute_skill_ratings(
+        {axis: _metric_pctile(payload["playstyle_metrics"].get(axis)) for axis in SKILL_AXES},
+        payload.get("apfv"),
+    )
     return payload
 
 
@@ -406,6 +434,10 @@ def _profile_response_payload(profile: dict, request: Request = None) -> dict:
             payload["apfv"] = calculate_apfv(player_adjusted_pfv, group_vals)
         else:
             payload["apfv"] = 0.0
+    payload["skill_ratings"] = compute_skill_ratings(
+        {axis: _metric_pctile(payload["playstyle_metrics"].get(axis)) for axis in SKILL_AXES},
+        payload.get("apfv"),
+    )
     return payload
 
 
