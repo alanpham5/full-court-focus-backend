@@ -25,6 +25,7 @@ from config import (
     TEAM_PROFILES_PATH,
     TEAMS_PARQUET_PATH,
     PLAYER_SEASON_FEATURES_PATH,
+    PROSPECT_LINEUP_FEATURES_PATH,
 )
 from analytics.normalizer import normalize_by_season
 from parquet_io import read_teams_parquet
@@ -278,6 +279,27 @@ async def lifespan(app: FastAPI):
         else:
             app.state.player_season_features_df = None
             print(f"  [WARN] {PLAYER_SEASON_FEATURES_PATH.name} missing and storage not configured — lineup synergy will fail")
+
+    from analytics.prospect_lineup import combine_lineup_features, prospect_lineup_index
+
+    prospect_lineup_df = None
+    if storage_uri:
+        try:
+            storage = ProfileStorage(StorageConfig.from_uri(storage_uri))
+            if storage.exists("features/prospect_lineup_features.parquet"):
+                prospect_lineup_df = storage.read_parquet("features/prospect_lineup_features.parquet")
+        except Exception as e:
+            print(f"  [WARN] Failed to load prospect lineup features from storage: {e}")
+    if prospect_lineup_df is None and PROSPECT_LINEUP_FEATURES_PATH.exists():
+        prospect_lineup_df = read_teams_parquet(PROSPECT_LINEUP_FEATURES_PATH)
+
+    app.state.prospect_lineup_features_df = prospect_lineup_df
+    app.state.lineup_features_df = combine_lineup_features(
+        app.state.player_season_features_df, prospect_lineup_df
+    )
+    app.state.prospect_lineup_index = prospect_lineup_index(prospect_lineup_df)
+    if prospect_lineup_df is not None:
+        print(f"  ✓ Prospect lineup features ({len(prospect_lineup_df)} rows)")
 
     yield
 

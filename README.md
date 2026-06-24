@@ -137,6 +137,13 @@ For specific tasks, you can run the following standalone utility scripts:
   python app/scripts/build_lineup_synergy_scores.py
   ```
 
+#### 6. `build_prospect_lineup_features.py`
+- **What it does**: Makes draft prospects usable by the lineup engines by projecting each prospect's **college profile** into NBA rookie metrics — so the current class and prospects with no NBA counterpart stats are supported. It trains a per-target `RidgeCV` model on historical prospects matched (by name) to their actual NBA rookie season (rookies with ≥ 300 minutes, for a stable target), mapping college playstyle features (per-36 production, shooting rates, assist share, height/weight) to the twelve NBA playstyle metrics. 5-fold cross-validation against those real prospect→player pairs is printed each run as verification (shape metrics like rebounding, playmaking, blocks and 3PA rate predict well; scoring volume and minutes are noisier and shrink toward the mean). The model then predicts NBA rookie metrics for **every** prospect (current + historical). Because a regularized model shrinks variance, each class's predictions are then **spread-calibrated per season** — the cohort keeps its model-predicted (rookie-realistic, below-league) center but is rescaled so each metric's spread matches that season's league spread. This keeps a distinctive prospect distinctive, so swapping a prospect into a lineup moves synergy on par with swapping in a real player rather than being a muted, strictly-worse option. Each calibrated prediction is expanded into a full `player_season_features`-shaped row — raw box columns reconstructed from the per-36/rate profile, and z-scores/percentiles standardized against that draft class's NBA season — written to `app/data/static/prospect_lineup_features.parquet` with a synthetic `PLAYER_ID` (≥ 900,000,000) plus `is_prospect`, `prospect_id`, and `counterpart_id`/`counterpart_name` (the top comp, used only for the UI headshot). At startup the API concatenates it with the real season features into a lineup-only frame, so the synergy and Lineup IQ engines treat a prospect like a projected NBA rookie while the UI shows the prospect. Runs automatically after the `prospect` stage of `run_pipeline.py`.
+- **How to run**:
+  ```bash
+  python app/scripts/build_prospect_lineup_features.py
+  ```
+
 ---
 
 ## API Endpoints Reference
@@ -413,7 +420,7 @@ uvicorn main:app --reload
 
 #### `GET /lineup/search`
 
-- **Description**: Searches for players active in a specific season by name or abbreviation prefix.
+- **Description**: Searches for players active in a specific season by name or abbreviation prefix. The result set also includes that season's draft prospects (the class drafted at the end of the season — e.g. `2024-25` surfaces the 2025 class), flagged with `is_prospect: true` plus `prospect_id`, `counterpart_id`, and `counterpart_name`. Prospects use a synthetic `player_id` and carry a college-projected NBA-rookie playstyle (see the prospect lineup features builder), so they slot into `/lineup/synergy` like any other player.
 - **Query Parameters**:
   - `season` (string, required): The NBA season, e.g. `2023-24`.
   - `q` (string, required): The search query.
@@ -590,7 +597,7 @@ uvicorn main:app --reload
 ### Lineup IQ Game Endpoints
 
 #### `GET /game/start`
-- **Description**: Initializes a new Lineup IQ game session. Selects a challenge starting lineup from the **lower 40th percentile** of synergy scores (a genuinely flawed unit worth optimising), using the precomputed `lineup_synergy_scores.json` artifact, and extracts the target swap team's roster. Each starter in `original_lineup` carries its per-36 stats (`pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `fg3a_rate`) so the client can render full stat cards.
+- **Description**: Initializes a new Lineup IQ game session. Selects a challenge starting lineup from the **lower 40th percentile** of synergy scores (a genuinely flawed unit worth optimising), using the precomputed `lineup_synergy_scores.json` artifact, and extracts the target swap team's roster. Each starter in `original_lineup` carries its per-36 stats (`pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `fg3a_rate`) so the client can render full stat cards. The chosen lineup is always a real team, but with a 25% chance the **swap pool** is the relevant draft class instead of a random team — those candidates carry `is_prospect: true` and `counterpart_id`/`counterpart_name`, and `/game/evaluate-swap` scores them via their college-projected NBA-rookie playstyle.
 - **Query Parameters**: `mode` (string, optional, default `"current"`): Either `"current"` or `"all_time"`.
 - **Sample Response**:
   ```json

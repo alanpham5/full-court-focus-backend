@@ -52,6 +52,17 @@ def extract_draft_year_from_html(html: str) -> int | None:
     return None
 
 
+def season_for_draft_class_year(year: int) -> str:
+    return f"{year - 1}-{str(year)[-2:]}"
+
+
+def draft_class_year_for_season(season: str) -> int | None:
+    try:
+        return int(str(season)[:4]) + 1
+    except (TypeError, ValueError):
+        return None
+
+
 def normalize_prospects_payload(data) -> tuple[list, dict]:
     """Split a loaded prospects file into ``(records, meta)``.
 

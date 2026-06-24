@@ -198,6 +198,10 @@ class LineupSearchPlayer(BaseModel):
     role: str
     pts_per36: float
     mpg: float
+    is_prospect: bool = False
+    prospect_id: Optional[str] = None
+    counterpart_id: Optional[int] = None
+    counterpart_name: Optional[str] = None
 
 
 class LineupSynergyRequest(BaseModel):
@@ -216,6 +220,10 @@ class LineupSynergyPlayer(BaseModel):
     stl_per36: float
     blk_per36: float
     fg3a_rate: float
+    is_prospect: bool = False
+    prospect_id: Optional[str] = None
+    counterpart_id: Optional[int] = None
+    counterpart_name: Optional[str] = None
 
 
 class LineupSynergyBreakdown(BaseModel):

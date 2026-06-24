@@ -375,7 +375,7 @@ The same statistics are computed for every actual starting lineup of the chosen 
 Six percentiles, each ranked against the season's real teams (or real starting lineups where noted):
 
 - **Pace**: minutes-weighted average of each player's team pace, ranked against team paces.
-- **Three-point volume**: projected lineup 3PA ranked against team 3PA.
+- **Three-point shooting**: lineup spacing measured by *ability* rather than volume. Each player's three-point gravity is a credibility-shrunk 3PT%, $\;g_i = (\mathrm{3PM}_i + k\,\ell)/(\mathrm{3PA}_i + k)$ with prior strength $k = 40$ and league mean $\ell = 0.355$; players below a minimum attempt rate ($\mathrm{3PA}_{36} < 1.5$) are treated as non-shooters and floored to $g = 0.30$ so a low-volume hot streak is not mistaken for floor spacing. The lineup spacing value is $\overline{g}$ across the five players, ranked against comparable starting units.
 - **Paint**: estimated team paint FGA, $\;\widehat{\text{PFGA}} = \overline{\text{PFGA}}_{\text{teams}} + 15\,\frac{\text{paint\_score} - \overline{\text{paint}}}{\overline{\text{paint}}}$, clipped to $[25, 70]$, then ranked.
 - **Rebounding**: estimated REB%, $\;\widehat{\mathrm{REB\%}} = \overline{\mathrm{REB\%}}_{\text{teams}} + 10\,\frac{\mathrm{REB}_{\text{proj}} - \overline{\mathrm{REB}}}{\overline{\mathrm{REB}}}$, clipped to $[40, 60]$, then ranked.
 - **Defense**: estimated defensive rating $\;\widehat{\mathrm{DRtg}} = \overline{\mathrm{DRtg}}_{\text{teams}} - 15\,\frac{D - \overline{D}}{\overline{D}}$, ranked and inverted (lower rating = higher percentile). Because this box-score measure (steals + blocks) understates point-of-attack and scheme defense, the displayed percentile is lifted when it falls below $45$ but the roster carries multiple identified defenders (see §4.4): to at least $68$ for $\ge 3$ defenders and at least $62$ for $\ge 2$. The displayed style axis and the strength/weakness narratives use this reconciled percentile.
@@ -391,7 +391,7 @@ and the lineup baseline penalizes weak links:
 
 $$B = 0.88\,\overline{r} + 0.12\,\min_i r_i.$$
 
-**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted by role or $\text{3PM}_{36} \ge 1.5$ or 3PA-rate percentile $> 65$, and defenders by primary role Defensive Specialist or steal percentile $> 60$ or block percentile $> 65$:
+**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted as players whose three-point gravity $g_i \ge 0.345$ (a credible league-average-or-better shooter on real volume; see §4.3), and defenders by primary role Defensive Specialist or steal percentile $> 60$ or block percentile $> 65$:
 
 | Factor | Values |
 |---|---|
@@ -411,7 +411,7 @@ Strength/weakness narratives are emitted from the same gated conditions, capped 
 
 Every historical starting lineup $(T, s)$ is scored against the custom unit as a blend of four affinities.
 
-**Style affinity.** With both style vectors scaled to $[0,1]^6$ and axis weights $u = (0.75, 1.20, 1.00, 1.15, 1.20, 0.95)$ for (pace, three-point volume, paint, defense, playmaking, rebounding):
+**Style affinity.** With both style vectors scaled to $[0,1]^6$ and axis weights $u = (0.75, 1.20, 1.00, 1.15, 1.20, 0.95)$ for (pace, three-point shooting, paint, defense, playmaking, rebounding):
 
 $$d = \sqrt{\frac{\sum_k u_k (a_k - b_k)^2}{\sum_k u_k}}, \qquad
 A_{\text{style}} = \max\!\left(0,\; 1 - \frac{d}{0.78}\right).$$

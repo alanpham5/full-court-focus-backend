@@ -31,6 +31,23 @@ SOFT_CAP_CEIL = 103.0
 STRONG_TRAIT_PCT = 56.0
 WEAK_TRAIT_PCT = 44.0
 
+LEAGUE_3PT_PCT = 0.355
+THREE_PT_SHRINK = 40.0
+SPACER_MIN_3PA_PER36 = 1.5
+NON_SHOOTER_GRAVITY = 0.30
+SHOOTER_GRAVITY = 0.345
+
+
+def three_point_gravity(row: pd.Series) -> float:
+    p_min = float(row.get("MIN", 0.0) or 0.0)
+    if p_min <= 0.0:
+        return NON_SHOOTER_GRAVITY
+    fg3a = float(row.get("FG3A", 0.0) or 0.0)
+    fg3m = float(row.get("FG3M", 0.0) or 0.0)
+    if fg3a / p_min * 36.0 < SPACER_MIN_3PA_PER36:
+        return NON_SHOOTER_GRAVITY
+    return (fg3m + THREE_PT_SHRINK * LEAGUE_3PT_PCT) / (fg3a + THREE_PT_SHRINK)
+
 STRENGTH_TRAIT_LABELS = {
     "playmaking": "Playmaking & Ball Movement",
     "spacing": "Floor Spacing & Shooting",
@@ -246,8 +263,10 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
     reb_per36_sum = 0.0
     blk_per36_sum = 0.0
     def_score_sum = 0.0
-    
+    gravity_sum = 0.0
+
     for r in player_rows:
+        gravity_sum += three_point_gravity(r)
         p_min = float(r.get("MIN", 0.0) or 0.0)
         p_id = int(r["PLAYER_ID"])
         roles = player_roles.get(p_id, ["Secondary Creator"])
@@ -272,6 +291,7 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
     
     return {
         "fg3a": fg3a_proj,
+        "space": gravity_sum / len(player_rows) if player_rows else NON_SHOOTER_GRAVITY,
         "paint_fga": paint_fga_proj,
         "paint_score": paint_score_proj,
         "ast": ast_proj,
@@ -379,6 +399,11 @@ def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, Li
     for _, r in lineup_rows.iterrows():
         pid = int(r["PLAYER_ID"])
         p_roles = player_roles.get(pid, ["Secondary Creator"])
+        ip = r.get("is_prospect", False)
+        is_prospect = bool(ip) and not pd.isna(ip)
+        cid = r.get("counterpart_id")
+        cname = r.get("counterpart_name")
+        prospect_id = r.get("prospect_id")
         players_payload.append({
             "player_id": pid,
             "name": str(r["PLAYER_NAME"]),
@@ -390,6 +415,10 @@ def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, Li
             "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
             "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
             "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3),
+            "is_prospect": is_prospect,
+            "prospect_id": str(prospect_id) if is_prospect and prospect_id is not None and not pd.isna(prospect_id) else None,
+            "counterpart_id": int(cid) if is_prospect and cid is not None and not pd.isna(cid) else None,
+            "counterpart_name": str(cname) if is_prospect and cname is not None and not pd.isna(cname) else None,
         })
     return players_payload
 
@@ -457,7 +486,7 @@ def calculate_lineup_synergy(
     if season_baseline and season_baseline.get("metrics"):
         bm = season_baseline["metrics"]
         pace_pct = percentile_in(bm["pace"], custom_metrics["pace"])
-        fg3a_pct = percentile_in(bm["fg3a"], custom_metrics["fg3a"])
+        space_pct = percentile_in(bm["space"], custom_metrics["space"])
         paint_pct = percentile_in(bm["paint_fga"], custom_metrics["paint_fga"])
         defense_pct = percentile_in(bm["def_score"], custom_metrics["def_score"])
         ast_vol_pct = percentile_in(bm["ast"], custom_metrics["ast"])
@@ -467,7 +496,7 @@ def calculate_lineup_synergy(
         mean_starting_reb = bm["reb"]["mean"] or 1.0
         mean_starting_blk = bm["blk"]["mean"] or 1.0
     else:
-        pace_pct = fg3a_pct = paint_pct = defense_pct = playmaking_pct = rebounding_pct = 50.0
+        pace_pct = space_pct = paint_pct = defense_pct = playmaking_pct = rebounding_pct = 50.0
         mean_starting_reb = custom_metrics["reb"] or 1.0
         mean_starting_blk = custom_metrics["blk"] or 1.0
 
@@ -483,7 +512,6 @@ def calculate_lineup_synergy(
     avg_t = {a: (float(np.mean(v)) if v else 50.0) for a, v in _t_vals.items()}
 
     pace_pct = 0.40 * pace_pct + 0.60 * avg_t["pace"]
-    fg3a_pct = 0.40 * fg3a_pct + 0.60 * avg_t["three_point_volume"]
     paint_pct = 0.40 * paint_pct + 0.60 * avg_t["paint"]
     defense_pct = 0.30 * defense_pct + 0.70 * avg_t["defense"]
     playmaking_pct = 0.40 * playmaking_pct + 0.60 * avg_t["playmaking"]
@@ -491,7 +519,7 @@ def calculate_lineup_synergy(
 
     style_vector = {
         "pace": round(min(100.0, max(0.0, pace_pct)), 1),
-        "three_point_volume": round(min(100.0, max(0.0, fg3a_pct)), 1),
+        "three_point_volume": round(min(100.0, max(0.0, space_pct)), 1),
         "paint": round(min(100.0, max(0.0, paint_pct)), 1),
         "defense": round(min(100.0, max(0.0, defense_pct)), 1),
         "playmaking": round(min(100.0, max(0.0, playmaking_pct)), 1),
@@ -540,10 +568,7 @@ def calculate_lineup_synergy(
     
     shooters_count = 0
     for _, r in lineup_rows.iterrows():
-        p_min = float(r.get("MIN", 0.0) or 0.0)
-        fg3m_per36 = (float(r.get("FG3M", 0.0) or 0.0) / p_min * 36.0) if p_min > 0 else 0.0
-        fg3a_pctile = float(r.get("fg3a_rate_pctile", 0.0) or 0.0)
-        if "Perimeter Specialist" in player_roles.get(int(r["PLAYER_ID"]), []) or fg3m_per36 >= 1.5 or fg3a_pctile > 65.0:
+        if three_point_gravity(r) >= SHOOTER_GRAVITY:
             shooters_count += 1
             
     bigs_count = sum(1 for pid in player_ids if "Interior Presence" in player_roles.get(pid, []))
@@ -628,7 +653,7 @@ def calculate_lineup_synergy(
     else:
         playmaking_adj = min(-3.0, playmaking_adj)
 
-    if fg3a_pct < 45.0:
+    if space_pct < 45.0:
         spacing_adj = min(-3.0, spacing_adj)
 
     if (rebounding_pct < 45.0 or paint_pct < 45.0) and strong_rebounders < 2 and rim_protectors < 2:
@@ -684,7 +709,7 @@ def calculate_lineup_synergy(
     def add_weakness(cat: str, text: str) -> None:
         weakness_items.append((cat, text))
 
-    custom_fg3a = custom_stats["fg3a"]
+    lineup_3pt_pct = custom_stats["space"]
     sum_ast = sum(float(r.get("ast_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_stl = sum(float(r.get("stl_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
     sum_pts = sum(float(r.get("pts_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
@@ -712,27 +737,27 @@ def calculate_lineup_synergy(
                 "Limited Ball Movement - Assist volume and rates rank below average, raising the risk of stagnant half-court possessions."
             )
 
-    if fg3a_pct >= STRONG_TRAIT_PCT:
-        if shooters_count >= 3 and custom_fg3a >= 32.0:
+    if space_pct >= STRONG_TRAIT_PCT:
+        if shooters_count >= 3 and lineup_3pt_pct >= 0.365:
             add_strength("spacing",
-                "Elite Floor Spacing - Multiple perimeter threats pull help defenders out and keep driving lanes open."
+                "Elite Floor Spacing - Multiple knockdown shooters make defenses pay, pulling help defenders out and keeping driving lanes open."
             )
         else:
             add_strength("spacing",
-                "Stretch-the-Floor Shooting - Above-average three-point volume forces defenses to extend, opening up the interior."
+                "Reliable Outside Shooting - Above-average three-point accuracy forces defenses to close out hard, opening up the interior."
             )
-    elif fg3a_pct < WEAK_TRAIT_PCT:
-        if shooters_count == 0 or custom_fg3a < 22.0:
+    elif space_pct < WEAK_TRAIT_PCT:
+        if shooters_count == 0:
             add_weakness("spacing",
-                "Clogged Driving Lanes - Fewer than two credible perimeter threats lets defenses shrink the floor and wall off the rim."
+                "Clogged Driving Lanes - No credible three-point shooters lets defenses shrink the floor and wall off the rim."
             )
         elif shooters_count == 1:
             add_weakness("spacing",
-                "Limited Floor Spacing - Only one reliable outside threat makes it easier for help defenders to sit in the paint."
+                "Limited Floor Spacing - Only one reliable outside shooter makes it easier for help defenders to sit in the paint."
             )
         else:
             add_weakness("spacing",
-                "Low 3PT Volume - Three-point attempt rate ranks below average, reducing the space available for drivers and post touches."
+                "Poor Outside Shooting - Three-point accuracy ranks below comparable NBA units, reducing the space available for drivers and post touches."
             )
 
     if rebounding_pct >= STRONG_TRAIT_PCT or strong_rebounders >= 2:
