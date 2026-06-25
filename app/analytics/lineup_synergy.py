@@ -399,6 +399,8 @@ def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, Li
     for _, r in lineup_rows.iterrows():
         pid = int(r["PLAYER_ID"])
         p_roles = player_roles.get(pid, ["Secondary Creator"])
+        p_min = float(r.get("MIN", 0.0) or 0.0)
+        fg3m_per36 = (float(r.get("FG3M", 0.0) or 0.0) / p_min * 36.0) if p_min > 0 else 0.0
         ip = r.get("is_prospect", False)
         is_prospect = bool(ip) and not pd.isna(ip)
         cid = r.get("counterpart_id")
@@ -415,6 +417,7 @@ def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, Li
             "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
             "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
             "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3),
+            "fg3m_per36": round(fg3m_per36, 1),
             "is_prospect": is_prospect,
             "prospect_id": str(prospect_id) if is_prospect and prospect_id is not None and not pd.isna(prospect_id) else None,
             "counterpart_id": int(cid) if is_prospect and cid is not None and not pd.isna(cid) else None,

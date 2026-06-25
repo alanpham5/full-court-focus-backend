@@ -220,6 +220,7 @@ class LineupSynergyPlayer(BaseModel):
     stl_per36: float
     blk_per36: float
     fg3a_rate: float
+    fg3m_per36: float = 0.0
     is_prospect: bool = False
     prospect_id: Optional[str] = None
     counterpart_id: Optional[int] = None

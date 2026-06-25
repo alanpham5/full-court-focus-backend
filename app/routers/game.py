@@ -182,6 +182,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
         stl_per36 = 0.0
         blk_per36 = 0.0
         fg3a_rate = 0.0
+        fg3m_per36 = 0.0
         if not feat_df.empty:
             r = feat_df.iloc[0]
             pts_per36 = round(float(r.get("pts_per36", 0.0) or 0.0), 1)
@@ -190,7 +191,9 @@ def start_game(mode: str = Query("current"), request: Request = None):
             stl_per36 = round(float(r.get("stl_per36", 0.0) or 0.0), 1)
             blk_per36 = round(float(r.get("blk_per36", 0.0) or 0.0), 1)
             fg3a_rate = round(float(r.get("fg3a_rate", 0.0) or 0.0), 3)
-            
+            r_min = float(r.get("MIN", 0.0) or 0.0)
+            fg3m_per36 = round((float(r.get("FG3M", 0.0) or 0.0) / r_min * 36.0) if r_min > 0 else 0.0, 1)
+
         original_lineup_players.append({
             "player_id": pid,
             "name": str(p["name"]),
@@ -203,6 +206,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
             "stl_per36": stl_per36,
             "blk_per36": blk_per36,
             "fg3a_rate": fg3a_rate,
+            "fg3m_per36": fg3m_per36,
             "draft_year": draft_year,
             "draft_position": draft_position
         })
@@ -282,6 +286,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
             "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
             "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
             "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3),
+            "fg3m_per36": round((float(r.get("FG3M", 0.0) or 0.0) / min_val * 36.0) if min_val > 0 else 0.0, 1),
             "role": p_roles[0] if p_roles else "Secondary Creator",
             "draft_year": p_profile.get("draft_year"),
             "draft_position": p_profile.get("draft_position"),
