@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
 SIMILARITY_FEATURES = [
     "PACE",
@@ -33,8 +32,13 @@ def normalize_by_season(df: pd.DataFrame) -> pd.DataFrame:
             result_parts.append(group)
             continue
 
-        scaler = StandardScaler()
-        transformed = scaler.fit_transform(group[available])
+        # Per-column z-score, matching sklearn StandardScaler defaults
+        # (population std, ddof=0; zero-variance columns left unscaled).
+        values = group[available].to_numpy(dtype=float)
+        mean = np.nanmean(values, axis=0)
+        std = np.nanstd(values, axis=0)
+        std[std == 0] = 1.0
+        transformed = (values - mean) / std
         transformed = np.nan_to_num(transformed, nan=0.0, posinf=0.0, neginf=0.0)
         group[z_names] = transformed
         result_parts.append(group)

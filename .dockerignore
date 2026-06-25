@@ -4,6 +4,18 @@
 **/__pycache__
 *.py[cod]
 .pytest_cache
+**/.pytest_cache
 .mypy_cache
 .ruff_cache
 .DS_Store
+
+# Runtime only reads from app/data/static/ — these large trees just bloat the
+# image (and slow Cloud Run image pulls / cold starts) without being used.
+app/scratch
+app/data/historical
+app/data/player_profiles
+
+# Docs / dev artifacts not needed in the runtime image.
+*.md
+docker-compose*.yml
+docker/
