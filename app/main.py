@@ -180,35 +180,42 @@ async def lifespan(app: FastAPI):
         app.state.player_metadata = {}
         print(f"  [WARN] {PLAYER_METADATA_PATH.name} missing — player search will return no rows")
 
-    if PROSPECTS_JSON_PATH.exists():
-        from analytics.draft_year import (
-            current_draft_year_from_date,
-            normalize_prospects_payload,
-        )
+    from config import DATA_STATIC_DIR
+    from analytics.draft_year import (
+        available_historical_draft_years,
+        current_draft_year_from_date,
+        current_draft_year_from_history,
+        normalize_prospects_payload,
+    )
 
+    def _fallback_class_year() -> int:
+        # Infer the current (upcoming) class from the historical classes on disk
+        # (RealGM-sourced), falling back to the date estimate only when no
+        # historical data exists at all.
+        historical = available_historical_draft_years(DATA_STATIC_DIR / "draft")
+        return current_draft_year_from_history(historical) or current_draft_year_from_date()
+
+    if PROSPECTS_JSON_PATH.exists():
         with PROSPECTS_JSON_PATH.open(encoding="utf-8") as f:
             prospects_list, prospects_meta = normalize_prospects_payload(json.load(f))
         app.state.prospects = prospects_list
         app.state.prospects_by_id = {p["prospect_id"]: p for p in prospects_list}
         app.state.draft_class_year = (
-            prospects_meta.get("draft_class_year") or current_draft_year_from_date()
+            prospects_meta.get("draft_class_year") or _fallback_class_year()
         )
         print(
             f"  ✓ Prospects ({len(prospects_list)} prospects, "
             f"{app.state.draft_class_year} class) from {PROSPECTS_JSON_PATH.name}"
         )
     else:
-        from analytics.draft_year import current_draft_year_from_date
-
         app.state.prospects = []
         app.state.prospects_by_id = {}
-        app.state.draft_class_year = current_draft_year_from_date()
+        app.state.draft_class_year = _fallback_class_year()
         print(f"  [WARN] {PROSPECTS_JSON_PATH.name} missing — GET /draft/* will return empty results")
 
     app.state.historical_prospects_map = {}
     app.state.historical_prospects = []
     app.state.historical_prospects_by_year = {}
-    from config import DATA_STATIC_DIR
     static_draft_dir = DATA_STATIC_DIR / "draft"
     if static_draft_dir.exists():
         for path in static_draft_dir.glob("prospects_*.json"):
@@ -225,6 +232,9 @@ async def lifespan(app: FastAPI):
         print(f"  ✓ Historical prospects index built ({len(app.state.historical_prospects_map)} players)")
     else:
         print("  [INFO] Historical drafts folder (static/draft/) does not exist yet")
+    # Selectable past drafts come straight from the files that loaded above —
+    # the single source of truth for which historical classes are available.
+    app.state.available_draft_years = sorted(app.state.historical_prospects_by_year.keys())
     app.state.prospect_population = app.state.prospects + app.state.historical_prospects
 
     try:

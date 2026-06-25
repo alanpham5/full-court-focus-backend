@@ -8,7 +8,9 @@ from pydantic import BaseModel
 
 from config import DATA_STATIC_DIR, PROSPECTS_JSON_PATH
 from analytics.draft_year import (
+    available_historical_draft_years,
     current_draft_year_from_date,
+    current_draft_year_from_history,
     normalize_prospects_payload,
 )
 from analytics.prospect_apfv import (
@@ -66,6 +68,18 @@ def _prospects(request: Request) -> list[dict]:
     return records
 
 
+def _available_draft_years(request: Request) -> list[int]:
+    """Historical draft classes available to select, ascending.
+
+    Derived from the prospect files the historical scraper has written to disk,
+    so the selectable set always matches the data that actually exists.
+    """
+    cached = getattr(request.app.state, "available_draft_years", None)
+    if cached is not None:
+        return list(cached)
+    return available_historical_draft_years(DATA_STATIC_DIR / "draft")
+
+
 def _draft_class_year(request: Request) -> int:
     cached = getattr(request.app.state, "draft_class_year", None)
     if cached is not None:
@@ -79,7 +93,12 @@ def _draft_class_year(request: Request) -> int:
                 return int(year)
         except Exception:
             pass
-    return current_draft_year_from_date()
+    # No stored class year: infer from the historical classes on disk (newest
+    # completed draft + 1), and only fall back to the date estimate as a last
+    # resort when there is no data at all.
+    return current_draft_year_from_history(_available_draft_years(request)) or (
+        current_draft_year_from_date()
+    )
 
 
 def _prospects_by_id(request: Request) -> dict[str, dict]:
@@ -265,8 +284,16 @@ def list_prospects(request: Request, year: int | None = None):
 
 @router.get("/meta")
 def draft_meta(request: Request):
-    """Metadata about the current draft class, including its year."""
-    return {"draft_class_year": _draft_class_year(request)}
+    """Metadata about the draft data: current class year and available history.
+
+    ``available_draft_years`` is sourced from the prospect files on disk, so the
+    frontend can build its past-draft picker from real data instead of assuming
+    a contiguous range.
+    """
+    return {
+        "draft_class_year": _draft_class_year(request),
+        "available_draft_years": _available_draft_years(request),
+    }
 
 
 @router.get("/{prospect_id}")

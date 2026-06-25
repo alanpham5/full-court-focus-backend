@@ -22,7 +22,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from config import PROSPECTS_JSON_PATH, PLAYER_CAREER_FEATURES_PATH
 from analytics.draft_year import (
     PROSPECTS_KEY,
+    available_historical_draft_years,
     current_draft_year_from_date,
+    current_draft_year_from_history,
     extract_draft_year_from_html,
     normalize_prospects_payload,
 )
@@ -1145,10 +1147,24 @@ class ProspectsPipeline:
         """
         prev = self._read_existing_draft_class_year()
         if scraped_year is None:
-            return prev if prev is not None else current_draft_year_from_date()
+            if prev is not None:
+                return prev
+            return self._fallback_draft_class_year()
         if prev is None:
             return scraped_year
         return max(prev, scraped_year)
+
+    def _fallback_draft_class_year(self) -> int:
+        """Class year to use when neither a scrape nor stored meta yields one.
+
+        Prefers the RealGM-sourced historical data on disk (newest completed
+        class + 1); only when even that is empty does it fall back to the
+        wall-clock estimate.
+        """
+        from config import DATA_STATIC_DIR
+
+        historical = available_historical_draft_years(DATA_STATIC_DIR / "draft")
+        return current_draft_year_from_history(historical) or current_draft_year_from_date()
 
     def write_outputs(
         self, prospects: pd.DataFrame, *, scraped_year: int | None = None
@@ -1295,15 +1311,13 @@ class ProspectsPipeline:
             logger.info("Fetching RealGM prospect stats from %s", self.source_url)
             html = fetch_html(self.source_url)
 
-        detected_year = extract_draft_year_from_html(html)
-        if detected_year is not None:
-            logger.info("Detected draft class year %d from scraped page.", detected_year)
-            scraped_year = detected_year
+        scraped_year = extract_draft_year_from_html(html)
+        if scraped_year is not None:
+            logger.info("Detected draft class year %d from RealGM page.", scraped_year)
         else:
-            scraped_year = current_draft_year_from_date()
-            logger.info(
-                "Could not detect draft class year from page; using date estimate %d.",
-                scraped_year,
+            logger.warning(
+                "Could not detect draft class year from RealGM page; "
+                "preserving the previously stored class year."
             )
 
         prospects = scrape_prospect_stats(html)
