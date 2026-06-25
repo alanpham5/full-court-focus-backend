@@ -10,6 +10,7 @@ from analytics.lineup_synergy import compute_lineup_collective_stats, assign_pla
 METRIC_KEYS: List[str] = [
     "pace",
     "fg3a",
+    "space",
     "paint_fga",
     "def_score",
     "ast",
@@ -57,6 +58,7 @@ def compute_lineup_metrics(
     return {
         "pace": float(pace),
         "fg3a": float(collective["fg3a"]),
+        "space": float(collective["space"]),
         "paint_fga": float(collective["paint_fga"]),
         "def_score": float(collective["def_score"]),
         "ast": float(collective["ast"]),

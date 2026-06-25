@@ -7,6 +7,10 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from config import DATA_STATIC_DIR, PROSPECTS_JSON_PATH
+from analytics.draft_year import (
+    current_draft_year_from_date,
+    normalize_prospects_payload,
+)
 from analytics.prospect_apfv import (
     PROSPECT_PERCENTILE_COLS,
     percentile_of_score,
@@ -17,8 +21,23 @@ from analytics.player_profiles.archetypes import (
     calculate_prospect_impact_adjusted_pfv,
     height_bucket,
 )
+from analytics.skill_ratings import SKILL_AXES, compute_skill_ratings
+from models.schemas import PlayerMetricValue
 
 router = APIRouter(prefix="/draft", tags=["draft"])
+
+PROSPECT_BOX_KEYS = (
+    "ppg",
+    "rpg",
+    "apg",
+    "spg",
+    "bpg",
+    "mpg",
+    "gp",
+    "fg_pct",
+    "fg3_pct",
+    "ft_pct",
+)
 
 
 class ProspectListItem(BaseModel):
@@ -30,7 +49,9 @@ class ProspectListItem(BaseModel):
     weight: str = ""
     role: str = ""
     pick: int | None = None
-    raw_stats: dict
+    apfv: float | None = None
+    box_score: dict[str, PlayerMetricValue]
+    skill_ratings: dict[str, float]
 
 
 
@@ -41,7 +62,24 @@ def _prospects(request: Request) -> list[dict]:
     if not PROSPECTS_JSON_PATH.exists():
         return []
     with PROSPECTS_JSON_PATH.open(encoding="utf-8") as fh:
-        return json.load(fh)
+        records, _ = normalize_prospects_payload(json.load(fh))
+    return records
+
+
+def _draft_class_year(request: Request) -> int:
+    cached = getattr(request.app.state, "draft_class_year", None)
+    if cached is not None:
+        return int(cached)
+    if PROSPECTS_JSON_PATH.exists():
+        try:
+            with PROSPECTS_JSON_PATH.open(encoding="utf-8") as fh:
+                _, meta = normalize_prospects_payload(json.load(fh))
+            year = meta.get("draft_class_year")
+            if year is not None:
+                return int(year)
+        except Exception:
+            pass
+    return current_draft_year_from_date()
 
 
 def _prospects_by_id(request: Request) -> dict[str, dict]:
@@ -96,6 +134,28 @@ def _collect_all_adjusted_pfvs(prospects: list[dict]) -> list[float]:
         pfv_metrics["team"] = str(p.get("team", "") or "")
         adjusted_pfvs.append(calculate_prospect_impact_adjusted_pfv(pfv_metrics))
     return adjusted_pfvs
+
+
+def _axis_percentiles(prospect: dict, request: Request) -> dict:
+    arrays = getattr(request.app.state, "global_prospect_percentile_arrays", {})
+    out: dict[str, float] = {}
+    for axis in SKILL_AXES:
+        metric = prospect.get(axis)
+        if not isinstance(metric, dict):
+            continue
+        val = metric.get("value")
+        if val is None:
+            continue
+        arr = arrays.get(axis)
+        if arr is not None and len(arr) > 0:
+            out[axis] = percentile_of_score(arr, float(val))
+        elif metric.get("percentile") is not None:
+            out[axis] = float(metric["percentile"])
+    return out
+
+
+def _prospect_skill_ratings(prospect: dict, request: Request, apfv) -> dict:
+    return compute_skill_ratings(_axis_percentiles(prospect, request), apfv)
 
 
 def _ensure_global_percentiles(prospect: dict, request: Request) -> dict:
@@ -167,8 +227,25 @@ def list_prospects(request: Request, year: int | None = None):
     else:
         all_prospects = _prospects(request)
 
+    raws = [_ensure_pfv_apfv_in_raw_stats(p, request) for p in all_prospects]
+    population = {
+        key: [r[key] for r in raws if r.get(key) is not None]
+        for key in PROSPECT_BOX_KEYS
+    }
+
     results = []
-    for p in all_prospects:
+    for p, raw in zip(all_prospects, raws):
+        box_score = {}
+        for key in PROSPECT_BOX_KEYS:
+            val = raw.get(key)
+            if val is None:
+                box_score[key] = {"value": 0.0, "percentile": 0.0}
+            else:
+                box_score[key] = {
+                    "value": float(val),
+                    "percentile": percentile_of_score(population[key], float(val)),
+                }
+        apfv = raw.get("apfv")
         results.append(
             ProspectListItem(
                 prospect_id=p["prospect_id"],
@@ -178,10 +255,18 @@ def list_prospects(request: Request, year: int | None = None):
                 weight=p.get("weight", ""),
                 role=p.get("role", ""),
                 pick=p.get("pick"),
-                raw_stats=_ensure_pfv_apfv_in_raw_stats(p, request),
+                apfv=apfv,
+                box_score=box_score,
+                skill_ratings=_prospect_skill_ratings(p, request, apfv),
             )
         )
     return results
+
+
+@router.get("/meta")
+def draft_meta(request: Request):
+    """Metadata about the current draft class, including its year."""
+    return {"draft_class_year": _draft_class_year(request)}
 
 
 @router.get("/{prospect_id}")
@@ -210,6 +295,7 @@ def get_prospect(prospect_id: str, request: Request):
 
     raw = _ensure_pfv_apfv_in_raw_stats(prospect, request)
     prospect["raw_stats"] = raw
+    prospect["skill_ratings"] = _prospect_skill_ratings(prospect, request, raw.get("apfv"))
 
     prospect.pop("pfv", None)
     prospect.pop("apfv", None)

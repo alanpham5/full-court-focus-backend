@@ -13,6 +13,7 @@ from analytics.player_profiles.archetypes import (
     calculate_prospect_impact_adjusted_pfv,
     height_bucket,
 )
+from analytics.draft_year import PROSPECTS_KEY, normalize_prospects_payload
 
 logger = logging.getLogger(__name__)
 
@@ -139,29 +140,45 @@ def apply_global_prospect_pfv_apfv(records: list[dict], lookup: dict[str, dict[s
 def load_prospect_json_files(
     prospects_json_path: Path,
     draft_dir: Path,
-) -> list[tuple[Path, list[dict]]]:
-    files: list[tuple[Path, list[dict]]] = []
+) -> list[tuple[Path, list[dict], dict]]:
+    """Load every prospect JSON file as ``(path, records, meta)`` triples.
+
+    Handles both the wrapped current-class file (``{"draft_class_year": ...,
+    "prospects": [...]}``) and legacy bare-list historical files. ``meta`` holds
+    the wrapper's non-record keys so they can be preserved when rewriting.
+    """
+    files: list[tuple[Path, list[dict], dict]] = []
     if prospects_json_path.exists():
-        files.append((prospects_json_path, json.loads(prospects_json_path.read_text(encoding="utf-8"))))
+        records, meta = normalize_prospects_payload(
+            json.loads(prospects_json_path.read_text(encoding="utf-8"))
+        )
+        files.append((prospects_json_path, records, meta))
 
     if draft_dir.exists():
         for path in sorted(draft_dir.glob("prospects_*.json")):
-            files.append((path, json.loads(path.read_text(encoding="utf-8"))))
+            records, meta = normalize_prospects_payload(
+                json.loads(path.read_text(encoding="utf-8"))
+            )
+            files.append((path, records, meta))
     return files
 
 
 def normalize_global_prospect_apfv_files(prospects_json_path: Path, draft_dir: Path) -> dict[str, int]:
     files = load_prospect_json_files(prospects_json_path, draft_dir)
-    population = [record for _, records in files for record in records]
+    population = [record for _, records, _ in files for record in records]
     lookup = calculate_global_prospect_pfv_apfv(population)
 
     updated_json = 0
-    for path, records in files:
+    for path, records, meta in files:
         updated_json += apply_global_prospect_pfv_apfv(records, lookup)
-        path.write_text(json.dumps(records, indent=2), encoding="utf-8")
+        if meta:
+            payload = {**meta, PROSPECTS_KEY: records}
+            path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        else:
+            path.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
     updated_parquet = 0
-    for json_path, _records in files:
+    for json_path, _records, _meta in files:
         parquet_path = json_path.with_suffix(".parquet")
         if not parquet_path.exists():
             continue

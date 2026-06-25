@@ -15,7 +15,9 @@ def search_season_players(
     q: str = Query(..., min_length=1),
     limit: int = Query(8, ge=1, le=25)
 ):
-    features_df = getattr(request.app.state, "player_season_features_df", None)
+    features_df = getattr(request.app.state, "lineup_features_df", None)
+    if features_df is None:
+        features_df = getattr(request.app.state, "player_season_features_df", None)
     if features_df is None:
         raise HTTPException(
             status_code=503,
@@ -78,6 +80,7 @@ def search_season_players(
         gp = float(row.get("GP", 1.0) or 1.0)
         mpg = min_val / gp if gp > 0 else 0.0
         
+        is_prospect = bool(row.get("is_prospect", False))
         results.append(
             LineupSearchPlayer(
                 player_id=pid,
@@ -85,7 +88,11 @@ def search_season_players(
                 team_abbreviation=str(row.get("TEAM_ABBREVIATION", "")),
                 role=roles[0] if roles else "Secondary Creator",
                 pts_per36=round(float(row.get("pts_per36", 0.0) or 0.0), 1),
-                mpg=round(mpg, 1)
+                mpg=round(mpg, 1),
+                is_prospect=is_prospect,
+                prospect_id=str(row["prospect_id"]) if is_prospect else None,
+                counterpart_id=int(row["counterpart_id"]) if is_prospect else None,
+                counterpart_name=str(row["counterpart_name"]) if is_prospect else None,
             )
         )
         
@@ -105,7 +112,9 @@ def get_lineup_synergy(
             detail="Exactly 5 player IDs must be provided for a lineup."
         )
         
-    player_season_df = getattr(request.app.state, "player_season_features_df", None)
+    player_season_df = getattr(request.app.state, "lineup_features_df", None)
+    if player_season_df is None:
+        player_season_df = getattr(request.app.state, "player_season_features_df", None)
     teams_df = getattr(request.app.state, "teams_df", None)
     starting_lineups = getattr(request.app.state, "starting_lineups", {})
     team_profiles = getattr(request.app.state, "team_profiles", {})

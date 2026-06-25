@@ -220,6 +220,8 @@ def run_pipeline_orchestrator(
                 PROSPECTS_JSON_PATH,
                 PROSPECTS_JSON_PATH.parent / "draft",
             )
+            from scripts.build_prospect_lineup_features import build_prospect_lineup_features
+            build_prospect_lineup_features()
 
         logger.info("Pipeline executed successfully!")
         return 0

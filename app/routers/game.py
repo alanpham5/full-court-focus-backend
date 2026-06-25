@@ -17,6 +17,7 @@ STRENGTHS = list(STRENGTH_TRAIT_LABELS.values())
 WEAKNESSES = list(WEAKNESS_TRAIT_LABELS.values())
 
 CHALLENGE_PERCENTILE = 40.0
+PROSPECT_SWAP_CHANCE = 0.25
 
                          
 class StartGameResponse(BaseModel):
@@ -62,11 +63,18 @@ class EvaluateSwapResponse(BaseModel):
     breakdown: Dict[str, Any]
 
 
+def _lineup_df(request: Request):
+    df = getattr(request.app.state, "lineup_features_df", None)
+    if df is None:
+        df = request.app.state.player_season_features_df
+    return df
+
+
 def determine_lineup_traits(player_ids: List[int], season: str, request: Request) -> Dict[str, bool]:
     res = calculate_lineup_synergy(
         player_ids=player_ids,
         season=season,
-        player_season_df=request.app.state.player_season_features_df,
+        player_season_df=_lineup_df(request),
         teams_df=request.app.state.teams_df,
         starting_lineups=request.app.state.starting_lineups,
         team_profiles=request.app.state.team_profiles,
@@ -174,6 +182,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
         stl_per36 = 0.0
         blk_per36 = 0.0
         fg3a_rate = 0.0
+        fg3m_per36 = 0.0
         if not feat_df.empty:
             r = feat_df.iloc[0]
             pts_per36 = round(float(r.get("pts_per36", 0.0) or 0.0), 1)
@@ -182,7 +191,9 @@ def start_game(mode: str = Query("current"), request: Request = None):
             stl_per36 = round(float(r.get("stl_per36", 0.0) or 0.0), 1)
             blk_per36 = round(float(r.get("blk_per36", 0.0) or 0.0), 1)
             fg3a_rate = round(float(r.get("fg3a_rate", 0.0) or 0.0), 3)
-            
+            r_min = float(r.get("MIN", 0.0) or 0.0)
+            fg3m_per36 = round((float(r.get("FG3M", 0.0) or 0.0) / r_min * 36.0) if r_min > 0 else 0.0, 1)
+
         original_lineup_players.append({
             "player_id": pid,
             "name": str(p["name"]),
@@ -195,6 +206,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
             "stl_per36": stl_per36,
             "blk_per36": blk_per36,
             "fg3a_rate": fg3a_rate,
+            "fg3m_per36": fg3m_per36,
             "draft_year": draft_year,
             "draft_position": draft_position
         })
@@ -230,14 +242,22 @@ def start_game(mode: str = Query("current"), request: Request = None):
             swap_team_name = meta.get("name", "Unknown Team")
             break
 
-                       
-    roster_df = player_season_df[(player_season_df["SEASON"] == swap_season) & (player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr)]
-    if roster_df.empty:
-                                       
-        roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr]
+    roster_df = None
+    prospect_pool_df = getattr(request.app.state, "prospect_lineup_features_df", None)
+    if prospect_pool_df is not None and not prospect_pool_df.empty:
+        pool = prospect_pool_df[prospect_pool_df["SEASON"] == swap_season]
+        if not pool.empty and random.random() < PROSPECT_SWAP_CHANCE:
+            roster_df = pool
+            swap_team_abbr = "DRAFT"
+            swap_team_name = f"{int(pool.iloc[0]['draft_class_year'])} Draft Class"
+
+    if roster_df is None:
+        roster_df = player_season_df[(player_season_df["SEASON"] == swap_season) & (player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr)]
         if roster_df.empty:
-            roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == "ATL"]
-        swap_season = roster_df.iloc[0]["SEASON"]
+            roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == swap_team_abbr]
+            if roster_df.empty:
+                roster_df = player_season_df[player_season_df["TEAM_ABBREVIATION"] == "ATL"]
+            swap_season = roster_df.iloc[0]["SEASON"]
 
                              
     roles_dict = assign_player_roles_absolute(roster_df)
@@ -252,9 +272,8 @@ def start_game(mode: str = Query("current"), request: Request = None):
         mpg = min_val / gp if gp > 0 else 0.0
 
         p_profile = player_profiles.get(str(pid), {})
-        draft_year = p_profile.get("draft_year")
-        draft_position = p_profile.get("draft_position")
-
+        is_prospect = bool(r.get("is_prospect", False)) and not pd.isna(r.get("is_prospect", False))
+        counterpart_id = int(r["counterpart_id"]) if is_prospect else None
         swap_roster.append({
             "player_id": pid,
             "name": str(r["PLAYER_NAME"]),
@@ -267,13 +286,23 @@ def start_game(mode: str = Query("current"), request: Request = None):
             "stl_per36": round(float(r.get("stl_per36", 0.0) or 0.0), 1),
             "blk_per36": round(float(r.get("blk_per36", 0.0) or 0.0), 1),
             "fg3a_rate": round(float(r.get("fg3a_rate", 0.0) or 0.0), 3),
+            "fg3m_per36": round((float(r.get("FG3M", 0.0) or 0.0) / min_val * 36.0) if min_val > 0 else 0.0, 1),
             "role": p_roles[0] if p_roles else "Secondary Creator",
-            "draft_year": draft_year,
-            "draft_position": draft_position
+            "draft_year": p_profile.get("draft_year"),
+            "draft_position": p_profile.get("draft_position"),
+            "is_prospect": is_prospect,
+            "counterpart_id": counterpart_id,
+            "counterpart_name": str(r["counterpart_name"]) if is_prospect else None,
         })
 
                                                      
     swap_roster.sort(key=lambda x: x["mpg"], reverse=True)
+
+    swap_team_display = (
+        swap_team_name
+        if swap_team_abbr == "DRAFT"
+        else f"{swap_season} {swap_team_name}"
+    )
 
     return StartGameResponse(
         mode=mode,
@@ -282,7 +311,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
         original_season=original_season,
         original_lineup=original_lineup_players,
         original_synergy=original_synergy,
-        swap_team_name=f"{swap_season} {swap_team_name}",
+        swap_team_name=swap_team_display,
         swap_team_abbreviation=swap_team_abbr,
         swap_season=swap_season,
         swap_roster=swap_roster
@@ -342,14 +371,13 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
     diagnosis_score = body.diagnosis_score
     selected_traits = body.selected_traits
 
-    player_season_df = request.app.state.player_season_features_df
+    player_season_df = _lineup_df(request)
     teams_df = request.app.state.teams_df
     starting_lineups = request.app.state.starting_lineups
     team_profiles = request.app.state.team_profiles
     team_metadata = request.app.state.team_metadata
     player_profiles = request.app.state.player_profiles
 
-                          
     new_player_ids = [pid if pid != player_out_id else player_in_id for pid in original_player_ids]
     player_seasons = [original_season if pid != player_out_id else player_in_season for pid in original_player_ids]
 

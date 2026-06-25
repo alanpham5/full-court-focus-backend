@@ -153,6 +153,7 @@ class PlayerProfileResponse(BaseModel):
     career_games: int
     archetypes: list[str]
     playstyle_metrics: PlayerPlaystyleMetrics
+    skill_ratings: dict[str, float]
     pfv: Optional[float] = None
     apfv: Optional[float] = None
     similar_players: list[SimilarPlayer]
@@ -174,7 +175,8 @@ class PlayerLeaderItem(BaseModel):
     role: Optional[str] = None
     archetypes: list[str]
     apfv: Optional[float] = None
-    skill_percentiles: dict[str, float]
+    box_score: dict[str, PlayerMetricValue]
+    skill_ratings: dict[str, float]
 
 
 class PlayerLeadersResponse(BaseModel):
@@ -196,6 +198,10 @@ class LineupSearchPlayer(BaseModel):
     role: str
     pts_per36: float
     mpg: float
+    is_prospect: bool = False
+    prospect_id: Optional[str] = None
+    counterpart_id: Optional[int] = None
+    counterpart_name: Optional[str] = None
 
 
 class LineupSynergyRequest(BaseModel):
@@ -214,6 +220,11 @@ class LineupSynergyPlayer(BaseModel):
     stl_per36: float
     blk_per36: float
     fg3a_rate: float
+    fg3m_per36: float = 0.0
+    is_prospect: bool = False
+    prospect_id: Optional[str] = None
+    counterpart_id: Optional[int] = None
+    counterpart_name: Optional[str] = None
 
 
 class LineupSynergyBreakdown(BaseModel):

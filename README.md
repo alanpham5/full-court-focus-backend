@@ -137,6 +137,13 @@ For specific tasks, you can run the following standalone utility scripts:
   python app/scripts/build_lineup_synergy_scores.py
   ```
 
+#### 6. `build_prospect_lineup_features.py`
+- **What it does**: Makes draft prospects usable by the lineup engines by projecting each prospect's **college profile** into NBA rookie metrics — so the current class and prospects with no NBA counterpart stats are supported. It trains a per-target `RidgeCV` model on historical prospects matched (by name) to their actual NBA rookie season (rookies with ≥ 300 minutes, for a stable target), mapping college playstyle features (per-36 production, shooting rates, assist share, height/weight) to the twelve NBA playstyle metrics. 5-fold cross-validation against those real prospect→player pairs is printed each run as verification (shape metrics like rebounding, playmaking, blocks and 3PA rate predict well; scoring volume and minutes are noisier and shrink toward the mean). The model then predicts NBA rookie metrics for **every** prospect (current + historical). Because a regularized model shrinks variance, each class's predictions are then **spread-calibrated per season** — the cohort keeps its model-predicted (rookie-realistic, below-league) center but is rescaled so each metric's spread matches that season's league spread. This keeps a distinctive prospect distinctive, so swapping a prospect into a lineup moves synergy on par with swapping in a real player rather than being a muted, strictly-worse option. Each calibrated prediction is expanded into a full `player_season_features`-shaped row — raw box columns reconstructed from the per-36/rate profile, and z-scores/percentiles standardized against that draft class's NBA season — written to `app/data/static/prospect_lineup_features.parquet` with a synthetic `PLAYER_ID` (≥ 900,000,000) plus `is_prospect`, `prospect_id`, and `counterpart_id`/`counterpart_name` (the top comp, used only for the UI headshot). At startup the API concatenates it with the real season features into a lineup-only frame, so the synergy and Lineup IQ engines treat a prospect like a projected NBA rookie while the UI shows the prospect. Runs automatically after the `prospect` stage of `run_pipeline.py`.
+- **How to run**:
+  ```bash
+  python app/scripts/build_prospect_lineup_features.py
+  ```
+
 ---
 
 ## API Endpoints Reference
@@ -197,7 +204,7 @@ uvicorn main:app --reload
 
 #### `GET /players/{player_id}`
 
-- **Description**: Returns detailed biographical stats, player playstyle role, career playstyle metrics, each metric's percentile against all careers from 1996 through 2025, PFV/APFV scores, and similar-player lists.
+- **Description**: Returns detailed biographical stats, player playstyle role, career playstyle metrics, each metric's percentile against all careers from 1996 through 2025, PFV/APFV scores, the six `skill_ratings` (0–100, computed server-side via `analytics/skill_ratings.py` and used by the radar), and similar-player lists.
 - **Optional `season` query parameter** (e.g. `?season=2024-25`, or `?season=2024`): returns the identical response shape but with every metric scoped to that single season — playstyle metrics and percentiles (ranked within that season), role, archetypes, PFV/APFV (ranked within the season pool), and a season-specific similar-player list. `career_span` is the season, `career_teams`/`career_games` reflect that season, and bio fields (height, weight, draft) are unchanged. Returns `400` for a malformed season, `404` if the season has no data or the player did not play that season.
 - **PFV**: Polygonal Feature Value, the normalized area of the six-axis radar chart using raw population percentiles for `pts_per36`, `reb_per36`, `ast_per36`, `blk_per36`, `stl_per36`, and `ts_pct`.
 - **APFV**: Adjusted PFV, a population-ranked version of PFV after applying the MPG adjustment once. Higher APFV means the player's radar shape holds up with stronger playing-time context.
@@ -267,12 +274,20 @@ uvicorn main:app --reload
 
 #### `GET /players/leaders`
 
-- **Description**: Paginated leaderboard of all players ranked by APFV (descending), used by the player table page. Returns each player's bio, role, archetypes, APFV, and the six fingerprint skill percentiles (`pts_per36`, `reb_per36`, `ast_per36`, `blk_per36`, `stl_per36`, `ts_pct`). The client converts those percentiles into the displayed skill ratings with the same recentering used by the radar (`computeSkillRatings`). Career figures by default; pass `season` for a single-season view.
+- **Description**: Paginated leaderboard of all players ranked by APFV (descending), used by the player table page. Like the prospects list, each item carries two parallel stat views for the Box Score / Fingerprint toggle:
+  - `box_score`: per-36 and shooting-rate metrics, each as `{ value, percentile }` (league-wide percentiles, for color-coding).
+  - `skill_ratings`: the six fingerprint skill ratings (0–100), computed server-side from the playstyle percentiles and APFV (`analytics/skill_ratings.py`) — the same values shown on the player profile radar.
+  - `apfv`: the player's APFV (0–1).
+
+  Career figures by default; pass `season` for a single-season view.
+- **Qualification**: players below a minimum sample size (career/season games × MPG < ~300 total minutes) are excluded so a handful of garbage-time minutes can't top the per-36 columns. The bar is deliberately low — a full rookie season clears it easily.
 - **Query Params**:
   - `season` (optional): `YYYY-YY` or `YYYY`; omit for career.
   - `role` (optional): one of the assigned role labels (e.g. `Playmaker`, `Interior Presence`).
   - `page` (default `1`), `page_size` (default `25`, max `100`).
-- **Sample Request**: `GET /players/leaders?season=2023-24&role=Playmaker&page=1&page_size=25`
+  - `sort` (default `apfv`): `apfv`, `height`, `weight`, a skill axis (`pts_per36` … `ts_pct`, sorts by **rating**), or a box-score key prefixed with `box_` (e.g. `box_pts_per36`, sorts by **value**).
+  - `order` (default `desc`): `asc` or `desc`.
+- **Sample Request**: `GET /players/leaders?season=2023-24&role=Playmaker&sort=box_ast_per36&page=1&page_size=25`
 - **Sample Response**:
   ```json
   {
@@ -285,9 +300,14 @@ uvicorn main:app --reload
         "role": "Designated Scorer",
         "archetypes": ["balanced scorer", "box-score defender"],
         "apfv": 0.979,
-        "skill_percentiles": {
-          "pts_per36": 100, "reb_per36": 28, "ast_per36": 99,
-          "blk_per36": 33, "stl_per36": 88, "ts_pct": 87
+        "box_score": {
+          "pts_per36": { "value": 25.6, "percentile": 99.0 },
+          "ast_per36": { "value": 7.1, "percentile": 96.0 },
+          "ts_pct": { "value": 0.585, "percentile": 84.0 }
+        },
+        "skill_ratings": {
+          "pts_per36": 100, "reb_per36": 85.6, "ast_per36": 100,
+          "blk_per36": 84.6, "stl_per36": 93.9, "ts_pct": 100
         }
       }
     ],
@@ -400,7 +420,7 @@ uvicorn main:app --reload
 
 #### `GET /lineup/search`
 
-- **Description**: Searches for players active in a specific season by name or abbreviation prefix.
+- **Description**: Searches for players active in a specific season by name or abbreviation prefix. The result set also includes that season's draft prospects (the class drafted at the end of the season — e.g. `2024-25` surfaces the 2025 class), flagged with `is_prospect: true` plus `prospect_id`, `counterpart_id`, and `counterpart_name`. Prospects use a synthetic `player_id` and carry a college-projected NBA-rookie playstyle (see the prospect lineup features builder), so they slot into `/lineup/synergy` like any other player.
 - **Query Parameters**:
   - `season` (string, required): The NBA season, e.g. `2023-24`.
   - `q` (string, required): The search query.
@@ -577,7 +597,7 @@ uvicorn main:app --reload
 ### Lineup IQ Game Endpoints
 
 #### `GET /game/start`
-- **Description**: Initializes a new Lineup IQ game session. Selects a challenge starting lineup from the **lower 40th percentile** of synergy scores (a genuinely flawed unit worth optimising), using the precomputed `lineup_synergy_scores.json` artifact, and extracts the target swap team's roster. Each starter in `original_lineup` carries its per-36 stats (`pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `fg3a_rate`) so the client can render full stat cards.
+- **Description**: Initializes a new Lineup IQ game session. Selects a challenge starting lineup from the **lower 40th percentile** of synergy scores (a genuinely flawed unit worth optimising), using the precomputed `lineup_synergy_scores.json` artifact, and extracts the target swap team's roster. Each starter in `original_lineup` carries its per-36 stats (`pts_per36`, `ast_per36`, `reb_per36`, `stl_per36`, `blk_per36`, `fg3a_rate`) so the client can render full stat cards. The chosen lineup is always a real team, but with a 25% chance the **swap pool** is the relevant draft class instead of a random team — those candidates carry `is_prospect: true` and `counterpart_id`/`counterpart_name`, and `/game/evaluate-swap` scores them via their college-projected NBA-rookie playstyle.
 - **Query Parameters**: `mode` (string, optional, default `"current"`): Either `"current"` or `"all_time"`.
 - **Sample Response**:
   ```json
@@ -714,9 +734,16 @@ The draft endpoints support both the current year's draft prospects and historic
 
 Requires `app/data/static/prospects.json` to be generated first via `run_pipeline.py --stages prospect`, or historical draft year datasets to be generated under `app/data/static/draft/` via `build_historical_prospects.py`.
 
+#### `GET /draft/meta`
+
+- **Description**: Metadata for the current draft class. Returns `{ "draft_class_year": <int> }`, the upcoming class year persisted in `prospects.json` (advanced on scrape; see the prospects pipeline). The frontend reads this instead of guessing the year from the calendar.
+
 #### `GET /draft/prospects` (Current Prospects List)
 
-- **Description**: Lists every prospect in the current draft class (undrafted) with their `prospect_id`, display name, college/team, physical metadata (`height`, `weight`), playstyle role (`role`), and flat raw counting stats.
+- **Description**: Lists every prospect in the current draft class with their `prospect_id`, display name, college/team, physical metadata, playstyle `role`, and two parallel stat views used by the table's Box Score / Fingerprint toggle:
+  - `box_score`: per-game counting stats, each as `{ value, percentile }`. Percentiles rank the stat **within the listed class population** so cells can be color-coded.
+  - `skill_ratings`: the six fingerprint skill ratings (0–100) computed server-side from the playstyle percentiles and APFV (`analytics/skill_ratings.py`), the same values shown on the prospect profile radar.
+  - `apfv`: the prospect's APFV (0–1), ranked against the combined current-plus-historical population.
 - **Sample Response**:
   ```json
   [
@@ -728,25 +755,26 @@ Requires `app/data/static/prospects.json` to be generated first via `run_pipelin
       "weight": "210",
       "role": "Designated Scorer",
       "pick": null,
-      "raw_stats": {
-        "gp": 35,
-        "mpg": 34.8,
-        "ppg": 25.5,
-        "fgm": 8.8,
-        "fga": 17.3,
-        "fg_pct": 0.51,
-        "fg3m": 1.4,
-        "fg3a": 4.2,
-        "fg3_pct": 0.331,
-        "ftm": 6.5,
-        "fta": 8.5,
-        "ft_pct": 0.774,
-        "rpg": 6.8,
-        "apg": 3.7,
-        "spg": 1.1,
-        "bpg": 0.3,
-        "pfv": 0.276,
-        "apfv": 0.9515
+      "apfv": 0.9515,
+      "box_score": {
+        "ppg": { "value": 25.5, "percentile": 100.0 },
+        "rpg": { "value": 6.8, "percentile": 70.4 },
+        "apg": { "value": 3.7, "percentile": 88.7 },
+        "spg": { "value": 1.1, "percentile": 60.0 },
+        "bpg": { "value": 0.3, "percentile": 33.0 },
+        "mpg": { "value": 34.8, "percentile": 96.5 },
+        "gp": { "value": 35.0, "percentile": 78.3 },
+        "fg_pct": { "value": 0.51, "percentile": 65.2 },
+        "fg3_pct": { "value": 0.331, "percentile": 55.7 },
+        "ft_pct": { "value": 0.774, "percentile": 60.9 }
+      },
+      "skill_ratings": {
+        "pts_per36": 100.0,
+        "reb_per36": 91.9,
+        "ast_per36": 100.0,
+        "blk_per36": 72.0,
+        "stl_per36": 86.5,
+        "ts_pct": 100.0
       }
     }
   ]
@@ -754,45 +782,11 @@ Requires `app/data/static/prospects.json` to be generated first via `run_pipelin
 
 #### `GET /draft/prospects?year={year}` (Historical Prospects List)
 
-- **Description**: Lists every prospect for a specific historical draft class since 2007, resolving their draft pick numbers, raw stats, and biographical data.
+- **Description**: Same response shape as the current list for a specific historical draft class since 2007 (box-score percentiles are ranked within that class).
 - **Query Parameters**:
   - `year` (integer, required): The draft year to fetch (e.g., `2023`). Returns a `404` error if the specified year has not been ingested.
 - **Differences in Response Shape**:
-  - Each item in the list contains a `"pick"` attribute (integer) representing the player's draft pick selection number.
-- **Sample Response**:
-  ```json
-  [
-    {
-      "prospect_id": "victor-wembanyama",
-      "player_name": "Victor Wembanyama",
-      "team": "All Teams",
-      "height": "7-4",
-      "weight": "235",
-      "role": "Designated Scorer",
-      "pick": 1,
-      "raw_stats": {
-        "gp": 44,
-        "mpg": 32.2,
-        "ppg": 20.9,
-        "fgm": 7.3,
-        "fga": 15.6,
-        "fg_pct": 0.468,
-        "fg3m": 1.3,
-        "fg3a": 4.7,
-        "fg3_pct": 0.272,
-        "ftm": 5.0,
-        "fta": 6.1,
-        "ft_pct": 0.818,
-        "rpg": 10.3,
-        "apg": 2.4,
-        "spg": 0.8,
-        "bpg": 3.0,
-        "pfv": 0.4893,
-        "apfv": 0.8581
-      }
-    }
-  ]
-  ```
+  - Each item additionally carries a `"pick"` attribute (integer) for the player's draft selection number.
 
 #### `GET /draft/{prospect_id}`
 
