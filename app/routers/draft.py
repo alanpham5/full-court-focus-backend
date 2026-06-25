@@ -110,7 +110,8 @@ def _prospects_by_id(request: Request) -> dict[str, dict]:
 
 def _load_historical_prospect_file(path: Path) -> list[dict]:
     with path.open(encoding="utf-8") as f:
-        return json.load(f)
+        records, _ = normalize_prospects_payload(json.load(f))
+    return records
 
 
 def _historical_prospects_for_year(request: Request, year: int) -> list[dict] | None:

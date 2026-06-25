@@ -221,7 +221,7 @@ async def lifespan(app: FastAPI):
         for path in static_draft_dir.glob("prospects_*.json"):
             try:
                 with path.open(encoding="utf-8") as f:
-                    data = json.load(f)
+                    data, _ = normalize_prospects_payload(json.load(f))
                     year = int(path.stem.split("_")[-1])
                     app.state.historical_prospects_by_year[year] = data
                     app.state.historical_prospects.extend(data)
