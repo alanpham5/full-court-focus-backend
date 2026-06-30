@@ -28,9 +28,6 @@ ROLE_ADJ_WEIGHT = 0.35
 SOFT_CAP_KNEE = 84.0
 SOFT_CAP_CEIL = 103.0
 
-STRONG_TRAIT_PCT = 56.0
-WEAK_TRAIT_PCT = 44.0
-
 LEAGUE_3PT_PCT = 0.355
 THREE_PT_SHRINK = 40.0
 SPACER_MIN_3PA_PER36 = 1.5
@@ -73,15 +70,75 @@ def _soft_cap_score(raw: float) -> float:
     return SOFT_CAP_KNEE + span * (1.0 - float(np.exp(-(raw - SOFT_CAP_KNEE) / span)))
 
 
-def _traits_from_items(items: List[tuple], labels: Dict[str, str]) -> List[str]:
-    out: List[str] = []
-    seen = set()
-    for cat, _text in items:
-        label = labels.get(cat)
-        if label and label not in seen:
-            out.append(label)
-            seen.add(label)
-    return out
+
+
+
+_PLAYER_SKILL_COLS = {
+    "shooting": "fg3a_rate_pctile",
+    "scoring": "pts_per36_pctile",
+    "efficiency": "ts_pct_pctile",
+    "passing": "ast_per36_pctile",
+    "creation": "ast_pct_pctile",
+    "rebounding": "reb_per36_pctile",
+    "rim_protection": "blk_per36_pctile",
+    "perimeter_defense": "stl_per36_pctile",
+    "rim_pressure": "fta_rate_pctile",
+}
+
+
+def _pctile(row: pd.Series, col: str, default: float = 50.0) -> float:
+    val = row.get(col, default)
+    try:
+        f = float(val)
+    except (TypeError, ValueError):
+        return default
+    return f if np.isfinite(f) else default
+
+
+def _humanize_names(names: List[str]) -> str:
+    names = [n for n in names if n]
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} and {names[1]}"
+    return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
+def build_player_descriptors(
+    lineup_rows: pd.DataFrame, player_roles: Dict[int, List[str]]
+) -> List[Dict[str, Any]]:
+    """Translate each player's raw season percentiles into the skill vocabulary
+    the diagnosis engine reasons with, so narrative text can name the players
+    who actually drive (or undermine) a given trait."""
+    descriptors: List[Dict[str, Any]] = []
+    for _, r in lineup_rows.iterrows():
+        pid = int(r["PLAYER_ID"])
+        roles = player_roles.get(pid, ["Secondary Creator"])
+        skills = {k: _pctile(r, col) for k, col in _PLAYER_SKILL_COLS.items()}
+        gravity = three_point_gravity(r)
+
+        playmaking = max(skills["passing"], skills["creation"])
+        defense = max(skills["perimeter_defense"], skills["rim_protection"])
+        descriptors.append({
+            "id": pid,
+            "name": str(r["PLAYER_NAME"]),
+            "role": roles[0] if roles else "Secondary Creator",
+            "roles": roles,
+            "gravity": gravity,
+            "is_shooter": gravity >= SHOOTER_GRAVITY,
+            "shooting": skills["shooting"],
+            "scoring": skills["scoring"],
+            "efficiency": skills["efficiency"],
+            "playmaking": playmaking,
+            "rebounding": skills["rebounding"],
+            "rim_protection": skills["rim_protection"],
+            "perimeter_defense": skills["perimeter_defense"],
+            "rim_pressure": skills["rim_pressure"],
+            "defense": defense,
+        })
+    return descriptors
 
 
 def style_affinity(a: np.ndarray, b: np.ndarray) -> float:
@@ -425,193 +482,290 @@ def _build_players_payload(lineup_rows: pd.DataFrame, player_roles: Dict[int, Li
         })
     return players_payload
 
-def generate_lineup_diagnoses(
-    playmaking_pct: float, space_pct: float, rebounding_pct: float, paint_pct: float, defense_pct: float, pace_pct: float, baseline_talent: float,
-    playmakers_count: int, creators_count: int, shooters_count: int, bigs_count: int, defenders_count: int,
-    strong_rebounders: int, rim_protectors: int, elite_passers: int,
-    sum_ast: float, sum_stl: float, sum_pts: float, lineup_3pt_pct: float, reb_ratio: float, blk_ratio: float
-) -> tuple:
-    identities = []
-    if pace_pct > 75 and sum_pts > 85:
-        identities.append(("Transition Offense", pace_pct))
-    elif pace_pct < 35:
-        identities.append(("Grind-it-out Halfcourt", 100 - pace_pct))
-        
-    if shooters_count >= 4:
-        identities.append(("Five-out Spacing", space_pct))
-    elif shooters_count == 0:
-        identities.append(("Interior-oriented Offense", 100 - space_pct))
-        
-    if playmakers_count == 1 and shooters_count >= 3:
-        identities.append(("Heliocentric Offense", playmaking_pct + space_pct))
-    elif playmakers_count >= 3:
-        identities.append(("Creator-heavy Offense", playmaking_pct))
-        
-    if bigs_count >= 3:
-        identities.append(("Jumbo Lineup", rebounding_pct))
-        
-    if defense_pct > 75 and baseline_talent < 55:
-        identities.append(("Defensive Grind Lineup", defense_pct + (100 - baseline_talent)))
-    elif defense_pct > 80:
-        identities.append(("Lockdown Defensive Lineup", defense_pct))
-        
-    if paint_pct > 80 and space_pct < 40:
-        identities.append(("Paint-dominant Offense", paint_pct + (100 - space_pct)))
 
+_TRAIT_SKILL = {
+    "playmaking": "playmaking",
+    "spacing": "shooting",
+    "rebounding": "rebounding",
+    "paint_scoring": "rim_pressure",
+    "defense": "defense",
+    "scoring": "scoring",
+}
+_TRAIT_DIM = {
+    "playmaking": "playmaking",
+    "spacing": "spacing",
+    "rebounding": "rebounding",
+    "paint_scoring": "paint",
+    "defense": "defense",
+    "scoring": "scoring",
+}
+
+
+_GOOD = 62.0        
+_STRONG = 72.0        
+_WEAK = 43.0        
+_RESCUE = 60.0       
+_INTERACTION_BASE = 26.0   
+_DIAGNOSIS_LIMIT = 4
+
+
+def generate_lineup_diagnoses(
+    *,
+    descriptors: List[Dict[str, Any]],
+    dims: Dict[str, float],
+    composition: Dict[str, int],
+) -> tuple:
+    """Produce a coherent scouting read of the five-man unit.
+
+    Rather than firing isolated threshold checks, this evaluates every trait by
+    blending the lineup-level percentile (``dims``) with the strongest individual
+    who carries it, layers in cross-trait interactions (drive-and-kick, two-way
+    walls, spacing bottlenecks, ...), and then resolves the candidates into
+    mutually-consistent collections of strengths and weaknesses: a trait can
+    surface on only one side, and the connective phrasing names the players
+    actually responsible for each read.
+    """
+    def carriers(skill: str, gate: float = 55.0, n: int = 3) -> List[Dict[str, Any]]:
+        elig = [d for d in descriptors if d.get(skill, 0.0) >= gate]
+        return sorted(elig, key=lambda d: d.get(skill, 0.0), reverse=True)[:n]
+
+    def best(skill: str) -> float:
+        return max((d.get(skill, 0.0) for d in descriptors), default=50.0)
+
+    def names(ds: List[Dict[str, Any]]) -> str:
+        return _humanize_names([d["name"] for d in ds])
+
+
+    assess: Dict[str, Dict[str, Any]] = {}
+    for trait, skill in _TRAIT_SKILL.items():
+        dim = float(dims.get(_TRAIT_DIM[trait], 50.0))
+        support = best(skill)
+        assess[trait] = {
+            "dim": dim,
+            "support": support,
+            "signal": 0.5 * dim + 0.5 * support,
+            "carriers": carriers(skill),
+        }
+
+    def sig(trait: str) -> float:
+        return assess[trait]["signal"]
+
+    non_shooters = sorted(
+        [d for d in descriptors if not d["is_shooter"]],
+        key=lambda d: d.get("scoring", 0.0), reverse=True,
+    )
+
+    insights: List[Dict[str, Any]] = []
+
+    def add(category: str, trait, traits: set, weight: float, headline: str, text: str):
+        insights.append({
+            "category": category, "trait": trait, "traits": traits,
+            "weight": float(weight), "headline": headline, "text": text,
+        })
+
+    pm_carrier = assess["playmaking"]["carriers"][:1]
+    pm_names = names(pm_carrier)
+    pm_id = pm_carrier[0]["id"] if pm_carrier else None
+    shooter_names = names([d for d in descriptors if d["is_shooter"] and d["id"] != pm_id][:3])
+
+
+    if sig("playmaking") >= _GOOD and sig("spacing") >= _GOOD - 2:
+        add("strength", "playmaking", {"playmaking", "spacing"},
+            _INTERACTION_BASE + 0.5 * (sig("playmaking") - 50) + 0.5 * (sig("spacing") - 50),
+            "Drive-and-Kick Engine",
+            f"{pm_names or 'The lead creator'} works downhill with shooters spaced around the arc; "
+            f"defenses are forced to pick their poison between collapsing on the drive and chasing "
+            f"{shooter_names or 'kick-out threats'}, and this group makes them pay either way.")
+
+
+    if sig("paint_scoring") >= _GOOD and sig("spacing") >= _GOOD:
+        rim_names = names(assess["paint_scoring"]["carriers"][:2])
+        add("strength", "paint_scoring", {"paint_scoring", "spacing"},
+            _INTERACTION_BASE + 0.5 * (sig("paint_scoring") - 50) + 0.5 * (sig("spacing") - 50),
+            "Inside-Out Pressure",
+            f"Interior pressure from {rim_names or 'the frontcourt'} bends the defense inward while "
+            f"shooters wait on the perimeter — a collapse-and-kick dynamic that is brutal to defend "
+            f"without elite rim protection.")
+
+    if sig("defense") >= _GOOD and sig("rebounding") >= _GOOD:
+        def_names = names(assess["defense"]["carriers"][:2])
+        add("strength", "defense", {"defense", "rebounding"},
+            _INTERACTION_BASE + 0.5 * (sig("defense") - 50) + 0.5 * (sig("rebounding") - 50),
+            "Two-Way Wall",
+            f"With {def_names or 'this group'} anchoring the back line, the unit contests shots and then "
+            f"cleans the glass; opponents get one contested look and rarely a second, which travels in any era.")
+
+
+    if sig("scoring") >= _STRONG and (sig("playmaking") >= 53 or sig("spacing") >= 53):
+        score_names = names(assess["scoring"]["carriers"][:2])
+        add("strength", "scoring", {"scoring"},
+            _INTERACTION_BASE + 0.6 * (sig("scoring") - 50),
+            "Shot-Making Firepower",
+            f"{score_names or 'Multiple scorers'} give this unit shot-creation it can lean on when "
+            f"possessions break down — there is always someone who can manufacture a bucket late in the clock.")
+
+    if sig("playmaking") >= _GOOD and assess["spacing"]["dim"] <= _WEAK and best("shooting") < _RESCUE + 5:
+        clog = names(non_shooters[:2])
+        add("weakness", "spacing", {"spacing"},
+            _INTERACTION_BASE + 0.5 * (sig("playmaking") - 50) + 0.4 * (50 - assess["spacing"]["dim"]),
+            "Cramped Driving Lanes",
+            f"{pm_names or 'The lead creator'} has little room to operate — with "
+            f"{clog or 'multiple non-shooters'} offering no perimeter threat, help defenders sink into "
+            f"the paint and wall off the rim, blunting the very creation that should drive this offense.")
+
+    if sig("defense") >= _GOOD and assess["rebounding"]["dim"] <= _WEAK and best("rebounding") < _RESCUE:
+        add("weakness", "rebounding", {"rebounding"},
+            _INTERACTION_BASE + 0.5 * (sig("defense") - 50) + 0.4 * (50 - assess["rebounding"]["dim"]),
+            "Second-Chance Leak",
+            "The unit forces tough misses but lacks the size to close possessions, gifting opponents "
+            "offensive rebounds that quietly undo all the good defense.")
+
+    if sig("spacing") >= _GOOD + 2 and assess["paint_scoring"]["dim"] <= 40 and best("rim_pressure") < _RESCUE:
+        add("weakness", "paint_scoring", {"paint_scoring"},
+            _INTERACTION_BASE + 0.5 * (sig("spacing") - 50) + 0.4 * (50 - assess["paint_scoring"]["dim"]),
+            "Jump-Shot Dependent",
+            "With little rim pressure to fall back on, the offense lives and dies by the three; on cold "
+            "shooting nights there's no reliable way to manufacture easy points at the rim or the line.")
+
+
+    if composition.get("creators", 0) >= 3 and sig("playmaking") < 48 and best("playmaking") < _RESCUE + 8:
+        score_names = names(assess["scoring"]["carriers"][:2])
+        add("weakness", "playmaking", {"playmaking"},
+            _INTERACTION_BASE + (50 - sig("playmaking")) + 3.0 * composition["creators"],
+            "No Lead Initiator",
+            f"{score_names or 'Several scorers'} all want touches, but no true table-setter organizes "
+            f"the halfcourt; possessions risk devolving into isolation as the ball sticks.")
+
+    _SINGLE_STRENGTH = {
+        "playmaking": ("Connective Passing",
+            "ball movement that keeps the offense humming and finds the open man before the defense recovers"),
+        "spacing": ("Floor Spacing",
+            "enough shooting to stretch defenses and keep the paint honest"),
+        "rebounding": ("Glass Control",
+            "size and rebounding instincts that secure extra possessions and limit opponents to one shot"),
+        "paint_scoring": ("Rim Pressure",
+            "a steady diet of attempts at the rim and the foul line that pressures opposing bigs"),
+        "defense": ("Defensive Bite",
+            "the personnel to defend on the ball and protect the rim, making clean looks hard to come by"),
+        "scoring": ("Scoring Punch",
+            "shot-makers who can get a bucket when the offense bogs down"),
+    }
+    _SINGLE_WEAKNESS = {
+        "playmaking": ("Limited Ball Movement",
+            "without a real creator the offense leans on isolation and predictable sets"),
+        "spacing": ("Spacing Concerns",
+            "thin perimeter shooting lets defenders pack the paint and cut off driving lanes"),
+        "rebounding": ("Undersized on the Glass",
+            "a lack of interior size leaves the unit vulnerable to being out-rebounded"),
+        "paint_scoring": ("Soft Interior Scoring",
+            "little pressure at the rim forces the group into a steady diet of jumpers"),
+        "defense": ("Defensive Exposure",
+            "minus defenders give opponents mismatches they can hunt repeatedly"),
+        "scoring": ("Scoring Droughts",
+            "a shortage of shot creation makes this unit prone to extended cold stretches"),
+    }
+
+    for trait in _TRAIT_SKILL:
+        a = assess[trait]
+        carrier_names = names(a["carriers"][:2])
+
+        is_strength = a["signal"] >= _GOOD and (a["dim"] >= 47 or a["support"] >= 82)
+        if is_strength:
+            head, body = _SINGLE_STRENGTH[trait]
+            lead = f"Led by {carrier_names}, this group brings " if carrier_names else "This group brings "
+            add("strength", trait, {trait}, (a["signal"] - 50),
+                head, f"{lead}{body}.")
+        elif a["dim"] <= _WEAK and a["support"] < _RESCUE:
+            head, body = _SINGLE_WEAKNESS[trait]
+            add("weakness", trait, {trait},
+                (50 - a["dim"]) + 0.25 * (_RESCUE - a["support"]),
+                head, body[0].upper() + body[1:] + ".")
+        elif a["dim"] < 50 and a["support"] < 55:
+
+            head, body = _SINGLE_WEAKNESS[trait]
+            add("weakness", trait, {trait}, (50 - a["dim"]) * 0.45,
+                f"Minor: {head}", f"To a lesser degree, {body}.")
+
+
+    overall = float(np.mean([assess[t]["dim"] for t in _TRAIT_SKILL]))
+    if overall >= 60:
+        max_str, max_weak = _DIAGNOSIS_LIMIT, 2
+    elif overall >= 50:
+        max_str, max_weak = 3, 3
+    elif overall >= 42:
+        max_str, max_weak = 2, 3
+    else:
+        max_str, max_weak = 2, _DIAGNOSIS_LIMIT
+
+    insights.sort(key=lambda x: x["weight"], reverse=True)
+    strengths: List[str] = []
+    weaknesses: List[str] = []
+    strength_traits: List[str] = []
+    weakness_traits: List[str] = []
+    used_traits: set = set()
+
+    for ins in insights:
+        if ins["traits"] & used_traits:
+            continue
+        if ins["category"] == "strength" and len(strengths) < max_str:
+            strengths.append(f"{ins['headline']} - {ins['text']}")
+            if ins["trait"]:
+                strength_traits.append(ins["trait"])
+            used_traits |= ins["traits"]
+        elif ins["category"] == "weakness" and len(weaknesses) < max_weak:
+            weaknesses.append(f"{ins['headline']} - {ins['text']}")
+            if ins["trait"]:
+                weakness_traits.append(ins["trait"])
+            used_traits |= ins["traits"]
+
+
+    if not strengths:
+        t = max(_TRAIT_SKILL, key=sig)
+        head, body = _SINGLE_STRENGTH[t]
+        cn = names(assess[t]["carriers"][:2])
+        lead = f"Led by {cn}, this group's most reliable edge is " if cn else "This group's most reliable edge is "
+        strengths.append(f"Relative Strength: {head} - {lead}{body}.")
+        strength_traits.append(t)
+        used_traits.add(t)
+    if not weaknesses:
+        candidates = [t for t in _TRAIT_SKILL if t not in used_traits]
+        t = min(candidates or list(_TRAIT_SKILL), key=lambda x: assess[x]["dim"])
+        if assess[t]["dim"] < 50:
+            head, body = _SINGLE_WEAKNESS[t]
+            weaknesses.append(f"Soft Spot: {head} - {body[0].upper() + body[1:]}.")
+            weakness_traits.append(t)
+        else:
+            weaknesses.append(
+                "Well-Rounded - No dimension stands out as a glaring liability; opponents "
+                "lack an obvious matchup to attack against this group.")
+
+
+    pace = float(dims.get("pace", 50.0))
+    identities: List[tuple] = []
+    if composition.get("shooters", 0) >= 4:
+        identities.append(("Five-Out Spacing", sig("spacing") + 10))
+    if composition.get("playmakers", 0) == 1 and composition.get("shooters", 0) >= 3:
+        identities.append(("Heliocentric Attack", sig("playmaking") + sig("spacing")))
+    elif composition.get("playmakers", 0) >= 3:
+        identities.append(("Positionless Playmaking", sig("playmaking") + 8))
+    if sig("defense") >= _GOOD and sig("scoring") < _GOOD:
+        identities.append(("Defense-First Identity", sig("defense") + (60 - min(60, sig("scoring")))))
+    if sig("defense") >= _STRONG:
+        identities.append(("Lockdown Unit", sig("defense") + 6))
+    if pace >= 70 and sig("scoring") >= 55:
+        identities.append(("Transition Attack", pace))
+    elif pace <= 35:
+        identities.append(("Grind-It-Out Halfcourt", 100 - pace))
+    if composition.get("bigs", 0) >= 2 and sig("paint_scoring") >= _GOOD:
+        identities.append(("Interior-Oriented", sig("paint_scoring") + 6))
+    if sig("paint_scoring") >= _GOOD and sig("spacing") >= _GOOD:
+        identities.append(("Inside-Out Balance", sig("paint_scoring") + sig("spacing")))
     if not identities:
         identities.append(("Balanced Lineup", 50.0))
-        
     identities.sort(key=lambda x: x[1], reverse=True)
-    primary_identity = identities[0][0] if identities else "Balanced"
+    primary_identity = identities[0][0]
     secondary_identity = identities[1][0] if len(identities) > 1 else None
 
-    observations = []
-    
-    # 1. Playmaking + Spacing Interactions
-    if playmaking_pct > 65 and space_pct < 45:
-        observations.append({
-            "score": (playmaking_pct - 50) + (50 - space_pct),
-            "category": "weakness",
-            "trait": "spacing",
-            "headline": "Spacing Bottleneck",
-            "text": "Elite creators may not realize their full value because limited spacing compresses driving lanes."
-        })
-    elif space_pct > 70 and playmakers_count == 0:
-        observations.append({
-            "score": (space_pct - 50) + (50 - playmaking_pct),
-            "category": "weakness",
-            "trait": "playmaking",
-            "headline": "Missing Initiator",
-            "text": "Strong spacing is present, but no reliable playmaker is available to collapse the defense and kick out to shooters."
-        })
-    elif playmaking_pct > 70 and space_pct > 70:
-        observations.append({
-            "score": (playmaking_pct - 50) + (space_pct - 50),
-            "category": "strength",
-            "trait": "playmaking",
-            "headline": "Drive and Kick Excellence",
-            "text": "Multiple reliable shooters provide maximum space for elite playmakers to operate, putting immense pressure on rotations."
-        })
-
-    # 2. Rebounding + Defense Interactions
-    if rebounding_pct > 70 and defense_pct < 45:
-        observations.append({
-            "score": (rebounding_pct - 50) + (50 - defense_pct),
-            "category": "weakness",
-            "trait": "defense",
-            "headline": "Offensive Board Reliance",
-            "text": "Extra possessions help offset defensive issues, but opponents are still likely to generate efficient initial looks."
-        })
-    elif defense_pct > 70 and rebounding_pct < 40:
-        observations.append({
-            "score": (defense_pct - 50) + (50 - rebounding_pct),
-            "category": "weakness",
-            "trait": "rebounding",
-            "headline": "One-and-Done Struggles",
-            "text": "The defense forces missed shots effectively, but struggles on the defensive glass grant opponents costly second chances."
-        })
-    elif defense_pct > 75 and rebounding_pct > 75:
-        observations.append({
-            "score": (defense_pct - 50) + (rebounding_pct - 50),
-            "category": "strength",
-            "trait": "defense",
-            "headline": "Smothering Defense",
-            "text": "Elite shot suppression combined with dominant rebounding completely neutralizes opposing offenses."
-        })
-
-    # 3. Offense vs Defense
-    if defense_pct > 75 and sum_pts < 75:
-        observations.append({
-            "score": (defense_pct - 50) + (85 - sum_pts),
-            "category": "strength",
-            "trait": "defense",
-            "headline": "Defense First",
-            "text": "This unit projects to win through consistent stops and forcing turnovers rather than relying on offensive firepower."
-        })
-        
-    # 4. Spacing + Paint Interactions
-    if space_pct > 75 and paint_pct < 40:
-        observations.append({
-            "score": (space_pct - 50) + (50 - paint_pct),
-            "category": "weakness",
-            "trait": "paint_scoring",
-            "headline": "Perimeter Reliance",
-            "text": "The offense prefers stretching defenses from deep but struggles to consistently attack the rim, making them vulnerable to cold shooting nights."
-        })
-    elif paint_pct > 75 and space_pct > 75:
-        observations.append({
-            "score": (paint_pct - 50) + (space_pct - 50),
-            "category": "strength",
-            "trait": "scoring",
-            "headline": "Inside-Out Nightmare",
-            "text": "The rare combination of elite spacing and relentless paint pressure makes this offense nearly impossible to guard with traditional schemes."
-        })
-
-    # 5. Creator + Scorer Overlap
-    if creators_count >= 4 and playmakers_count == 0:
-        observations.append({
-            "score": (creators_count * 10) + (50 - playmaking_pct),
-            "category": "weakness",
-            "trait": "playmaking",
-            "headline": "Too Many Mouths",
-            "text": "An abundance of scoring talent risks stagnation without a dedicated initiator to organize the halfcourt."
-        })
-
-    # 6. Standalone Extremes (Act as fallbacks if interactions aren't dominant)
-    if playmaking_pct > 80:
-        observations.append({"score": playmaking_pct - 50, "category": "strength", "trait": "playmaking", "headline": "Elite Ball Movement", "text": "High-level initiators ensure the ball rarely sticks, constantly finding the open man and creating easy looks."})
-    elif playmaking_pct < 30:
-        observations.append({"score": 50 - playmaking_pct, "category": "weakness", "trait": "playmaking", "headline": "Stagnant Offense", "text": "A severe lack of playmaking leads to isolation-heavy possessions and predictable offensive sets."})
-
-    if space_pct > 80:
-        observations.append({"score": space_pct - 50, "category": "strength", "trait": "spacing", "headline": "Lethal Floor Spacing", "text": "Knockdown shooting from multiple positions stretches the defense to its breaking point."})
-    elif space_pct < 30:
-        observations.append({"score": 50 - space_pct, "category": "weakness", "trait": "spacing", "headline": "Clogged Driving Lanes", "text": "Poor outside shooting allows defenders to pack the paint, cutting off drives and entry passes."})
-
-    if rebounding_pct > 80:
-        observations.append({"score": rebounding_pct - 50, "category": "strength", "trait": "rebounding", "headline": "Glass Dominance", "text": "Exceptional size and rebounding instincts secure extra possessions and limit opponents to one shot."})
-    elif rebounding_pct < 30:
-        observations.append({"score": 50 - rebounding_pct, "category": "weakness", "trait": "rebounding", "headline": "Frontcourt Vulnerability", "text": "A lack of physical presence on the interior leaves the unit susceptible to being bullied on the boards."})
-
-    if paint_pct > 80:
-        observations.append({"score": paint_pct - 50, "category": "strength", "trait": "paint_scoring", "headline": "Relentless Paint Pressure", "text": "The lineup consistently generates high-percentage looks at the rim, putting opposing frontcourts in foul trouble."})
-    elif paint_pct < 30:
-        observations.append({"score": 50 - paint_pct, "category": "weakness", "trait": "paint_scoring", "headline": "Soft Interior Offense", "text": "Inability to score inside forces the unit to rely heavily on difficult jumpers."})
-
-    if defense_pct > 80:
-        observations.append({"score": defense_pct - 50, "category": "strength", "trait": "defense", "headline": "Elite Defensive Unit", "text": "Suffocating point-of-attack defense combined with strong rotations makes scoring extremely difficult for opponents."})
-    elif defense_pct < 30:
-        observations.append({"score": 50 - defense_pct, "category": "weakness", "trait": "defense", "headline": "Defensive Sieves", "text": "Multiple minus defenders create mismatch opportunities that opposing offenses can easily exploit."})
-
-    if baseline_talent > 80 and sum_pts > 90:
-        observations.append({"score": baseline_talent - 50, "category": "strength", "trait": "scoring", "headline": "Overwhelming Firepower", "text": "Elite individual scoring talent provides multiple reliable options to get a bucket when plays break down."})
-    elif baseline_talent < 35:
-        observations.append({"score": 50 - baseline_talent, "category": "weakness", "trait": "scoring", "headline": "Scoring Droughts", "text": "A lack of high-end shot creators makes the lineup highly susceptible to long scoring droughts."})
-
-    observations.sort(key=lambda x: x["score"], reverse=True)
-    
-    strengths = []
-    weaknesses = []
-    strength_traits = []
-    weakness_traits = []
-    seen_traits = set()
-    
-    for obs in observations:
-        if obs["trait"] in seen_traits:
-            continue
-            
-        if obs["category"] == "strength" and len(strengths) < 3:
-            strengths.append(f"{obs['headline']} - {obs['text']}")
-            strength_traits.append(obs["trait"])
-            seen_traits.add(obs["trait"])
-        elif obs["category"] == "weakness" and len(weaknesses) < 3:
-            weaknesses.append(f"{obs['headline']} - {obs['text']}")
-            weakness_traits.append(obs["trait"])
-            seen_traits.add(obs["trait"])
-            
-        if len(strengths) >= 3 and len(weaknesses) >= 3:
-            break
-            
     st_labels = [STRENGTH_TRAIT_LABELS[t] for t in strength_traits]
     wt_labels = [WEAKNESS_TRAIT_LABELS[t] for t in weakness_traits]
 
@@ -895,16 +1049,30 @@ def calculate_lineup_synergy(
         "overlap": round(overlap_chan, 1),
     }
 
-    lineup_3pt_pct = custom_stats["space"]
-    sum_ast = sum(float(r.get("ast_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
-    sum_stl = sum(float(r.get("stl_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
-    sum_pts = sum(float(r.get("pts_per36", 0.0) or 0.0) for _, r in lineup_rows.iterrows())
-    
+    descriptors = build_player_descriptors(lineup_rows, player_roles)
+    diag_dims = {
+        "playmaking": playmaking_pct,
+        "spacing": space_pct,
+        "rebounding": rebounding_pct,
+        "paint": paint_pct,
+        "defense": defense_pct,
+        "pace": pace_pct,
+        "scoring": baseline_talent,
+    }
+    composition = {
+        "playmakers": playmakers_count,
+        "creators": creators_count,
+        "shooters": shooters_count,
+        "bigs": bigs_count,
+        "defenders": defenders_count,
+        "strong_rebounders": strong_rebounders,
+        "rim_protectors": rim_protectors,
+        "elite_passers": elite_passers,
+    }
     strengths, weaknesses, strength_traits, weakness_traits, p_identity, s_identity = generate_lineup_diagnoses(
-        playmaking_pct, space_pct, rebounding_pct, paint_pct, defense_pct, pace_pct, baseline_talent,
-        playmakers_count, creators_count, shooters_count, bigs_count, defenders_count,
-        strong_rebounders, rim_protectors, elite_passers,
-        sum_ast, sum_stl, sum_pts, lineup_3pt_pct, reb_ratio, blk_ratio
+        descriptors=descriptors,
+        dims=diag_dims,
+        composition=composition,
     )
 
     if not compute_similar:
