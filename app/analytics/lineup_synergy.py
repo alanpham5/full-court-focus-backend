@@ -109,9 +109,6 @@ def _humanize_names(names: List[str]) -> str:
 def build_player_descriptors(
     lineup_rows: pd.DataFrame, player_roles: Dict[int, List[str]]
 ) -> List[Dict[str, Any]]:
-    """Translate each player's raw season percentiles into the skill vocabulary
-    the diagnosis engine reasons with, so narrative text can name the players
-    who actually drive (or undermine) a given trait."""
     descriptors: List[Dict[str, Any]] = []
     for _, r in lineup_rows.iterrows():
         pid = int(r["PLAYER_ID"])
@@ -499,13 +496,21 @@ _TRAIT_DIM = {
     "defense": "defense",
     "scoring": "scoring",
 }
+_TRAIT_CHANNEL = {
+    "playmaking": "playmaking",
+    "spacing": "spacing",
+    "rebounding": "interior",
+    "paint_scoring": "interior",
+    "defense": "defense",
+}
 
-
-_GOOD = 62.0        
-_STRONG = 72.0        
-_WEAK = 43.0        
-_RESCUE = 60.0       
-_INTERACTION_BASE = 26.0   
+_GOOD = 62.0
+_STRONG = 72.0
+_WEAK = 43.0
+_RESCUE = 60.0
+_INTERACTION_BASE = 26.0
+_CHANNEL_WEIGHT = 1.1
+_CHANNEL_WEAKNESS_GATE = -5.0
 _DIAGNOSIS_LIMIT = 4
 
 
@@ -514,17 +519,13 @@ def generate_lineup_diagnoses(
     descriptors: List[Dict[str, Any]],
     dims: Dict[str, float],
     composition: Dict[str, int],
+    synergy_score: float,
+    channels: Dict[str, float],
 ) -> tuple:
-    """Produce a coherent scouting read of the five-man unit.
+    def chan(trait: str) -> float:
+        key = _TRAIT_CHANNEL.get(trait)
+        return float(channels.get(key, 0.0)) if key else 0.0
 
-    Rather than firing isolated threshold checks, this evaluates every trait by
-    blending the lineup-level percentile (``dims``) with the strongest individual
-    who carries it, layers in cross-trait interactions (drive-and-kick, two-way
-    walls, spacing bottlenecks, ...), and then resolves the candidates into
-    mutually-consistent collections of strengths and weaknesses: a trait can
-    surface on only one side, and the connective phrasing names the players
-    actually responsible for each read.
-    """
     def carriers(skill: str, gate: float = 55.0, n: int = 3) -> List[Dict[str, Any]]:
         elig = [d for d in descriptors if d.get(skill, 0.0) >= gate]
         return sorted(elig, key=lambda d: d.get(skill, 0.0), reverse=True)[:n]
@@ -667,35 +668,48 @@ def generate_lineup_diagnoses(
 
     for trait in _TRAIT_SKILL:
         a = assess[trait]
+        c = chan(trait)
         carrier_names = names(a["carriers"][:2])
 
-        is_strength = a["signal"] >= _GOOD and (a["dim"] >= 47 or a["support"] >= 82)
+        is_strength = a["signal"] >= _GOOD and (a["dim"] >= 47 or a["support"] >= 82) and c > _CHANNEL_WEAKNESS_GATE
         if is_strength:
             head, body = _SINGLE_STRENGTH[trait]
             lead = f"Led by {carrier_names}, this group brings " if carrier_names else "This group brings "
             add("strength", trait, {trait}, (a["signal"] - 50),
                 head, f"{lead}{body}.")
-        elif a["dim"] <= _WEAK and a["support"] < _RESCUE:
+        elif (a["dim"] <= _WEAK and a["support"] < _RESCUE) or c <= _CHANNEL_WEAKNESS_GATE:
             head, body = _SINGLE_WEAKNESS[trait]
             add("weakness", trait, {trait},
-                (50 - a["dim"]) + 0.25 * (_RESCUE - a["support"]),
+                (50 - a["dim"]) + 0.25 * (_RESCUE - a["support"]) + max(0.0, -c),
                 head, body[0].upper() + body[1:] + ".")
         elif a["dim"] < 50 and a["support"] < 55:
-
             head, body = _SINGLE_WEAKNESS[trait]
             add("weakness", trait, {trait}, (50 - a["dim"]) * 0.45,
                 f"Minor: {head}", f"To a lesser degree, {body}.")
 
+    overlap_chan = float(channels.get("overlap", 0.0))
+    if overlap_chan <= _CHANNEL_WEAKNESS_GATE:
+        add("weakness", None, {"__overlap__"}, _INTERACTION_BASE - 4 + max(0.0, -overlap_chan),
+            "Redundant Roles",
+            "Several players occupy the same role and compete for the same touches and floor space, "
+            "so the unit's parts overlap instead of complementing one another.")
 
-    overall = float(np.mean([assess[t]["dim"] for t in _TRAIT_SKILL]))
-    if overall >= 60:
-        max_str, max_weak = _DIAGNOSIS_LIMIT, 2
-    elif overall >= 50:
-        max_str, max_weak = 3, 3
-    elif overall >= 42:
+    for ins in insights:
+        if not ins["trait"]:
+            continue
+        c = chan(ins["trait"])
+        ins["weight"] += _CHANNEL_WEIGHT * c if ins["category"] == "strength" else -_CHANNEL_WEIGHT * c
+
+    if synergy_score >= 70:
+        max_str, max_weak = _DIAGNOSIS_LIMIT, 1
+    elif synergy_score >= 58:
+        max_str, max_weak = 3, 2
+    elif synergy_score >= 46:
+        max_str, max_weak = 2, 2
+    elif synergy_score >= 34:
         max_str, max_weak = 2, 3
     else:
-        max_str, max_weak = 2, _DIAGNOSIS_LIMIT
+        max_str, max_weak = 1, _DIAGNOSIS_LIMIT
 
     insights.sort(key=lambda x: x["weight"], reverse=True)
     strengths: List[str] = []
@@ -1073,6 +1087,8 @@ def calculate_lineup_synergy(
         descriptors=descriptors,
         dims=diag_dims,
         composition=composition,
+        synergy_score=synergy_score,
+        channels=synergy_breakdown,
     )
 
     if not compute_similar:

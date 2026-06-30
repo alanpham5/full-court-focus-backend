@@ -16,6 +16,18 @@ router = APIRouter(prefix="/game", tags=["game"])
 STRENGTHS = list(STRENGTH_TRAIT_LABELS.values())
 WEAKNESSES = list(WEAKNESS_TRAIT_LABELS.values())
 
+_STRENGTH_LABEL_TO_KEY = {v: k for k, v in STRENGTH_TRAIT_LABELS.items()}
+_WEAKNESS_LABEL_TO_KEY = {v: k for k, v in WEAKNESS_TRAIT_LABELS.items()}
+_TRAIT_ORDER = list(STRENGTH_TRAIT_LABELS.keys())
+_TRAIT_AREA = {
+    "playmaking": "playmaking",
+    "spacing": "spacing",
+    "rebounding": "rebounding",
+    "paint_scoring": "paint pressure",
+    "defense": "defense",
+    "scoring": "scoring depth",
+}
+
 CHALLENGE_PERCENTILE = 40.0
 PROSPECT_SWAP_CHANCE = 0.25
 
@@ -68,6 +80,93 @@ def _lineup_df(request: Request):
     if df is None:
         df = request.app.state.player_season_features_df
     return df
+
+
+def _join_traits(items: List[str]) -> str:
+    items = [str(i) for i in items if i]
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def _synergy_verdict(delta: float) -> str:
+    if delta >= 6.0:
+        return "a clear upgrade"
+    if delta >= 2.0:
+        return "a modest upgrade"
+    if delta > -2.0:
+        return "roughly a wash"
+    if delta > -6.0:
+        return "a modest step back"
+    return "a clear downgrade"
+
+
+def _trait_keys(labels, mapping):
+    return {mapping[l] for l in labels if l in mapping}
+
+
+def _ordered(keys):
+    return [k for k in _TRAIT_ORDER if k in keys]
+
+
+def _describe_swap(player_out_name, player_in_name, original_synergy, new_synergy,
+                   synergy_delta, original_res, new_res):
+    old_s = _trait_keys(original_res.get("strength_traits", []), _STRENGTH_LABEL_TO_KEY)
+    new_s = _trait_keys(new_res.get("strength_traits", []), _STRENGTH_LABEL_TO_KEY)
+    old_w = _trait_keys(original_res.get("weakness_traits", []), _WEAKNESS_LABEL_TO_KEY)
+    new_w = _trait_keys(new_res.get("weakness_traits", []), _WEAKNESS_LABEL_TO_KEY)
+
+    flips_up = old_w & new_s
+    flips_down = old_s & new_w
+    gained = (new_s - old_s) - flips_up
+    lost = (old_s - new_s) - flips_down
+    fixed = (old_w - new_w) - flips_up
+    opened = (new_w - old_w) - flips_down
+
+    verdict = _synergy_verdict(synergy_delta)
+    headline = (
+        f"Swapping {player_out_name} for {player_in_name} is {verdict} "
+        f"(synergy {original_synergy:.0f} → {new_synergy:.0f})."
+    )
+
+    positives, negatives = [], []
+    for k in _ordered(flips_up):
+        positives.append(f"turns its {_TRAIT_AREA[k]} from a weakness into a strength")
+    for k in _ordered(gained):
+        positives.append(f"adds {STRENGTH_TRAIT_LABELS[k]}")
+    for k in _ordered(fixed):
+        positives.append(f"shores up its {_TRAIT_AREA[k]}")
+    for k in _ordered(flips_down):
+        negatives.append(f"flips its {_TRAIT_AREA[k]} from a strength into a weakness")
+    for k in _ordered(opened):
+        negatives.append(f"opens a hole in its {_TRAIT_AREA[k]}")
+    for k in _ordered(lost):
+        negatives.append(f"gives up its {STRENGTH_TRAIT_LABELS[k]}")
+
+    if positives and negatives:
+        explanation = f"{headline} It {_join_traits(positives)}, but {_join_traits(negatives)}."
+    elif positives:
+        explanation = f"{headline} It {_join_traits(positives)}."
+    elif negatives:
+        explanation = f"{headline} It {_join_traits(negatives)}."
+    else:
+        explanation = f"{headline} The unit's overall profile is largely unchanged."
+
+    effects = {
+        "verdict": verdict,
+        "synergy_delta": round(float(synergy_delta), 1),
+        "strengths_gained": [STRENGTH_TRAIT_LABELS[k] for k in _ordered(gained)],
+        "strengths_lost": [STRENGTH_TRAIT_LABELS[k] for k in _ordered(lost)],
+        "weaknesses_fixed": [WEAKNESS_TRAIT_LABELS[k] for k in _ordered(fixed)],
+        "weaknesses_introduced": [WEAKNESS_TRAIT_LABELS[k] for k in _ordered(opened)],
+        "improved": [STRENGTH_TRAIT_LABELS[k] for k in _ordered(flips_up)],
+        "regressed": [WEAKNESS_TRAIT_LABELS[k] for k in _ordered(flips_down)],
+    }
+    return explanation, effects
 
 
 def determine_lineup_traits(player_ids: List[int], season: str, request: Request) -> Dict[str, bool]:
@@ -477,59 +576,15 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
     in_row = player_season_df[(player_season_df["PLAYER_ID"] == player_in_id) & (player_season_df["SEASON"] == player_in_season)]
     player_in_name = str(in_row.iloc[0]["PLAYER_NAME"]) if not in_row.empty else "Added Player"
 
-    spacing_change = new_res["synergy_breakdown"]["spacing"] - original_res["synergy_breakdown"]["spacing"]
-    playmaking_change = new_res["synergy_breakdown"]["playmaking"] - original_res["synergy_breakdown"]["playmaking"]
-    defense_change = new_res["synergy_breakdown"]["defense"] - original_res["synergy_breakdown"]["defense"]
-    interior_change = new_res["synergy_breakdown"]["interior"] - original_res["synergy_breakdown"]["interior"]
-    overlap_change = new_res["synergy_breakdown"]["overlap"] - original_res["synergy_breakdown"]["overlap"]
+    explanation, swap_effects = _describe_swap(
+        player_out_name, player_in_name, original_synergy, new_synergy, synergy_delta,
+        original_res, new_res,
+    )
 
-    reasons = []
-    if spacing_change > 0.5:
-        reasons.append(f"boosted spacing (+{spacing_change:.1f})")
-    elif spacing_change < -0.5:
-        reasons.append(f"clogged spacing ({spacing_change:.1f})")
-
-    if playmaking_change > 0.5:
-        reasons.append(f"improved ball movement (+{playmaking_change:.1f})")
-    elif playmaking_change < -0.5:
-        reasons.append(f"stagnated playmaking ({playmaking_change:.1f})")
-
-    if defense_change > 0.5:
-        reasons.append(f"strengthened team defense (+{defense_change:.1f})")
-    elif defense_change < -0.5:
-        reasons.append(f"weakened team defense ({defense_change:.1f})")
-
-    if interior_change > 0.5:
-        reasons.append(f"solidified interior play (+{interior_change:.1f})")
-    elif interior_change < -0.5:
-        reasons.append(f"exposed frontcourt presence ({interior_change:.1f})")
-
-    if overlap_change > 0.5:
-        reasons.append(f"improved role synergy (+{overlap_change:.1f})")
-    elif overlap_change < -0.5:
-        reasons.append(f"created role redundancies ({overlap_change:.1f})")
-
-    if not reasons:
-        explanation = f"Swapping out {player_out_name} for {player_in_name} had minimal net impact on the starting unit's metrics."
-    else:
-        explanation = f"Swapping out {player_out_name} for {player_in_name} " + ", ".join(reasons[:-1]) + (f" and {reasons[-1]}." if len(reasons) > 1 else f"{reasons[0]}.")
-
-    try:
-        traits = determine_lineup_traits(original_player_ids, original_season, request)
-    except Exception:
-        traits = {}
-
-    correct_picks = []
-    missed_opportunities = []
-    wrong_picks = []
-    for selection in selected_traits:
-        if traits.get(selection):
-            correct_picks.append(selection)
-        else:
-            wrong_picks.append(selection)
-    for trait, is_true in traits.items():
-        if is_true and trait not in selected_traits:
-            missed_opportunities.append(trait)
+    true_traits = set(original_res.get("strength_traits", [])) | set(original_res.get("weakness_traits", []))
+    correct_picks = [s for s in selected_traits if s in true_traits]
+    wrong_picks = [s for s in selected_traits if s not in true_traits]
+    missed_opportunities = [t for t in (STRENGTHS + WEAKNESSES) if t in true_traits and t not in selected_traits]
 
     return EvaluateSwapResponse(
         original_synergy=original_synergy,
@@ -543,6 +598,7 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
             "correct": correct_picks,
             "missed": missed_opportunities,
             "wrong": wrong_picks,
-            "explanation": explanation
+            "explanation": explanation,
+            **swap_effects,
         }
     )
