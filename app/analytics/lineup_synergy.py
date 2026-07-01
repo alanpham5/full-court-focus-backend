@@ -28,22 +28,15 @@ ROLE_ADJ_WEIGHT = 0.35
 SOFT_CAP_KNEE = 84.0
 SOFT_CAP_CEIL = 103.0
 
-LEAGUE_3PT_PCT = 0.355
-THREE_PT_SHRINK = 40.0
-SPACER_MIN_3PA_PER36 = 1.5
-NON_SHOOTER_GRAVITY = 0.30
-SHOOTER_GRAVITY = 0.345
+SHOOTER_MIN_3PM_PER36 = 1.8
 
 
-def three_point_gravity(row: pd.Series) -> float:
+def three_point_makes_per36(row: pd.Series) -> float:
     p_min = float(row.get("MIN", 0.0) or 0.0)
     if p_min <= 0.0:
-        return NON_SHOOTER_GRAVITY
-    fg3a = float(row.get("FG3A", 0.0) or 0.0)
+        return 0.0
     fg3m = float(row.get("FG3M", 0.0) or 0.0)
-    if fg3a / p_min * 36.0 < SPACER_MIN_3PA_PER36:
-        return NON_SHOOTER_GRAVITY
-    return (fg3m + THREE_PT_SHRINK * LEAGUE_3PT_PCT) / (fg3a + THREE_PT_SHRINK)
+    return fg3m / p_min * 36.0
 
 STRENGTH_TRAIT_LABELS = {
     "playmaking": "Playmaking & Ball Movement",
@@ -114,7 +107,7 @@ def build_player_descriptors(
         pid = int(r["PLAYER_ID"])
         roles = player_roles.get(pid, ["Secondary Creator"])
         skills = {k: _pctile(r, col) for k, col in _PLAYER_SKILL_COLS.items()}
-        gravity = three_point_gravity(r)
+        makes36 = three_point_makes_per36(r)
 
         playmaking = max(skills["passing"], skills["creation"])
         defense = max(skills["perimeter_defense"], skills["rim_protection"])
@@ -123,8 +116,8 @@ def build_player_descriptors(
             "name": str(r["PLAYER_NAME"]),
             "role": roles[0] if roles else "Secondary Creator",
             "roles": roles,
-            "gravity": gravity,
-            "is_shooter": gravity >= SHOOTER_GRAVITY,
+            "fg3m_per36": makes36,
+            "is_shooter": makes36 >= SHOOTER_MIN_3PM_PER36,
             "shooting": skills["shooting"],
             "scoring": skills["scoring"],
             "efficiency": skills["efficiency"],
@@ -317,10 +310,10 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
     reb_per36_sum = 0.0
     blk_per36_sum = 0.0
     def_score_sum = 0.0
-    gravity_sum = 0.0
+    makes36_sum = 0.0
 
     for r in player_rows:
-        gravity_sum += three_point_gravity(r)
+        makes36_sum += three_point_makes_per36(r)
         p_min = float(r.get("MIN", 0.0) or 0.0)
         p_id = int(r["PLAYER_ID"])
         roles = player_roles.get(p_id, ["Secondary Creator"])
@@ -345,7 +338,7 @@ def compute_lineup_collective_stats(player_rows: List[pd.Series], player_roles: 
     
     return {
         "fg3a": fg3a_proj,
-        "space": gravity_sum / len(player_rows) if player_rows else NON_SHOOTER_GRAVITY,
+        "space": makes36_sum / len(player_rows) if player_rows else 0.0,
         "paint_fga": paint_fga_proj,
         "paint_score": paint_score_proj,
         "ast": ast_proj,
@@ -931,7 +924,7 @@ def calculate_lineup_synergy(
     
     shooters_count = 0
     for _, r in lineup_rows.iterrows():
-        if three_point_gravity(r) >= SHOOTER_GRAVITY:
+        if three_point_makes_per36(r) >= SHOOTER_MIN_3PM_PER36:
             shooters_count += 1
             
     bigs_count = sum(1 for pid in player_ids if "Interior Presence" in player_roles.get(pid, []))
