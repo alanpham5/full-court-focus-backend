@@ -870,7 +870,7 @@ def calculate_lineup_synergy(
     pace_pct = 0.40 * pace_pct + 0.60 * avg_t["pace"]
     paint_pct = 0.40 * paint_pct + 0.60 * avg_t["paint"]
     defense_pct = 0.30 * defense_pct + 0.70 * avg_t["defense"]
-    playmaking_pct = 0.40 * playmaking_pct + 0.60 * avg_t["playmaking"]
+    playmaking_pct = 0.60 * playmaking_pct + 0.40 * avg_t["playmaking"]
     rebounding_pct = 0.40 * rebounding_pct + 0.60 * avg_t["rebounding"]
 
     style_vector = {
