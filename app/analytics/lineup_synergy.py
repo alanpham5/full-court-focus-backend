@@ -535,11 +535,6 @@ def generate_lineup_diagnoses(
     def sig(trait: str) -> float:
         return assess[trait]["signal"]
 
-    non_shooters = sorted(
-        [d for d in descriptors if not d["is_shooter"]],
-        key=lambda d: d.get("scoring", 0.0), reverse=True,
-    )
-
     insights: List[Dict[str, Any]] = []
 
     def add(category: str, trait, traits: set, weight: float, headline: str, text: str):
@@ -552,6 +547,14 @@ def generate_lineup_diagnoses(
     pm_names = names(pm_carrier)
     pm_id = pm_carrier[0]["id"] if pm_carrier else None
     shooter_names = names([d for d in descriptors if d["is_shooter"] and d["id"] != pm_id][:3])
+    low_volume_spacers = sorted(
+        [
+            d
+            for d in descriptors
+            if d["id"] != pm_id and d.get("shooting", 50.0) < 50.0
+        ],
+        key=lambda d: (d.get("shooting", 50.0), d.get("fg3m_per36", 0.0)),
+    )
 
 
     if sig("playmaking") >= _GOOD and sig("spacing") >= _GOOD - 2:
@@ -569,7 +572,7 @@ def generate_lineup_diagnoses(
             _INTERACTION_BASE + 0.5 * (sig("paint_scoring") - 50) + 0.5 * (sig("spacing") - 50),
             "Inside-Out Pressure",
             f"Interior pressure from {rim_names or 'the frontcourt'} bends the defense inward while "
-            f"shooters wait on the perimeter — a collapse-and-kick dynamic that is brutal to defend "
+            f"shooters wait on the perimeter. That collapse-and-kick dynamic is brutal to defend "
             f"without elite rim protection.")
 
     if sig("defense") >= _GOOD and sig("rebounding") >= _GOOD:
@@ -587,16 +590,21 @@ def generate_lineup_diagnoses(
             _INTERACTION_BASE + 0.6 * (sig("scoring") - 50),
             "Shot-Making Firepower",
             f"{score_names or 'Multiple scorers'} give this unit shot-creation it can lean on when "
-            f"possessions break down — there is always someone who can manufacture a bucket late in the clock.")
+            f"possessions break down. There is always someone who can manufacture a bucket late in the clock.")
 
     if sig("playmaking") >= _GOOD and assess["spacing"]["dim"] <= _WEAK and best("shooting") < _RESCUE + 5:
-        clog = names(non_shooters[:2])
+        clog = names(low_volume_spacers[:2])
+        spacing_context = (
+            f"With lower three-point volume from {clog}, "
+            if clog
+            else "Without enough off-ball shooting volume, "
+        )
         add("weakness", "spacing", {"spacing"},
             _INTERACTION_BASE + 0.5 * (sig("playmaking") - 50) + 0.4 * (50 - assess["spacing"]["dim"]),
             "Cramped Driving Lanes",
-            f"{pm_names or 'The lead creator'} has little room to operate — with "
-            f"{clog or 'multiple non-shooters'} offering no perimeter threat, help defenders sink into "
-            f"the paint and wall off the rim, blunting the very creation that should drive this offense.")
+            f"The spacing around {pm_names or 'the lead creator'} is tight. {spacing_context}"
+            f"help defenders can shade toward the paint and crowd driving lanes, reducing the value "
+            f"of the lineup's creation.")
 
     if sig("defense") >= _GOOD and assess["rebounding"]["dim"] <= _WEAK and best("rebounding") < _RESCUE:
         add("weakness", "rebounding", {"rebounding"},
