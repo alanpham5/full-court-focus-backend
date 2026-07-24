@@ -9,6 +9,7 @@ TEAM_PROFILES_PATH = DATA_STATIC_DIR / "team_profiles.json"
 BADGE_LEADERS_PATH = DATA_STATIC_DIR / "badge_leaders.json"
 STARTING_LINEUPS_PATH = DATA_STATIC_DIR / "starting_lineups.json"
 LINEUP_SYNERGY_SCORES_PATH = DATA_STATIC_DIR / "lineup_synergy_scores.json"
+LINEUP_SYNERGY_MODEL_PATH = DATA_STATIC_DIR / "lineup_synergy_model.json"
 SEASON_LINEUP_BASELINES_PATH = DATA_STATIC_DIR / "season_lineup_baselines.json"
 TEAMS_PARQUET_PATH = DATA_STATIC_DIR / "teams_historical.parquet"
 PLAYER_PROFILES_PATH = DATA_STATIC_DIR / "player_profiles.json"
@@ -21,4 +22,3 @@ PROSPECT_LINEUP_FEATURES_PATH = DATA_STATIC_DIR / "prospect_lineup_features.parq
                                                                               
                                                                               
 PROSPECT_TUNING_DIR = BASE_DIR / "data" / "tuning"
-

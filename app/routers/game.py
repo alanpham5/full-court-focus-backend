@@ -31,7 +31,16 @@ _TRAIT_AREA = {
 CHALLENGE_PERCENTILE = 40.0
 PROSPECT_SWAP_CHANCE = 0.25
 
-                         
+
+class LineupOutlook(BaseModel):
+    synergy_score: float
+    quality_score: float
+    fit_score: float
+    projected_win_pct: float
+    projected_wins: int
+    fit_delta_wins: float
+
+
 class StartGameResponse(BaseModel):
     mode: str
     original_team_id: int
@@ -39,6 +48,7 @@ class StartGameResponse(BaseModel):
     original_season: str
     original_lineup: List[Dict[str, Any]]
     original_synergy: float
+    original_outlook: LineupOutlook
     swap_team_name: str
     swap_team_abbreviation: str
     swap_season: str
@@ -70,8 +80,12 @@ class EvaluateSwapResponse(BaseModel):
     synergy_delta: float
     diagnosis_score: float
     synergy_change_score: float
+    roster_move_score: float
     final_score: float
     optimization_score: float
+    original_outlook: LineupOutlook
+    new_outlook: LineupOutlook
+    outlook_delta: Dict[str, float]
     breakdown: Dict[str, Any]
 
 
@@ -93,14 +107,26 @@ def _join_traits(items: List[str]) -> str:
     return ", ".join(items[:-1]) + f", and {items[-1]}"
 
 
-def _synergy_verdict(delta: float) -> str:
-    if delta >= 6.0:
+def _outlook(res: Dict[str, Any]) -> Dict[str, float]:
+    projected_win_pct = float(res["projected_win_pct"])
+    return {
+        "synergy_score": round(float(res["synergy_score"]), 1),
+        "quality_score": round(float(res["quality_score"]), 1),
+        "fit_score": round(float(res["fit_score"]), 1),
+        "projected_win_pct": round(projected_win_pct, 3),
+        "projected_wins": round(projected_win_pct * 82),
+        "fit_delta_wins": round(float(res["fit_delta_win_pct"]) * 82, 1),
+    }
+
+
+def _outlook_verdict(delta_wins: float) -> str:
+    if delta_wins >= 4.0:
         return "a clear upgrade"
-    if delta >= 2.0:
+    if delta_wins >= 1.5:
         return "a modest upgrade"
-    if delta > -2.0:
+    if delta_wins > -0.75:
         return "roughly a wash"
-    if delta > -6.0:
+    if delta_wins > -3.0:
         return "a modest step back"
     return "a clear downgrade"
 
@@ -113,8 +139,7 @@ def _ordered(keys):
     return [k for k in _TRAIT_ORDER if k in keys]
 
 
-def _describe_swap(player_out_name, player_in_name, original_synergy, new_synergy,
-                   synergy_delta, original_res, new_res):
+def _describe_swap(player_out_name, player_in_name, original_res, new_res):
     old_s = _trait_keys(original_res.get("strength_traits", []), _STRENGTH_LABEL_TO_KEY)
     new_s = _trait_keys(new_res.get("strength_traits", []), _STRENGTH_LABEL_TO_KEY)
     old_w = _trait_keys(original_res.get("weakness_traits", []), _WEAKNESS_LABEL_TO_KEY)
@@ -127,13 +152,32 @@ def _describe_swap(player_out_name, player_in_name, original_synergy, new_synerg
     fixed = (old_w - new_w) - flips_up
     opened = (new_w - old_w) - flips_down
 
-    verdict = _synergy_verdict(synergy_delta)
+    original_outlook = _outlook(original_res)
+    new_outlook = _outlook(new_res)
+    win_delta = (
+        float(new_res["projected_win_pct"])
+        - float(original_res["projected_win_pct"])
+    ) * 82
+    synergy_delta = float(new_res["synergy_score"]) - float(original_res["synergy_score"])
+    quality_delta = float(new_res["quality_score"]) - float(original_res["quality_score"])
+    fit_delta = float(new_res["fit_score"]) - float(original_res["fit_score"])
+    verdict = _outlook_verdict(win_delta)
+    sign = "+" if win_delta >= 0 else ""
     headline = (
         f"Swapping {player_out_name} for {player_in_name} is {verdict} "
-        f"(synergy {original_synergy:.0f} → {new_synergy:.0f})."
+        f"({original_outlook['projected_wins']} → {new_outlook['projected_wins']} "
+        f"projected wins, {sign}{win_delta:.1f})."
     )
 
     positives, negatives = [], []
+    if quality_delta >= 3.0:
+        positives.append("raises the unit's player quality")
+    elif quality_delta <= -3.0:
+        negatives.append("lowers the unit's player quality")
+    if fit_delta >= 3.0:
+        positives.append("improves lineup fit")
+    elif fit_delta <= -3.0:
+        negatives.append("reduces lineup fit")
     for k in _ordered(flips_up):
         positives.append(f"turns its {_TRAIT_AREA[k]} from a weakness into a strength")
     for k in _ordered(gained):
@@ -159,6 +203,9 @@ def _describe_swap(player_out_name, player_in_name, original_synergy, new_synerg
     effects = {
         "verdict": verdict,
         "synergy_delta": round(float(synergy_delta), 1),
+        "projected_wins_delta": round(float(win_delta), 1),
+        "quality_delta": round(float(quality_delta), 1),
+        "fit_delta": round(float(fit_delta), 1),
         "strengths_gained": [STRENGTH_TRAIT_LABELS[k] for k in _ordered(gained)],
         "strengths_lost": [STRENGTH_TRAIT_LABELS[k] for k in _ordered(lost)],
         "weaknesses_fixed": [WEAKNESS_TRAIT_LABELS[k] for k in _ordered(fixed)],
@@ -181,6 +228,7 @@ def determine_lineup_traits(player_ids: List[int], season: str, request: Request
         player_profiles=request.app.state.player_profiles,
         compute_similar=False,
         season_baselines=getattr(request.app.state, "season_lineup_baselines", {}),
+        synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
     )
 
     true_traits = set(res.get("strength_traits", [])) | set(res.get("weakness_traits", []))
@@ -227,6 +275,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
     original_synergy = 0.0
     selected_data = None
     starter_ids = []
+    original_outlook = None
 
     random.shuffle(challenge_keys)
     for key in challenge_keys[:6]:
@@ -244,9 +293,11 @@ def start_game(mode: str = Query("current"), request: Request = None):
                 player_profiles=player_profiles,
                 compute_similar=False,
                 season_baselines=getattr(request.app.state, "season_lineup_baselines", {}),
+                synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
             )
             selected_key = key
             original_synergy = res["synergy_score"]
+            original_outlook = _outlook(res)
             selected_data = lineup_data
             starter_ids = candidate_ids
             break
@@ -410,6 +461,7 @@ def start_game(mode: str = Query("current"), request: Request = None):
         original_season=original_season,
         original_lineup=original_lineup_players,
         original_synergy=original_synergy,
+        original_outlook=original_outlook,
         swap_team_name=swap_team_display,
         swap_team_abbreviation=swap_team_abbr,
         swap_season=swap_season,
@@ -467,7 +519,7 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
     player_out_id = body.player_out_id
     player_in_id = body.player_in_id
     player_in_season = body.player_in_season
-    diagnosis_score = body.diagnosis_score
+    diagnosis_score = max(0.0, min(50.0, float(body.diagnosis_score)))
     selected_traits = body.selected_traits
 
     player_season_df = _lineup_df(request)
@@ -491,7 +543,9 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
             team_profiles=team_profiles,
             team_metadata=team_metadata,
             player_profiles=player_profiles,
-            season_baselines=getattr(request.app.state, "season_lineup_baselines", {})
+            compute_similar=False,
+            season_baselines=getattr(request.app.state, "season_lineup_baselines", {}),
+            synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
         )
         original_synergy = original_res["synergy_score"]
 
@@ -506,13 +560,21 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
             team_metadata=team_metadata,
             player_profiles=player_profiles,
             player_seasons=player_seasons,
-            season_baselines=getattr(request.app.state, "season_lineup_baselines", {})
+            compute_similar=False,
+            season_baselines=getattr(request.app.state, "season_lineup_baselines", {}),
+            synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
         )
         new_synergy = new_res["synergy_score"]
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to calculate synergy: {e}")
 
     synergy_delta = new_synergy - original_synergy
+    original_outlook = _outlook(original_res)
+    new_outlook = _outlook(new_res)
+    projected_win_delta = (
+        float(new_res["projected_win_pct"])
+        - float(original_res["projected_win_pct"])
+    )
 
     in_row = player_season_df[(player_season_df["PLAYER_ID"] == player_in_id) & (player_season_df["SEASON"] == player_in_season)]
     if not in_row.empty:
@@ -531,7 +593,7 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
 
     swap_roster_pids = list(roster_df["PLAYER_ID"].dropna().unique())
 
-    max_new_synergy = original_synergy
+    max_projected_win_pct = float(original_res["projected_win_pct"])
     for out_pid in original_player_ids:
         for in_pid in swap_roster_pids:
             if in_pid in original_player_ids:
@@ -550,24 +612,31 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
                     player_profiles=player_profiles,
                     player_seasons=candidate_seasons,
                     compute_similar=False,
-                    season_baselines=getattr(request.app.state, "season_lineup_baselines", {})
+                    season_baselines=getattr(request.app.state, "season_lineup_baselines", {}),
+                    synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
                 )
-                cand_synergy = cand_res["synergy_score"]
-                if cand_synergy > max_new_synergy:
-                    max_new_synergy = cand_synergy
+                candidate_win_pct = float(cand_res["projected_win_pct"])
+                if candidate_win_pct > max_projected_win_pct:
+                    max_projected_win_pct = candidate_win_pct
             except Exception:
                 continue
 
-    max_delta = max_new_synergy - original_synergy
-    if max_delta > 0.1:
-        synergy_change_score = max(0.0, min(50.0, (synergy_delta / max_delta) * 50.0))
+    max_projected_win_delta = (
+        max_projected_win_pct - float(original_res["projected_win_pct"])
+    )
+    if max_projected_win_delta > 0.001:
+        roster_move_score = max(
+            0.0,
+            min(50.0, (projected_win_delta / max_projected_win_delta) * 50.0),
+        )
     else:
-        if synergy_delta >= -0.1:
-            synergy_change_score = 50.0
+        if projected_win_delta >= -0.001:
+            roster_move_score = 50.0
         else:
-            synergy_change_score = 0.0
+            roster_move_score = 0.0
 
-    optimization_score = float(diagnosis_score + synergy_change_score)
+    synergy_change_score = float(roster_move_score)
+    optimization_score = float(diagnosis_score + roster_move_score)
     final_score = optimization_score
 
     out_row = player_season_df[(player_season_df["PLAYER_ID"] == player_out_id) & (player_season_df["SEASON"] == original_season)]
@@ -577,8 +646,10 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
     player_in_name = str(in_row.iloc[0]["PLAYER_NAME"]) if not in_row.empty else "Added Player"
 
     explanation, swap_effects = _describe_swap(
-        player_out_name, player_in_name, original_synergy, new_synergy, synergy_delta,
-        original_res, new_res,
+        player_out_name,
+        player_in_name,
+        original_res,
+        new_res,
     )
 
     true_traits = set(original_res.get("strength_traits", [])) | set(original_res.get("weakness_traits", []))
@@ -592,8 +663,31 @@ def evaluate_swap(body: EvaluateSwapRequest, request: Request):
         synergy_delta=synergy_delta,
         diagnosis_score=diagnosis_score,
         synergy_change_score=synergy_change_score,
+        roster_move_score=roster_move_score,
         final_score=final_score,
         optimization_score=optimization_score,
+        original_outlook=original_outlook,
+        new_outlook=new_outlook,
+        outlook_delta={
+            "synergy_score": round(
+                new_outlook["synergy_score"] - original_outlook["synergy_score"],
+                1,
+            ),
+            "quality_score": round(
+                new_outlook["quality_score"] - original_outlook["quality_score"],
+                1,
+            ),
+            "fit_score": round(
+                new_outlook["fit_score"] - original_outlook["fit_score"],
+                1,
+            ),
+            "projected_win_pct": round(projected_win_delta, 3),
+            "projected_wins": round(projected_win_delta * 82, 1),
+            "fit_delta_wins": round(
+                new_outlook["fit_delta_wins"] - original_outlook["fit_delta_wins"],
+                1,
+            ),
+        },
         breakdown={
             "correct": correct_picks,
             "missed": missed_opportunities,

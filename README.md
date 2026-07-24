@@ -131,11 +131,13 @@ For specific tasks, you can run the following standalone utility scripts:
 - **When to run**: after a fresh data scrape adds games to the current season (pair with `--latest`), or after retuning the synergy engine (`--all`).
 
 #### 5. `build_lineup_synergy_scores.py`
-- **What it does**: Precomputes the synergy score of every stored starting lineup into `app/data/static/lineup_synergy_scores.json`. The Lineup IQ game draws its challenge lineups from the **lower 40th percentile** of these scores, so this artifact lets `/game/start` select a genuinely flawed unit without scoring the whole pool on every request. Rebuild it after retuning the synergy engine or rebuilding the season baselines.
+- **What it does**: Precomputes the outcome-trained synergy score of every stored starting lineup into `app/data/static/lineup_synergy_scores.json`. The Lineup IQ game draws its challenge lineups from the **lower 40th percentile** of these scores, so this artifact lets `/game/start` select a genuinely flawed unit without scoring the whole pool on every request.
 - **How to run**:
   ```bash
+  python app/scripts/train_lineup_synergy_model.py
   python app/scripts/build_lineup_synergy_scores.py
   ```
+- **Full rebuild**: `python app/scripts/build_synergy_artifacts.py --all` rebuilds season baselines, trains `lineup_synergy_model.json` on successful and unsuccessful historical starting lineups, and regenerates all scores in dependency order.
 
 #### 6. `build_prospect_lineup_features.py`
 - **What it does**: Makes draft prospects usable by the lineup engines by projecting each prospect's **college profile** into NBA rookie metrics — so the current class and prospects with no NBA counterpart stats are supported. It trains a per-target `RidgeCV` model on historical prospects matched (by name) to their actual NBA rookie season (rookies with ≥ 300 minutes, for a stable target), mapping college playstyle features (per-36 production, shooting rates, assist share, height/weight) to the twelve NBA playstyle metrics. 5-fold cross-validation against those real prospect→player pairs is printed each run as verification (shape metrics like rebounding, playmaking, blocks and 3PA rate predict well; scoring volume and minutes are noisier and shrink toward the mean). The model then predicts NBA rookie metrics for **every** prospect (current + historical). Because a regularized model shrinks variance, each class's predictions are then **spread-calibrated per season** — the cohort keeps its model-predicted (rookie-realistic, below-league) center but is rescaled so each metric's spread matches that season's league spread. This keeps a distinctive prospect distinctive, so swapping a prospect into a lineup moves synergy on par with swapping in a real player rather than being a muted, strictly-worse option. Each calibrated prediction is expanded into a full `player_season_features`-shaped row — raw box columns reconstructed from the per-36/rate profile, and z-scores/percentiles standardized against that draft class's NBA season — written to `app/data/static/prospect_lineup_features.parquet` with a synthetic `PLAYER_ID` (≥ 900,000,000) plus `is_prospect`, `prospect_id`, and `counterpart_id`/`counterpart_name` (the top comp, used only for the UI headshot). At startup the API concatenates it with the real season features into a lineup-only frame, so the synergy and Lineup IQ engines treat a prospect like a projected NBA rookie while the UI shows the prospect. Runs automatically after the `prospect` stage of `run_pipeline.py`.
@@ -442,7 +444,7 @@ uvicorn main:app --reload
 
 #### `POST /lineup/synergy`
 
-- **Description**: Measures the strengths, weaknesses, projected style vector percentiles, and synergy score for a 5-player lineup within a specific season. Also returns matching similar historical team lineups. The style vector, synergy breakdown, and strengths/weaknesses are graded against that season's **starting-lineup baselines** (see `build_season_lineup_baselines.py`): each axis is the percentile of the lineup's collective metric within the season distribution, blended with the players' teams' real style attributes. A trait reads as a strength when its axis lands in the upper tail of the distribution and a weakness when it lands in the lower tail, so high-record lineups skew strength-heavy and low-record lineups weakness-heavy. The response also includes `strength_traits` and `weakness_traits` — the canonical trait labels (the same taxonomy the Lineup IQ game's diagnosis checklist uses).
+- **Description**: Measures player quality, lineup fit, projected win percentage, strengths, weaknesses, style, and overall synergy for a 5-player lineup. The model is trained on historical team win percentage and starting-lineup composition with extra weight on successful (`W_PCT >= .550`) and unsuccessful (`W_PCT <= .450`) teams. `quality_score` isolates additive player value. A residual model learns fit left unexplained by quality, while a nonlinear model captures interactions among the full feature set. Their season-held-out blend produces the projected record and overall percentile. Lineup identity and stored team records are never scoring inputs. This is a season-level starting-unit outlook, not an observed five-man on/off rating.
 - **Request Body**:
   - `season` (string): The NBA season, e.g. `2023-24`.
   - `player_ids` (array of 5 integers): Exactly 5 player IDs.
@@ -529,12 +531,28 @@ uvicorn main:app --reload
       "rebounding": 100.0
     },
     "synergy_score": 93.4,
+    "quality_score": 97.1,
+    "fit_score": 82.6,
+    "projected_win_pct": 0.711,
+    "projected_win_range": {
+      "low": 0.571,
+      "high": 0.853
+    },
+    "fit_delta_win_pct": 0.018,
+    "model_context": {
+      "comparison_lineups": 892,
+      "seasons": 30,
+      "first_season": "1996-97",
+      "last_season": "2025-26",
+      "validation_mae": 0.0877,
+      "interval_coverage": 0.798
+    },
     "synergy_breakdown": {
-      "playmaking": 10.0,
-      "spacing": 12.0,
-      "interior": 5.0,
-      "defense": -10.0,
-      "overlap": -6.0
+      "playmaking": 1.2,
+      "spacing": 0.8,
+      "interior": 0.4,
+      "defense": 0.2,
+      "overlap": -0.8
     },
     "strengths": [
       "Elite Floor Spacing - With multiple perimeter specialist threats, this lineup will pull defenders out and open up driving lanes.",
@@ -607,7 +625,15 @@ uvicorn main:app --reload
     "original_team_name": "Utah Jazz",
     "original_season": "2025-26",
     "original_lineup": [],
-    "original_synergy": 44.2,
+    "original_synergy": 22.9,
+    "original_outlook": {
+      "synergy_score": 22.9,
+      "quality_score": 16.6,
+      "fit_score": 96.5,
+      "projected_win_pct": 0.404,
+      "projected_wins": 33,
+      "fit_delta_wins": 2.1
+    },
     "swap_team_name": "2025-26 New Orleans Pelicans",
     "swap_team_abbreviation": "NOP",
     "swap_season": "2025-26",
@@ -624,7 +650,7 @@ uvicorn main:app --reload
 - **Sample Response**:
   ```json
   {
-    "diagnosis_score": 83.3,
+    "diagnosis_score": 33.3,
     "correct_picks": ["Playmaking & Ball Movement", "Team Defense"],
     "wrong_picks": ["Scoring Firepower"],
     "missed_opportunities": ["Floor Spacing & Shooting"]
@@ -632,7 +658,7 @@ uvicorn main:app --reload
   ```
 
 #### `POST /game/evaluate-swap`
-- **Description**: Evaluates the substitution, computes new synergy, and calculates the final Manager IQ Rating (weighing swap synergy 80% and diagnosis 20%).
+- **Description**: Evaluates the substitution with the same lineup model used by Lineup Synergy. The response compares the original and optimized 82-game projection, lineup index, player quality, and lineup fit. The roster-move score is worth 50 points and grades the selected projected-win improvement against the best available one-player swap. The lineup-read score contributes the other 50 points.
 - **Request Body**:
   - `original_player_ids` (array of integers)
   - `original_season` (string)
@@ -644,16 +670,41 @@ uvicorn main:app --reload
 - **Sample Response**:
   ```json
   {
-    "original_synergy": 44.2,
-    "new_synergy": 45.7,
-    "synergy_delta": 1.5,
-    "diagnosis_score": 83.3,
-    "final_score": 53.22,
+    "original_synergy": 22.9,
+    "new_synergy": 36.4,
+    "synergy_delta": 13.5,
+    "diagnosis_score": 33.3,
+    "roster_move_score": 42.1,
+    "final_score": 75.4,
+    "original_outlook": {
+      "synergy_score": 22.9,
+      "quality_score": 16.6,
+      "fit_score": 65.8,
+      "projected_win_pct": 0.404,
+      "projected_wins": 33,
+      "fit_delta_wins": 0.5
+    },
+    "new_outlook": {
+      "synergy_score": 36.4,
+      "quality_score": 30.7,
+      "fit_score": 67.3,
+      "projected_win_pct": 0.461,
+      "projected_wins": 38,
+      "fit_delta_wins": 0.6
+    },
+    "outlook_delta": {
+      "synergy_score": 13.5,
+      "quality_score": 14.1,
+      "fit_score": 1.5,
+      "projected_win_pct": 0.057,
+      "projected_wins": 4.7,
+      "fit_delta_wins": 0.1
+    },
     "breakdown": {
       "correct": ["Playmaking & Ball Movement", "Team Defense"],
       "missed": ["Floor Spacing & Shooting"],
       "wrong": ["Scoring Firepower"],
-      "explanation": "Swapping out Jusuf Nurkić for Trey Murphy III improved team spacing but created role redundancies (-6.0)."
+      "explanation": "Swapping Jusuf Nurkić for Trey Murphy III is a clear upgrade (33 → 38 projected wins, +4.7). It raises the unit's player quality and improves lineup fit."
     }
   }
   ```

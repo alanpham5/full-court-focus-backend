@@ -1,9 +1,13 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import percentileofscore
 from typing import List, Dict, Any
 
 from analytics.eras import season_to_decade
+from analytics.lineup_model import (
+    build_lineup_model_features,
+    load_lineup_model,
+    score_lineup_model,
+)
 
 ALL_ROLES = [
     "Playmaker",
@@ -16,17 +20,6 @@ ALL_ROLES = [
 ]
 
 STYLE_AXIS_WEIGHTS = np.array([0.75, 1.20, 1.00, 1.15, 1.20, 0.95], dtype=float)
-
-STYLE_W_DEFENSE = 0.296
-STYLE_W_REBOUNDING = 0.232
-STYLE_W_PAINT = 0.049
-STYLE_W_THREE = 0.132
-STYLE_W_PLAYMAKING = 0.122
-STYLE_W_PACE = -0.108
-ROLE_ADJ_WEIGHT = 0.35
-
-SOFT_CAP_KNEE = 84.0
-SOFT_CAP_CEIL = 103.0
 
 SHOOTER_MIN_3PM_PER36 = 1.8
 
@@ -53,17 +46,8 @@ WEAKNESS_TRAIT_LABELS = {
     "paint_scoring": "Limited Paint Pressure",
     "defense": "Defensive Limitations",
     "scoring": "Scoring Depth Concerns",
+    "overlap": "Role Redundancy",
 }
-
-
-def _soft_cap_score(raw: float) -> float:
-    if raw <= SOFT_CAP_KNEE:
-        return raw
-    span = SOFT_CAP_CEIL - SOFT_CAP_KNEE
-    return SOFT_CAP_KNEE + span * (1.0 - float(np.exp(-(raw - SOFT_CAP_KNEE) / span)))
-
-
-
 
 
 _PLAYER_SKILL_COLS = {
@@ -135,10 +119,6 @@ def style_affinity(a: np.ndarray, b: np.ndarray) -> float:
     diff = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     dist = float(np.sqrt(np.average(diff * diff, weights=STYLE_AXIS_WEIGHTS)))
     return float(max(0.0, 1.0 - dist / 0.78))
-
-
-def synergy_win_pct_target(synergy_score: float) -> float:
-    return float(min(0.82, max(0.25, 0.24 + 0.0062 * synergy_score)))
 
 
 def quality_affinity(target_win_pct: float, historical_win_pct: Any) -> float:
@@ -495,6 +475,7 @@ _TRAIT_CHANNEL = {
     "rebounding": "interior",
     "paint_scoring": "interior",
     "defense": "defense",
+    "overlap": "overlap",
 }
 
 _GOOD = 62.0
@@ -503,7 +484,13 @@ _WEAK = 43.0
 _RESCUE = 60.0
 _INTERACTION_BASE = 26.0
 _CHANNEL_WEIGHT = 1.1
-_CHANNEL_WEAKNESS_GATE = -5.0
+_CHANNEL_WEAKNESS_GATES = {
+    "playmaking": -0.8,
+    "spacing": -0.6,
+    "interior": -0.3,
+    "defense": -0.8,
+    "overlap": -1.1,
+}
 _DIAGNOSIS_LIMIT = 4
 
 
@@ -518,6 +505,10 @@ def generate_lineup_diagnoses(
     def chan(trait: str) -> float:
         key = _TRAIT_CHANNEL.get(trait)
         return float(channels.get(key, 0.0)) if key else 0.0
+
+    def channel_gate(trait: str) -> float:
+        key = _TRAIT_CHANNEL.get(trait)
+        return _CHANNEL_WEAKNESS_GATES.get(key, -0.8)
 
     def carriers(skill: str, gate: float = 55.0, n: int = 3) -> List[Dict[str, Any]]:
         elig = [d for d in descriptors if d.get(skill, 0.0) >= gate]
@@ -664,13 +655,23 @@ def generate_lineup_diagnoses(
         c = chan(trait)
         carrier_names = names(a["carriers"][:2])
 
-        is_strength = a["signal"] >= _GOOD and (a["dim"] >= 47 or a["support"] >= 82) and c > _CHANNEL_WEAKNESS_GATE
+        is_strength = (
+            a["signal"] >= _GOOD
+            and (a["dim"] >= 47 or a["support"] >= 82)
+            and c > channel_gate(trait)
+        )
         if is_strength:
             head, body = _SINGLE_STRENGTH[trait]
             lead = f"Led by {carrier_names}, this group brings " if carrier_names else "This group brings "
             add("strength", trait, {trait}, (a["signal"] - 50),
                 head, f"{lead}{body}.")
-        elif (a["dim"] <= _WEAK and a["support"] < _RESCUE) or c <= _CHANNEL_WEAKNESS_GATE:
+        elif (
+            a["dim"] <= _WEAK
+            and a["support"] < _RESCUE
+        ) or (
+            a["dim"] < 50
+            and c <= channel_gate(trait)
+        ):
             head, body = _SINGLE_WEAKNESS[trait]
             add("weakness", trait, {trait},
                 (50 - a["dim"]) + 0.25 * (_RESCUE - a["support"]) + max(0.0, -c),
@@ -681,8 +682,8 @@ def generate_lineup_diagnoses(
                 f"Minor: {head}", f"To a lesser degree, {body}.")
 
     overlap_chan = float(channels.get("overlap", 0.0))
-    if overlap_chan <= _CHANNEL_WEAKNESS_GATE:
-        add("weakness", None, {"__overlap__"}, _INTERACTION_BASE - 4 + max(0.0, -overlap_chan),
+    if overlap_chan <= _CHANNEL_WEAKNESS_GATES["overlap"]:
+        add("weakness", "overlap", {"overlap"}, _INTERACTION_BASE - 4 + max(0.0, -overlap_chan),
             "Redundant Roles",
             "Several players occupy the same role and compete for the same touches and floor space, "
             "so the unit's parts overlap instead of complementing one another.")
@@ -734,6 +735,43 @@ def generate_lineup_diagnoses(
         strengths.append(f"Relative Strength: {head} - {lead}{body}.")
         strength_traits.append(t)
         used_traits.add(t)
+
+    if synergy_score < 34:
+        minimum_weaknesses = 4
+    elif synergy_score < 46:
+        minimum_weaknesses = 3
+    elif synergy_score < 58:
+        minimum_weaknesses = 2
+    else:
+        minimum_weaknesses = 0
+
+    if len(weaknesses) < minimum_weaknesses:
+        candidates = [
+            trait
+            for trait in _TRAIT_SKILL
+            if trait not in used_traits and trait not in weakness_traits
+        ]
+        candidates.sort(
+            key=lambda trait: (
+                0.7 * assess[trait]["dim"]
+                + 0.3 * assess[trait]["support"]
+                + 1.5 * chan(trait)
+            )
+        )
+        for trait in candidates:
+            if len(weaknesses) >= minimum_weaknesses:
+                break
+            head, body = _SINGLE_WEAKNESS[trait]
+            if assess[trait]["dim"] < 50:
+                headline = head
+                text = f"Against NBA starting units, {body}."
+            else:
+                headline = f"Secondary Concern: {head}"
+                text = f"Less damaging than the primary flaws, but {body}."
+            weaknesses.append(f"{headline} - {text[0].upper() + text[1:]}")
+            weakness_traits.append(trait)
+            used_traits.add(trait)
+
     if not weaknesses:
         candidates = [t for t in _TRAIT_SKILL if t not in used_traits]
         t = min(candidates or list(_TRAIT_SKILL), key=lambda x: assess[x]["dim"])
@@ -791,7 +829,10 @@ def calculate_lineup_synergy(
     player_seasons: List[str] = None,
     compute_similar: bool = True,
     season_baselines: Dict[str, Any] = None,
+    synergy_model: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
+    if len(player_ids) != 5 or len(set(player_ids)) != 5:
+        raise ValueError("A lineup must contain exactly five unique player IDs")
     season_players = player_season_df[player_season_df["SEASON"] == season]
     if player_seasons:
         rows = []
@@ -821,9 +862,6 @@ def calculate_lineup_synergy(
 
     player_roles = assign_player_roles_absolute(lineup_rows)
     
-    player_rows_list = [lineup_rows.iloc[i] for i in range(len(lineup_rows))]
-    custom_stats = compute_lineup_collective_stats(player_rows_list, player_roles)
-    
     team_abbr_to_id = {v["abbreviation"]: int(k) for k, v in team_metadata.items()}
 
     from analytics.season_baselines import (
@@ -849,12 +887,17 @@ def calculate_lineup_synergy(
         ast_rate_pct = percentile_in(bm["ast_pct"], custom_metrics["ast_pct"])
         playmaking_pct = 0.55 * ast_vol_pct + 0.45 * ast_rate_pct
         rebounding_pct = percentile_in(bm["reb"], custom_metrics["reb"])
-        mean_starting_reb = bm["reb"]["mean"] or 1.0
-        mean_starting_blk = bm["blk"]["mean"] or 1.0
     else:
         pace_pct = space_pct = paint_pct = defense_pct = playmaking_pct = rebounding_pct = 50.0
-        mean_starting_reb = custom_metrics["reb"] or 1.0
-        mean_starting_blk = custom_metrics["blk"] or 1.0
+
+    model_style = {
+        "pace": pace_pct,
+        "spacing": space_pct,
+        "paint": paint_pct,
+        "defense": defense_pct,
+        "playmaking": playmaking_pct,
+        "rebounding": rebounding_pct,
+    }
 
     _t_axes = ["pace", "three_point_volume", "paint", "defense", "playmaking", "rebounding"]
     _t_vals = {a: [] for a in _t_axes}
@@ -881,44 +924,23 @@ def calculate_lineup_synergy(
         "playmaking": round(min(100.0, max(0.0, playmaking_pct)), 1),
         "rebounding": round(min(100.0, max(0.0, rebounding_pct)), 1)
     }
-    
-    season_cache = {}
-    def get_season_arrays(s_val):
-        if s_val not in season_cache:
-            s_players = player_season_df[player_season_df["SEASON"] == s_val]
-                                                                                               
-            pool = s_players[s_players["MIN"] >= 1000]
-            if pool.empty:
-                pool = s_players
-            season_cache[s_val] = {
-                "pts": pool["PTS"].dropna().to_numpy(),
-                "ast": pool["AST"].dropna().to_numpy(),
-                "reb": pool["REB"].dropna().to_numpy(),
-                "stl": pool["STL"].dropna().to_numpy(),
-                "blk": pool["BLK"].dropna().to_numpy(),
-                "ts": pool["ts_pct"].dropna().to_numpy(),
-                "mpg": pool["mpg"].dropna().to_numpy(),
-            }
-        return season_cache[s_val]
 
-    player_ratings = []
-    for _, r in lineup_rows.iterrows():
-        p_season = r.get("SEASON", season)
-        arrays = get_season_arrays(p_season)
-        
-        pts_tot_p = percentileofscore(arrays["pts"], float(r.get("PTS", 0.0) or 0.0), kind="rank")
-        ast_tot_p = percentileofscore(arrays["ast"], float(r.get("AST", 0.0) or 0.0), kind="rank")
-        reb_tot_p = percentileofscore(arrays["reb"], float(r.get("REB", 0.0) or 0.0), kind="rank")
-        stl_tot_p = percentileofscore(arrays["stl"], float(r.get("STL", 0.0) or 0.0), kind="rank")
-        blk_tot_p = percentileofscore(arrays["blk"], float(r.get("BLK", 0.0) or 0.0), kind="rank")
-        ts_p = percentileofscore(arrays["ts"], float(r.get("ts_pct", 0.0) or 0.0), kind="rank")
-        mpg_p = percentileofscore(arrays["mpg"], float(r.get("mpg", 0.0) or 0.0), kind="rank")
-        
-        rating = 0.25 * pts_tot_p + 0.15 * ast_tot_p + 0.10 * reb_tot_p + 0.05 * stl_tot_p + 0.05 * blk_tot_p + 0.15 * ts_p + 0.25 * mpg_p
-        player_ratings.append(rating)
-        
-    baseline_talent = 0.88 * np.mean(player_ratings) + 0.12 * np.min(player_ratings)
-    
+    model_features = build_lineup_model_features(lineup_rows, player_roles, model_style)
+    active_model = synergy_model if synergy_model is not None else load_lineup_model()
+    model_result = score_lineup_model(
+        model_features,
+        active_model,
+    )
+    synergy_score = model_result["synergy_score"]
+    quality_score = model_result["quality_score"]
+    fit_score = model_result["fit_score"]
+    projected_win_pct = model_result["projected_win_pct"]
+    projected_win_range = model_result["projected_win_range"]
+    fit_delta_win_pct = model_result["fit_delta_win_pct"]
+    model_context = model_result["model_context"]
+    synergy_breakdown = model_result["synergy_breakdown"]
+    baseline_talent = quality_score
+
     playmakers_count = sum(1 for pid in player_ids if "Playmaker" in player_roles.get(pid, []))
     creators_count = sum(1 for pid in player_ids if "Secondary Creator" in player_roles.get(pid, []) or "Designated Scorer" in player_roles.get(pid, []))
     
@@ -956,106 +978,6 @@ def calculate_lineup_synergy(
         if apg >= 6.0:
             elite_passers += 1
 
-    playmaker_score = playmakers_count + 0.5 * creators_count
-    if playmaker_score == 0:
-        playmaking_adj = -15.0
-    elif playmakers_count >= 3:
-        playmaking_adj = -1.0
-    elif playmaker_score <= 1.0:
-        playmaking_adj = 2.0
-    else:
-        playmaking_adj = 7.0
-        
-    if shooters_count == 0:
-        spacing_adj = -20.0
-    elif shooters_count == 1:
-        spacing_adj = -10.0
-    elif shooters_count == 2:
-        spacing_adj = 4.0
-    else:
-        spacing_adj = 8.0
-        
-    reb_ratio = custom_stats["reb"] / mean_starting_reb if mean_starting_reb > 0 else 1.0
-    blk_ratio = custom_stats["blk"] / mean_starting_blk if mean_starting_blk > 0 else 1.0
-
-    if strong_rebounders >= 2 or (reb_ratio >= 1.05 and blk_ratio >= 1.15):
-        interior_adj = 5.0
-    elif (strong_rebounders >= 1 and reb_ratio >= 0.95) or rim_protectors >= 2:
-        interior_adj = 2.0
-    elif reb_ratio > 1.25 and blk_ratio > 1.60:
-        interior_adj = -10.0
-    elif (reb_ratio < 0.88 or blk_ratio < 0.70) and strong_rebounders == 0 and rim_protectors == 0:
-        interior_adj = -15.0
-    else:
-        interior_adj = 2.0
-        
-    if defenders_count == 0:
-        defense_adj = -8.0
-    elif defenders_count == 1:
-        defense_adj = 2.0
-    else:
-        defense_adj = 6.0
-
-    if playmaking_pct >= 60.0:
-        if playmaking_adj < 0:
-            playmaking_adj = 4.0 if playmakers_count >= 3 else max(playmaking_adj, -2.0)
-        else:
-            playmaking_adj = max(4.0, playmaking_adj)
-    elif playmaking_pct >= 45.0:
-        if playmaking_adj < 0 and playmakers_count >= 3:
-            playmaking_adj = 1.0
-        elif playmaking_adj > 0:
-            playmaking_adj = max(1.0, playmaking_adj)
-    else:
-        playmaking_adj = min(-3.0, playmaking_adj)
-
-    if space_pct < 45.0:
-        spacing_adj = min(-3.0, spacing_adj)
-
-    if (rebounding_pct < 45.0 or paint_pct < 45.0) and strong_rebounders < 2 and rim_protectors < 2:
-        interior_adj = min(-3.0, interior_adj)
-
-    if defense_pct < 45.0:
-        if defenders_count >= 3:
-            defense_adj = max(defense_adj, 4.0)
-            defense_pct = max(defense_pct, 68.0)
-        elif defenders_count >= 2:
-            defense_adj = max(defense_adj, 1.0)
-            defense_pct = max(defense_pct, 62.0)
-        else:
-            defense_adj = min(-3.0, defense_adj)
-    elif defense_pct >= 60.0 and defense_adj >= 0.0:
-        defense_adj = max(4.0, defense_adj)
-
-    style_vector["defense"] = round(min(100.0, max(0.0, defense_pct)), 1)
-        
-    primary_roles = [player_roles.get(pid)[0] for pid in player_ids if player_roles.get(pid)]
-    overlap_adj = 0.0
-    for role in set(primary_roles):
-        if primary_roles.count(role) >= 3:
-            if role in ["Designated Scorer", "Interior Presence", "Playmaker"]:
-                overlap_adj = -6.0
-                break
-            
-    defense_chan = ROLE_ADJ_WEIGHT * defense_adj + STYLE_W_DEFENSE * (style_vector["defense"] - 50.0)
-    interior_chan = (ROLE_ADJ_WEIGHT * interior_adj
-                     + STYLE_W_REBOUNDING * (style_vector["rebounding"] - 50.0)
-                     + STYLE_W_PAINT * (style_vector["paint"] - 50.0))
-    spacing_chan = ROLE_ADJ_WEIGHT * spacing_adj + STYLE_W_THREE * (style_vector["three_point_volume"] - 50.0)
-    playmaking_chan = ROLE_ADJ_WEIGHT * playmaking_adj + STYLE_W_PLAYMAKING * (style_vector["playmaking"] - 50.0)
-    overlap_chan = ROLE_ADJ_WEIGHT * overlap_adj + STYLE_W_PACE * (style_vector["pace"] - 50.0)
-
-    synergy_raw = baseline_talent + defense_chan + interior_chan + spacing_chan + playmaking_chan + overlap_chan
-    synergy_score = round(min(100.0, max(0.0, _soft_cap_score(synergy_raw))), 1)
-
-    synergy_breakdown = {
-        "playmaking": round(playmaking_chan, 1),
-        "spacing": round(spacing_chan, 1),
-        "interior": round(interior_chan, 1),
-        "defense": round(defense_chan, 1),
-        "overlap": round(overlap_chan, 1),
-    }
-
     descriptors = build_player_descriptors(lineup_rows, player_roles)
     diag_dims = {
         "playmaking": playmaking_pct,
@@ -1090,6 +1012,12 @@ def calculate_lineup_synergy(
             "players": _build_players_payload(lineup_rows, player_roles),
             "style_vector": style_vector,
             "synergy_score": synergy_score,
+            "quality_score": quality_score,
+            "fit_score": fit_score,
+            "projected_win_pct": projected_win_pct,
+            "projected_win_range": projected_win_range,
+            "fit_delta_win_pct": fit_delta_win_pct,
+            "model_context": model_context,
             "synergy_breakdown": synergy_breakdown,
             "strengths": strengths,
             "weaknesses": weaknesses,
@@ -1116,7 +1044,7 @@ def calculate_lineup_synergy(
     ]) / 100.0
     
     similar_teams_list = []
-    target_win_pct = synergy_win_pct_target(synergy_score)
+    target_win_pct = projected_win_pct
     
     for key, h_lineup in starting_lineups.items():
         h_team_id, h_season = key.split(":")
@@ -1213,6 +1141,12 @@ def calculate_lineup_synergy(
         "players": _build_players_payload(lineup_rows, player_roles),
         "style_vector": style_vector,
         "synergy_score": synergy_score,
+        "quality_score": quality_score,
+        "fit_score": fit_score,
+        "projected_win_pct": projected_win_pct,
+        "projected_win_range": projected_win_range,
+        "fit_delta_win_pct": fit_delta_win_pct,
+        "model_context": model_context,
         "synergy_breakdown": synergy_breakdown,
         "strengths": strengths,
         "weaknesses": weaknesses,

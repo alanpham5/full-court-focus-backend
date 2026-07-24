@@ -372,40 +372,48 @@ The same statistics are computed for every actual starting lineup of the chosen 
 
 ### 4.3 Style vector
 
-Six percentiles, each ranked against the season's real teams (or real starting lineups where noted):
+Six season-relative percentiles are first calculated against the season's real starting lineups:
 
-- **Pace**: minutes-weighted average of each player's team pace, ranked against team paces.
+- **Pace**: minutes-weighted average of each player's team pace.
 - **Three-point shooting**: lineup spacing measured by *ability* rather than volume. Each player's three-point gravity is a credibility-shrunk 3PT%, $\;g_i = (\mathrm{3PM}_i + k\,\ell)/(\mathrm{3PA}_i + k)$ with prior strength $k = 40$ and league mean $\ell = 0.355$; players below a minimum attempt rate ($\mathrm{3PA}_{36} < 1.5$) are treated as non-shooters and floored to $g = 0.30$ so a low-volume hot streak is not mistaken for floor spacing. The lineup spacing value is $\overline{g}$ across the five players, ranked against comparable starting units.
-- **Paint**: estimated team paint FGA, $\;\widehat{\text{PFGA}} = \overline{\text{PFGA}}_{\text{teams}} + 15\,\frac{\text{paint\_score} - \overline{\text{paint}}}{\overline{\text{paint}}}$, clipped to $[25, 70]$, then ranked.
-- **Rebounding**: estimated REB%, $\;\widehat{\mathrm{REB\%}} = \overline{\mathrm{REB\%}}_{\text{teams}} + 10\,\frac{\mathrm{REB}_{\text{proj}} - \overline{\mathrm{REB}}}{\overline{\mathrm{REB}}}$, clipped to $[40, 60]$, then ranked.
-- **Defense**: estimated defensive rating $\;\widehat{\mathrm{DRtg}} = \overline{\mathrm{DRtg}}_{\text{teams}} - 15\,\frac{D - \overline{D}}{\overline{D}}$, ranked and inverted (lower rating = higher percentile). Because this box-score measure (steals + blocks) understates point-of-attack and scheme defense, the displayed percentile is lifted when it falls below $45$ but the roster carries multiple identified defenders (see §4.4): to at least $68$ for $\ge 3$ defenders and at least $62$ for $\ge 2$. The displayed style axis and the strength/weakness narratives use this reconciled percentile.
+- **Paint**: projected paint attempts from the five player profiles.
+- **Rebounding**: projected total rebounds from the five player profiles.
+- **Defense**: the summed box-score defense signal $D$. This is a limited proxy for defensive playmaking and rim protection, not a direct estimate of scheme or point-of-attack defense.
 - **Playmaking**: $0.55 \cdot \mathrm{pctile}(\mathrm{AST}_{\text{proj}} \mid \text{starting lineups}) + 0.45 \cdot \mathrm{pctile}(\text{ast\%}_{\text{proj}} \mid \text{starting lineups})$.
+
+The displayed fingerprint then blends the lineup-only percentiles with the selected-season style percentiles of the players' actual teams: 40% lineup / 60% team context for pace, paint, and rebounding; 30% / 70% for defense; and 60% / 40% for playmaking. Three-point shooting remains entirely lineup-derived. The predictive model uses the lineup-only percentiles so team identity does not leak directly into a custom lineup's outcome projection.
 
 ### 4.4 Synergy score
 
-**Baseline talent.** Each player's rating is a weighted blend of season percentiles,
+The scorer is trained on every stored historical team and its starting lineup. The target is regular-season win percentage. Successful teams ($w \ge 0.55$) and unsuccessful teams ($w \le 0.45$) receive twice the sample weight of the middle band so the model learns the difference between lineups that materially win and lose rather than collapsing toward .500.
 
-$$r_i = 0.30\,P_{\text{pts}} + 0.15\,P_{\text{ast}} + 0.15\,P_{\text{reb}} + 0.10\,P_{\text{stl}} + 0.10\,P_{\text{blk}} + 0.20\,P_{\text{ts}},$$
+The model has two views of a lineup:
 
-and the lineup baseline penalizes weak links:
+- **Quality** uses additive player evidence: lineup mean, top-two, and floor talent; scoring; efficiency; playmaking; rebounding; defense; and availability.
+- **Fit** uses complementarity evidence: shooting coverage and spacing floor, primary and secondary creation, secondary scoring, perimeter defense, rim protection, rebounding support, two-way coverage, role coverage and entropy, role concentration, skill redundancy/diversity, positional balance, season-relative lineup style, and the creation-spacing, inside-out, and defense-rebounding interactions.
 
-$$B = 0.88\,\overline{r} + 0.12\,\min_i r_i.$$
+Both views use season-relative percentiles, so a 1990s lineup and a 2020s lineup are evaluated against the environments in which their players performed.
 
-**Additive adjustments.** With $m = \#\text{Playmakers} + 0.5 \cdot \#(\text{Secondary Creators} + \text{Designated Scorers})$, shooters counted as players whose three-point gravity $g_i \ge 0.345$ (a credible league-average-or-better shooter on real volume; see §4.3), and defenders by primary role Defensive Specialist or steal percentile $> 60$ or block percentile $> 65$:
+Two ridge layers are cross-validated with season-held-out folds. The quality layer first estimates the result justified by additive player value. Inner season-held-out predictions produce honest training residuals, and the fit layer learns only the portion of team results left unexplained by quality. This keeps fit from claiming credit for correlated star talent.
 
-| Factor | Values |
-|---|---|
-| Playmaking | with $n_p = \#\text{Playmakers}$: $-15$ if $m = 0$; $-1$ if $n_p \ge 3$ (mild crowding, true playmakers only); $+2$ if $m \le 1$; else $+7$ |
-| Spacing | $-20 / -10 / +4 / +8$ for $0 / 1 / 2 / 3{+}$ shooters |
-| Interior | with $\rho_r = \mathrm{REB}_{\text{proj}}/\overline{\mathrm{REB}}$, $\rho_b = \mathrm{BLK}_{\text{proj}}/\overline{\mathrm{BLK}}$: $-15$ if $\rho_r < 0.88$ or $\rho_b < 0.70$; $-10$ if $\rho_r > 1.25$ and $\rho_b > 1.60$ (congestion); $+5$ if $\rho_r \ge 1.05$ and $\rho_b \ge 1.15$; else $+2$ |
-| Defense | $-8 / +2 / +6$ for $0 / 1 / 2{+}$ defenders |
-| Role overlap | $-6$ if any of {Designated Scorer, Interior Presence, Playmaker} appears as a primary role $\ge 3$ times |
+`quality_score` is the quality prediction's percentile among the 892 training lineups. `fit_score` is the residual fit prediction's percentile. `projected_win_pct` is quality plus the residual fit effect, clipped to $[.10,.90]$. `synergy_score` is the combined prediction's percentile among the model's fitted historical starting units. The response also returns an empirical 80% projection range using the 10th and 90th percentiles of the fully held-out residuals.
 
-Each role-based adjustment is then reconciled against the corresponding measured style-vector percentile (for example, a negative playmaking adjustment is softened when the measured playmaking percentile is $\ge 60$, and forced to at most $-3$ when it is below $45$; spacing and interior adjustments are clamped to at most $-3$ when their percentiles fall below $45$). The defense axis is reconciled asymmetrically: when its percentile is below $45$ — where the box-score steal/block measure structurally understates point-of-attack and scheme defense — a lineup carrying $\ge 3$ identified defenders is lifted to at least $+4$ (and its displayed percentile to $\ge 68$) and one with $\ge 2$ to at least $+1$ (percentile $\ge 62$), and only lineups with fewer identified defenders are floored to $-3$. Narratives key off these reconciled percentiles, so the displayed style vector, the factor adjustments, and the strengths/weaknesses stay mutually consistent.
+The final outcome blends the additive quality-plus-fit estimate with a gradient-boosted model over the same lineup features. The blend weight is selected using season-grouped cross-validation so records from the evaluated season never train its fold. Lineup identity, team identity, and stored team records are not available to the scorer.
 
-$$\text{synergy} = \mathrm{clip}\left(B + \Delta_{\text{play}} + \Delta_{\text{space}} + \Delta_{\text{interior}} + \Delta_{\text{def}} + \Delta_{\text{overlap}},\; 0,\; 100\right).$$
+The five breakdown channels are the signed standardized fit-feature contributions from the residual model, expressed in winning-percentage points:
 
-Strength/weakness narratives are emitted from the same gated conditions, capped at seven entries.
+$$\Delta_g = 100 \sum_{j \in g} \beta_j z_j,\qquad
+g \in \{\text{playmaking, spacing, interior, defense, overlap}\}.$$
+
+Strength/weakness narratives use the same season-relative style dimensions and learned contribution channels. Because the target is team regular-season performance and the inputs describe full-season player profiles, the result is a team-level projection for a hypothetical starting unit, not a possession-weighted five-man on/off rating.
+
+Weakness volume is severity-aware. Lineups below the 34th outcome percentile surface four distinct flaws, the 34th–46th percentile surfaces up to three with a minimum of three when non-conflicting evidence is available, and the 46th–58th percentile surfaces two. Missing slots are filled from the weakest remaining season-relative dimensions and labeled as secondary concerns when they are not absolute liabilities. Fit-channel weakness gates are calibrated to roughly the bottom decile of each channel, and role redundancy is exposed as its own shared Lineup Synergy and Lineup IQ trait. A trait cannot be returned as both a strength and a weakness.
+
+Lineup IQ uses this same outcome model for both the challenge and every possible one-player replacement. Its roster-move grade is based on projected wins rather than percentile movement:
+
+$$S_{\text{move}} = 50 \cdot \operatorname{clip}\left(\frac{\Delta W_{\text{selected}}}{\max(\Delta W_{\text{available}})}, 0, 1\right).$$
+
+The final Manager IQ score adds the 50-point lineup-read grade to the 50-point roster-move grade. Lineup index, player quality, and fit explain why the outlook changed but do not create separate scoring systems.
 
 ### 4.5 Similar historical lineups
 
@@ -418,10 +426,9 @@ A_{\text{style}} = \max\!\left(0,\; 1 - \frac{d}{0.78}\right).$$
 
 **Role affinity.** Cosine similarity between the two seven-dimensional role-count vectors (each player contributes up to two roles).
 
-**Quality affinity.** The synergy score maps to a target winning percentage
+**Quality affinity.** The outcome model supplies the target winning percentage directly:
 
-$$w^* = \mathrm{clip}(0.24 + 0.0062 \cdot \text{synergy},\; 0.25,\; 0.82), \qquad
-A_{\text{qual}} = \max\!\left(0,\; 1 - \frac{|w_{\text{hist}} - w^*|}{0.52}\right).$$
+$$A_{\text{qual}} = \max\!\left(0,\; 1 - \frac{|w_{\text{hist}} - w^*_{\text{model}}|}{0.52}\right).$$
 
 **Player affinity.** Exact roster matches are removed first; the remaining players are matched by maximum-weight bipartite assignment (permutation search) where a pair's weight is the NBA-to-NBA `similar_players` display score divided by 100 (checked in both directions), else $0.35$ for same role, else $0.15$:
 

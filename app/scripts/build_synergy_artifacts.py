@@ -12,13 +12,17 @@ load_env_defaults()
 
 from analytics.season_baselines import build_all_season_baselines
 from analytics.lineup_synergy import calculate_lineup_synergy
+from analytics.lineup_model import DEFAULT_MODEL_PATH, save_lineup_model, train_lineup_model
+from scripts.train_lineup_synergy_model import build_training_rows, load_player_seasons
 from parquet_io import read_teams_parquet
 
 STATIC = os.path.join(os.path.dirname(__file__), "..", "data", "static")
 BASELINES_PATH = os.path.join(STATIC, "season_lineup_baselines.json")
 SCORES_PATH = os.path.join(STATIC, "lineup_synergy_scores.json")
+MODEL_PATH = str(DEFAULT_MODEL_PATH)
 BASELINES_STORAGE_KEY = "static/season_lineup_baselines.json"
 SCORES_STORAGE_KEY = "static/lineup_synergy_scores.json"
+MODEL_STORAGE_KEY = "static/lineup_synergy_model.json"
 
 
 def _load_inputs():
@@ -26,7 +30,7 @@ def _load_inputs():
     sl = json.load(open(os.path.join(STATIC, "starting_lineups.json")))
     tm = json.load(open(os.path.join(STATIC, "team_metadata.json")))
     pp = json.load(open(os.path.join(STATIC, "player_profiles.json")))
-    psf = read_teams_parquet(os.path.join(STATIC, "player_season_features.parquet"))
+    psf = load_player_seasons()
     teams_df = read_teams_parquet(os.path.join(STATIC, "teams_historical.parquet"))
     return tp, sl, tm, pp, psf, teams_df
 
@@ -65,7 +69,23 @@ def build_baselines(sl, tm, psf, teams_df, seasons):
     return payload
 
 
-def build_scores(tp, sl, tm, pp, psf, teams_df, baselines):
+def build_model(tp, sl, tm, psf, teams_df, baselines):
+    features, targets, seasons = build_training_rows(
+        sl, tp, tm, psf, teams_df, baselines
+    )
+    artifact = train_lineup_model(features, targets, seasons)
+    save_lineup_model(artifact, MODEL_PATH)
+    validation = artifact["validation"]
+    print(
+        f"  ✓ trained {len(targets)} lineups "
+        f"(RMSE {validation['rmse']:.4f}, tail AUC {validation['tail_auc']:.4f}) "
+        f"-> {MODEL_PATH}"
+    )
+    _upload_json_gcs(MODEL_STORAGE_KEY, artifact)
+    return artifact
+
+
+def build_scores(tp, sl, tm, pp, psf, teams_df, baselines, model):
     scores = {}
     t0 = time.time()
     total = len(sl)
@@ -75,6 +95,7 @@ def build_scores(tp, sl, tm, pp, psf, teams_df, baselines):
             res = calculate_lineup_synergy(
                 ids, ld["season"], psf, teams_df, sl, tp, tm, pp,
                 compute_similar=False, season_baselines=baselines,
+                synergy_model=model,
             )
             scores[key] = round(float(res["synergy_score"]), 1)
         except Exception as exc:
@@ -90,7 +111,7 @@ def build_scores(tp, sl, tm, pp, psf, teams_df, baselines):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Rebuild the season lineup baselines and the lineup synergy scores."
+        description="Rebuild lineup baselines, train the quality-fit model, and regenerate scores."
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--all", action="store_true", help="rebuild every season's baseline (default)")
@@ -112,11 +133,13 @@ def main():
         seasons = all_seasons
 
     t0 = time.time()
-    print(f"[1/2] Season lineup baselines ({len(seasons)} season(s): "
+    print(f"[1/3] Season lineup baselines ({len(seasons)} season(s): "
           f"{', '.join(seasons) if len(seasons) <= 5 else f'{len(seasons)} seasons'})...")
     baselines = build_baselines(sl, tm, psf, teams_df, seasons)
-    print(f"[2/2] Lineup synergy scores ({len(sl)} starting lineups)...")
-    build_scores(tp, sl, tm, pp, psf, teams_df, baselines)
+    print(f"[2/3] Outcome-trained quality and fit model ({len(sl)} starting lineups)...")
+    model = build_model(tp, sl, tm, psf, teams_df, baselines)
+    print(f"[3/3] Lineup synergy scores ({len(sl)} starting lineups)...")
+    build_scores(tp, sl, tm, pp, psf, teams_df, baselines, model)
     print(f"Done in {time.time() - t0:.1f}s.")
 
 

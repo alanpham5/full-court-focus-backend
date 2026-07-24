@@ -138,7 +138,8 @@ def get_lineup_synergy(
             team_profiles=team_profiles,
             team_metadata=team_metadata,
             player_profiles=player_profiles,
-            season_baselines=season_baselines
+            season_baselines=season_baselines,
+            synergy_model=getattr(request.app.state, "lineup_synergy_model", None),
         )
         return LineupSynergyResponse(**res)
     except ValueError as e:

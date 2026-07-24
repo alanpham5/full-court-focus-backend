@@ -17,6 +17,7 @@ from config import (
     SEASON_INDEX_PATH,
     STARTING_LINEUPS_PATH,
     LINEUP_SYNERGY_SCORES_PATH,
+    LINEUP_SYNERGY_MODEL_PATH,
     SEASON_LINEUP_BASELINES_PATH,
     PLAYER_METADATA_PATH,
     PLAYER_PROFILES_PATH,
@@ -103,6 +104,18 @@ async def lifespan(app: FastAPI):
             f"  [WARN] {LINEUP_SYNERGY_SCORES_PATH.name} missing — "
             "Lineup IQ game will fall back to live percentile scoring"
         )
+
+    if LINEUP_SYNERGY_MODEL_PATH.exists():
+        with LINEUP_SYNERGY_MODEL_PATH.open() as f:
+            app.state.lineup_synergy_model = json.load(f)
+        training = app.state.lineup_synergy_model.get("training", {})
+        print(
+            f"  ✓ Lineup synergy model ({training.get('lineups', 0)} training lineups) "
+            f"from {LINEUP_SYNERGY_MODEL_PATH.name}"
+        )
+    else:
+        app.state.lineup_synergy_model = None
+        print(f"  [WARN] {LINEUP_SYNERGY_MODEL_PATH.name} missing — lineup scoring unavailable")
 
     app.state.season_lineup_baselines = {}
     _baselines_loaded = False

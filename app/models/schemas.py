@@ -235,6 +235,20 @@ class LineupSynergyBreakdown(BaseModel):
     overlap: float
 
 
+class ProjectedWinRange(BaseModel):
+    low: float
+    high: float
+
+
+class LineupModelContext(BaseModel):
+    comparison_lineups: int
+    seasons: int
+    first_season: str
+    last_season: str
+    validation_mae: float
+    interval_coverage: float
+
+
 class SimilarLineupStarter(BaseModel):
     player_id: int
     name: str
@@ -257,10 +271,15 @@ class LineupSynergyResponse(BaseModel):
     players: list[LineupSynergyPlayer]
     style_vector: StyleVector
     synergy_score: float
+    quality_score: float
+    fit_score: float
+    projected_win_pct: float
+    projected_win_range: ProjectedWinRange
+    fit_delta_win_pct: float
+    model_context: LineupModelContext
     synergy_breakdown: LineupSynergyBreakdown
     strengths: list[str]
     weaknesses: list[str]
     strength_traits: list[str] = []
     weakness_traits: list[str] = []
     similar_teams: list[SimilarLineupTeam]
-
