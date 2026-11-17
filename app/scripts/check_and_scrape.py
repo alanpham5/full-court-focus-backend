@@ -14,6 +14,8 @@ for p in (_APP_ROOT, _SCRIPTS_DIR):
         sys.path.insert(0, str(p))
 
 from analytics.scrape_schedule import is_stale, latest_scheduled_run
+from analytics.season_readiness import MIN_GAMES_PER_TEAM, min_team_games
+from pipelines.team_stats_pipeline import current_season_year, season_str
 from run_pipeline import run_pipeline_orchestrator
 
 STATE_PATH = _APP_ROOT / "data" / "static" / "scrape_state.json"
@@ -60,7 +62,25 @@ def main() -> int:
         action="store_true",
         help="Run scrape even if last_updated is current",
     )
+    parser.add_argument(
+        "--min-games",
+        type=int,
+        default=MIN_GAMES_PER_TEAM,
+        help="Only scrape once every team has played at least this many games this season (0 disables the gate)",
+    )
     args = parser.parse_args()
+
+    season = season_str(current_season_year())
+    if args.min_games > 0:
+        lowest = min_team_games(season)
+        if lowest is None or lowest < args.min_games:
+            print(
+                f"Season {season} not ready: fewest games played by a team is "
+                f"{lowest if lowest is not None else 'unknown'}, "
+                f"need >= {args.min_games}. Skipping."
+            )
+            return 0
+        print(f"Season {season} ready: every team has played >= {args.min_games} games.")
 
     last_updated = load_or_init_state()
     now = _now_utc()
